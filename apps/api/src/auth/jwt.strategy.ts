@@ -18,21 +18,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const { data, error } = await this.supabase.db.auth.getUser(
-      payload.sub,
-    );
-
-    if (error || !data.user) {
-      throw new UnauthorizedException('Token inválido');
-    }
-
-    const { data: userProfile } = await this.supabase.db
+    const { data: userProfile, error } = await this.supabase.db
       .from('users')
       .select('*')
-      .eq('id', data.user.id)
+      .eq('id', payload.sub)
       .single();
 
-    if (!userProfile) {
+    if (error || !userProfile) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 

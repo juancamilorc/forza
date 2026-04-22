@@ -1,9 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private jwt: JwtService,
+  ) {}
 
   async signIn(email: string, password: string) {
     const { data, error } = await this.supabase.db.auth.signInWithPassword({
@@ -19,8 +23,15 @@ export class AuthService {
       .eq('id', data.user.id)
       .single();
 
+    // Firmamos nuestro propio token con JWT_SECRET
+    const access_token = this.jwt.sign({
+      sub: profile.id,
+      email: profile.email,
+      role: profile.role,
+    });
+
     return {
-      access_token: data.session.access_token,
+      access_token,
       user: profile,
     };
   }
