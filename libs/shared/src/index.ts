@@ -1,7 +1,14 @@
 export * from './lib/shared';
+
 export * from './lib/dtos/athlete/create-athlete.dto';
 export * from './lib/dtos/athlete/update-athlete.dto';
 export * from './lib/dtos/athlete/athlete-response.dto';
+
 export * from './lib/dtos/plan/create-plan.dto';
 export * from './lib/dtos/plan/update-plan.dto';
 export * from './lib/dtos/plan/plan-response.dto';
+
+export * from './lib/dtos/session/confirm-session.dto';
+export * from './lib/dtos/session/create-session.dto';
+export * from './lib/dtos/session/session-response.dto';
+export * from './lib/dtos/session/update-session.dto';
