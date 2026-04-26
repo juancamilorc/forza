@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AthletesModule } from '../athletes/athletes.module';
 import { PlansModule } from '../plans/plans.module';
 import { SessionsModule } from '../sessions/sessions.module';
+import { ScheduleModule } from '../schedule/schedule.module';
 
 
 @Module({
@@ -17,7 +18,8 @@ import { SessionsModule } from '../sessions/sessions.module';
     AuthModule,
     AthletesModule,
     PlansModule,
-    SessionsModule
+    SessionsModule,
+    ScheduleModule
   ],
 })
 export class AppModule {}
