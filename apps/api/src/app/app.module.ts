@@ -6,6 +6,7 @@ import { AthletesModule } from '../athletes/athletes.module';
 import { PlansModule } from '../plans/plans.module';
 import { SessionsModule } from '../sessions/sessions.module';
 import { ScheduleModule } from '../schedule/schedule.module';
+import { AdminModule } from '../admin/admin.module';
 
 
 @Module({
@@ -19,7 +20,8 @@ import { ScheduleModule } from '../schedule/schedule.module';
     AthletesModule,
     PlansModule,
     SessionsModule,
-    ScheduleModule
+    ScheduleModule,
+    AdminModule
   ],
 })
 export class AppModule {}
