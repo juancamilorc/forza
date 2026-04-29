@@ -1,0 +1,71 @@
+<div class="login-container">
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <img src="logo-forza.png" alt="FORZA" class="logo-img" />
+      <h1 class="logo-text">FORZA</h1>
+      <p class="logo-subtitle">CENTRO DE ENTRENAMIENTO DEPORTIVO</p>
+    </div>
+
+
+    <!-- Formulario -->
+    <form class="login-form" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Correo electrónico</mat-label>
+        <input
+          matInput
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="correo@forza.com"
+          autocomplete="email"
+        />
+        <mat-icon matSuffix>email</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          [(ngModel)]="password"
+          name="password"
+          autocomplete="current-password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword = !hidePassword"
+        >
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Error -->
+      @if (error) {
+        <p class="error-message">{{ error }}</p>
+      }
+
+      <!-- Botón -->
+      <button
+        mat-raised-button
+        class="login-btn"
+        type="submit"
+        [disabled]="loading || !email || !password"
+      >
+        @if (loading) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Ingresar
+        }
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
