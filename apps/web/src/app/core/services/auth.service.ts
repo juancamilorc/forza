@@ -13,14 +13,15 @@ export class AuthService {
   private router = inject(Router);
 
   // ── Login ────────────────────────────────────────────────────
-  login(email: string, password: string) {
+  login(email: string, password: string, rememberMe = false) {
     return this.http.post<{ access_token: string; user: any }>(
       `${environment.apiUrl}/auth/login`,
       { email, password }
     ).pipe(
       tap(response => {
-        localStorage.setItem(TOKEN_KEY, response.access_token);
-        localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem(TOKEN_KEY, response.access_token);
+        storage.setItem(USER_KEY, JSON.stringify(response.user));
       })
     );
   }
@@ -29,18 +30,20 @@ export class AuthService {
   logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(USER_KEY);
     this.router.navigate(['/login']);
   }
 
   // ── Token ────────────────────────────────────────────────────
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
   }
 
   // ── Usuario actual ───────────────────────────────────────────
   getCurrentUser(): any {
-    const user = localStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user) : null;
+  const user = localStorage.getItem(USER_KEY) ?? sessionStorage.getItem(USER_KEY);
+  return user ? JSON.parse(user) : null;
   }
 
   // ── ¿Está autenticado? ───────────────────────────────────────
@@ -52,4 +55,4 @@ export class AuthService {
   getRole(): string | null {
     return this.getCurrentUser()?.role ?? null;
   }
-} 
+}

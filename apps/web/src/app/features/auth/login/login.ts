@@ -26,11 +26,12 @@ export class Login {
   private auth   = inject(AuthService);
   private router = inject(Router);
 
-  email    = '';
-  password = '';
-  loading  = false;
-  error    = '';
+  email        = '';
+  password     = '';
+  loading      = false;
+  error        = '';
   hidePassword = true;
+  rememberMe   = false;
 
   onSubmit() {
     if (!this.email || !this.password) return;
@@ -38,11 +39,11 @@ export class Login {
     this.loading = true;
     this.error   = '';
 
-    this.auth.login(this.email, this.password).subscribe({
+    this.auth.login(this.email, this.password, this.rememberMe).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
+      error: () => {
         this.error   = 'Correo o contraseña incorrectos';
         this.loading = false;
       },
