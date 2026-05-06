@@ -147,4 +147,69 @@ export class SessionsService {
     if (error) throw new BadRequestException(error.message);
     return { message: 'Sesión eliminada correctamente' };
   }
+
+  // ── CANCEL ───────────────────────────────────────────────────
+async cancel(id: string, reason: string) {
+  await this.findOne(id);
+
+  const { data, error } = await this.supabase.db
+    .from('sessions')
+    .update({
+      status: 'cancelled',
+      cancellation_reason: reason,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new BadRequestException(error.message);
+  return data;
+}
+
+// ── RESCHEDULE ───────────────────────────────────────────────
+async reschedule(id: string, dto: CreateSessionDto) {
+  const original = await this.findOne(id);
+
+  // Verificar límite de reprogramaciones
+  if (original.reschedule_count >= 2) {
+    throw new BadRequestException(
+      'Esta sesión ya fue reprogramada el máximo de 2 veces permitidas'
+    );
+  }
+
+  // Cancelar la sesión original
+  await this.supabase.db
+    .from('sessions')
+    .update({ status: 'cancelled', cancellation_reason: dto.cancellation_reason ?? 'usuario' })
+    .eq('id', id);
+
+  // Crear nueva sesión con referencia a la original
+  const confirmation_token = uuidv4();
+  const token_expires_at = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await this.supabase.db
+    .from('sessions')
+    .insert({
+      plan_id:               dto.plan_id,
+      trainer_id:            dto.trainer_id,
+      athlete_id:            dto.athlete_id,
+      session_date:          dto.session_date,
+      session_time:          dto.session_time,
+      location:              dto.location,
+      session_name:          dto.session_name ?? null,
+      status:                'pending',
+      trainer_notes:         dto.trainer_notes ?? null,
+      confirmed_by_trainer:  false,
+      confirmed_by_guardian: false,
+      confirmation_token,
+      token_expires_at,
+      rescheduled_from:      id,
+      reschedule_count:      original.reschedule_count + 1,
+    })
+    .select()
+    .single();
+
+  if (error) throw new BadRequestException(error.message);
+  return data;
+}
 }

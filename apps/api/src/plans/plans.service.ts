@@ -104,4 +104,57 @@ export class PlansService {
     if (error) throw new BadRequestException(error.message);
     return { message: 'Plan eliminado correctamente' };
   }
+
+  // ── FREEZE ───────────────────────────────────────────────────
+async freeze(id: string, reason: string) {
+  await this.findOne(id);
+
+  const { data, error } = await this.supabase.db
+    .from('plans')
+    .update({
+      is_frozen:    true,
+      frozen_at:    new Date().toISOString(),
+      frozen_reason: reason,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new BadRequestException(error.message);
+  return data;
+}
+
+// ── UNFREEZE ─────────────────────────────────────────────────
+async unfreeze(id: string) {
+  await this.findOne(id);
+
+  const { data, error } = await this.supabase.db
+    .from('plans')
+    .update({
+      is_frozen:    false,
+      frozen_at:    null,
+      frozen_reason: null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new BadRequestException(error.message);
+  return data;
+}
+
+// ── CANCEL PLAN ──────────────────────────────────────────────
+async cancelPlan(id: string) {
+  await this.findOne(id);
+
+  const { data, error } = await this.supabase.db
+    .from('plans')
+    .update({ is_active: false })
+    .eq('id', id)
+    .select()
+    .single();
+
+    if (error) throw new BadRequestException(error.message);
+    return { message: 'Plan cancelado correctamente', plan: data };
+  }
 }

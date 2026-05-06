@@ -45,4 +45,16 @@ export class CreateSessionDto {
   @IsString()
   @IsOptional()
   trainer_notes?: string;
+
+  @IsString()
+  @IsOptional()
+  session_name?: string;
+
+  @IsEnum(['cambio_climatico', 'entrenador', 'usuario'])
+  @IsOptional()
+  cancellation_reason?: string;
+
+  @IsUUID()
+  @IsOptional()
+  rescheduled_from?: string;
 }

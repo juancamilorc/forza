@@ -56,4 +56,27 @@ export class PlansController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.plans.remove(id);
   }
+  // PATCH /api/plans/:id/freeze
+  @Roles('super_admin', 'admin')
+  @Patch(':id/freeze')
+  freeze(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('reason') reason: string,
+  ) {
+    return this.plans.freeze(id, reason);
+  }
+
+  // PATCH /api/plans/:id/unfreeze
+  @Roles('super_admin', 'admin')
+  @Patch(':id/unfreeze')
+  unfreeze(@Param('id', ParseUUIDPipe) id: string) {
+    return this.plans.unfreeze(id);
+  }
+
+  // PATCH /api/plans/:id/cancel
+  @Roles('super_admin', 'admin')
+  @Patch(':id/cancel')
+  cancelPlan(@Param('id', ParseUUIDPipe) id: string) {
+    return this.plans.cancelPlan(id);
+  }
 }

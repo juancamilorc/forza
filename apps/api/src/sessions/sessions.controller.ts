@@ -74,4 +74,24 @@ export class SessionsController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.sessions.remove(id);
   }
+
+  // PATCH /api/sessions/:id/cancel
+  @Roles('super_admin', 'admin', 'trainer')
+  @Patch(':id/cancel')
+  cancel(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('reason') reason: string,
+  ) {
+    return this.sessions.cancel(id, reason);
+  }
+
+  // POST /api/sessions/:id/reschedule
+  @Roles('super_admin', 'admin', 'trainer')
+  @Post(':id/reschedule')
+  reschedule(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateSessionDto,
+  ) {
+    return this.sessions.reschedule(id, dto);
+  }
 }
