@@ -1,0 +1,90 @@
+<div class="dashboard">
+
+  <!-- Saludo -->
+  <div class="welcome-section">
+    <h1 class="welcome-title">
+      {{ getGreeting() }}, {{ user?.full_name?.split(' ')[0] }} 👋
+    </h1>
+    <p class="welcome-subtitle">Aquí tienes el resumen de hoy</p>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Deportistas activos</span>
+        <span class="stat-value">{{ stats().athletes }}</span>
+      </div>
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">groups</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Sesiones del mes</span>
+        <span class="stat-value">{{ stats().sessions }}</span>
+      </div>
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">fitness_center</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-info">
+        <span class="stat-label">Evaluaciones</span>
+        <span class="stat-value">{{ stats().assessments }}</span>
+      </div>
+      <div class="stat-icon">
+        <span class="material-symbols-outlined">analytics</span>
+      </div>
+    </div>
+
+    @if (role === 'super_admin' || role === 'admin') {
+      <div class="stat-card gold">
+        <div class="stat-info">
+          <span class="stat-label">Pagos pendientes</span>
+          <span class="stat-value">{{ stats().payments }}</span>
+        </div>
+        <div class="stat-icon">
+          <span class="material-symbols-outlined">payments</span>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <!-- Accesos rápidos -->
+  <div class="quick-actions-section">
+    <h2 class="section-title">Accesos rápidos</h2>
+    <div class="quick-actions-grid">
+
+      <button class="quick-action-btn">
+        <span class="material-symbols-outlined">person_add</span>
+        <span>Nuevo deportista</span>
+      </button>
+
+      <button class="quick-action-btn">
+        <span class="material-symbols-outlined">add_task</span>
+        <span>Registrar sesión</span>
+      </button>
+
+      @if (role === 'super_admin' || role === 'admin') {
+        <button class="quick-action-btn">
+          <span class="material-symbols-outlined">payments</span>
+          <span>Registrar pago</span>
+        </button>
+      }
+
+      @if (role === 'nutritionist' || role === 'super_admin') {
+        <button class="quick-action-btn">
+          <span class="material-symbols-outlined">monitor_weight</span>
+          <span>Nueva evaluación</span>
+        </button>
+      }
+
+    </div>
+  </div>
+
+</div>

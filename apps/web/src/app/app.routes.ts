@@ -8,13 +8,25 @@ export const appRoutes: Route[] = [
       import('./features/auth/login/login').then(m => m.Login),
   },
   {
-    path: 'dashboard',
+    path: '',
     loadComponent: () =>
-      import('./features/auth/login/login').then(m => m.Login), // temporal
+      import('./shared/components/shell/shell').then(m => m.Shell),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard').then(m => m.Dashboard),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
-    path: '',
+    path: '**',
     redirectTo: 'login',
-    pathMatch: 'full',
   },
 ];

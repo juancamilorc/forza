@@ -1,0 +1,139 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+// ── SALUDO ───────────────────────────────────────────────────
+.welcome-section {
+  .welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: 'Cairo', sans-serif;
+    margin: 0 0 4px;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+  }
+}
+
+// ── STATS ────────────────────────────────────────────────────
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background-color: #1c1c1c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: rgba(201, 151, 52, 0.3);
+  }
+
+  &.gold {
+    border-color: rgba(201, 151, 52, 0.2);
+    background: linear-gradient(135deg, #1c1c1c, rgba(201, 151, 52, 0.05));
+  }
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'Cairo', sans-serif;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  font-family: 'Cairo', sans-serif;
+  line-height: 1;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: rgba(201, 151, 52, 0.1);
+  border: 1px solid rgba(201, 151, 52, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .material-symbols-outlined {
+    font-size: 24px;
+    color: #c99734;
+  }
+}
+
+// ── ACCESOS RÁPIDOS ──────────────────────────────────────────
+.quick-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'Cairo', sans-serif;
+  margin: 0;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  background-color: #1c1c1c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .material-symbols-outlined {
+    font-size: 28px;
+    color: #c99734;
+  }
+
+  &:hover {
+    border-color: #c99734;
+    color: #ffffff;
+    background-color: rgba(201, 151, 52, 0.08);
+  }
+}

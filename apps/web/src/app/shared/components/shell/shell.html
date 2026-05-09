@@ -1,0 +1,70 @@
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <img src="logo-forza.png" alt="FORZA" class="logo-img" />
+    </div>
+
+    <!-- Navegación -->
+    <nav class="sidebar-nav">
+      @for (item of navItems; track item.route) {
+        <button
+          class="nav-item"
+          [class.active]="isActive(item.route)"
+          (click)="navigate(item.route)"
+        >
+          <span class="material-symbols-outlined">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Footer sidebar -->
+    <div class="sidebar-footer">
+      <button class="nav-item logout" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="nav-label">Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- Contenido principal -->
+  <div class="main-wrapper">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <!-- vacío por ahora -->
+      </div>
+
+      <div class="topbar-right">
+        <!-- Notificaciones -->
+        <button class="icon-btn">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+
+        <!-- Usuario -->
+        <div class="user-info">
+          <div class="user-details">
+            <span class="user-name">{{ user?.full_name }}</span>
+            <span class="role-badge role-{{ role }}">{{ getRoleBadge() }}</span>
+          </div>
+          <div class="user-avatar">
+            {{ user?.full_name?.charAt(0) }}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Router outlet -->
+    <main class="main-content">
+      <router-outlet />
+    </main>
+
+  </div>
+
+</div>
