@@ -23,6 +23,12 @@ export const appRoutes: Route[] = [
         redirectTo: 'dashboard',
         pathMatch: 'full',
       },
+      {
+        path: 'athletes',
+        loadComponent: () =>
+          import('./features/athletes/athletes-list/athletes-list')
+            .then(m => m.AthletesList),
+      },
     ],
   },
   {

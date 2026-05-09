@@ -1,0 +1,74 @@
+<div class="athletes-list">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Deportistas</h1>
+      <p class="page-subtitle">{{ filtered().length }} deportistas registrados</p>
+    </div>
+    @if (canCreate()) {
+      <button class="btn-primary">
+        <span class="material-symbols-outlined">person_add</span>
+        Nuevo deportista
+      </button>
+    }
+  </div>
+
+  <!-- Búsqueda -->
+  <div class="search-bar">
+    <span class="material-symbols-outlined search-icon">search</span>
+    <input
+      type="text"
+      placeholder="Buscar deportista..."
+      class="search-input"
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando deportistas...</p>
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (!loading()) {
+    <div class="athletes-grid">
+      @for (athlete of filtered(); track athlete.id) {
+          <div
+            class="athlete-card"
+            (click)="goToDetail(athlete.id)"
+            (keyup.enter)="goToDetail(athlete.id)"
+            tabindex="0"
+            role="button"
+          >
+          <div class="athlete-avatar">
+            @if (athlete.photo_url) {
+              <img [src]="athlete.photo_url" [alt]="athlete.first_name" />
+            } @else {
+              {{ athlete.first_name.charAt(0) }}{{ athlete.last_name.charAt(0) }}
+            }
+          </div>
+          <div class="athlete-info">
+            <span class="athlete-name">{{ athlete.first_name }} {{ athlete.last_name }}</span>
+            <span class="athlete-age">{{ athlete.age }} años</span>
+          </div>
+          <span class="status-badge status-{{ athlete.status }}">
+            {{ getStatusLabel(athlete.status) }}
+          </span>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+      }
+
+      @empty {
+        <div class="empty-state">
+          <span class="material-symbols-outlined">groups</span>
+          <p>No se encontraron deportistas</p>
+        </div>
+      }
+    </div>
+  }
+
+</div>
