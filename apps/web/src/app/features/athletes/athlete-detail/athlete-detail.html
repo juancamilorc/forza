@@ -1,1 +1,117 @@
-<p>athlete-detail works!</p>
+<div class="athlete-detail">
+
+  <!-- Header con back -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Deportistas
+    </button>
+    @if (canEdit() && athlete()) {
+      <button class="btn-primary">
+        <span class="material-symbols-outlined">edit</span>
+        Editar
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading() && athlete()) {
+    <!-- Perfil -->
+    <div class="profile-card">
+      <div class="profile-avatar">
+        @if (athlete()!.photo_url) {
+          <img [src]="athlete()!.photo_url" [alt]="athlete()!.first_name" />
+        } @else {
+          {{ athlete()!.first_name.charAt(0) }}{{ athlete()!.last_name.charAt(0) }}
+        }
+      </div>
+      <div class="profile-info">
+        <h1 class="profile-name">
+          {{ athlete()!.first_name }} {{ athlete()!.last_name }}
+        </h1>
+        <div class="profile-meta">
+          <span class="status-badge status-{{ athlete()!.status }}">
+            {{ getStatusLabel(athlete()!.status) }}
+          </span>
+          <span class="meta-item">
+            <span class="material-symbols-outlined">cake</span>
+            {{ athlete()!.age }} años
+          </span>
+          <span class="meta-item">
+            <span class="material-symbols-outlined">calendar_today</span>
+            {{ athlete()!.birth_date | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info general -->
+    <div class="info-grid">
+      <div class="info-card">
+        <h2 class="card-title">Información general</h2>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Nombre completo</span>
+            <span class="info-value">{{ athlete()!.first_name }} {{ athlete()!.last_name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Fecha de nacimiento</span>
+            <span class="info-value">{{ athlete()!.birth_date | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Edad</span>
+            <span class="info-value">{{ athlete()!.age }} años</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            <span class="status-badge status-{{ athlete()!.status }}">
+              {{ getStatusLabel(athlete()!.status) }}
+            </span>
+          </div>
+          @if (athlete()!.notes) {
+            <div class="info-row">
+              <span class="info-label">Notas</span>
+              <span class="info-value">{{ athlete()!.notes }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Plan activo — próximamente -->
+      <div class="info-card">
+        <h2 class="card-title">Plan activo</h2>
+        <div class="coming-soon">
+          <span class="material-symbols-outlined">assignment</span>
+          <p>Próximamente</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sesiones — próximamente -->
+    <div class="info-card">
+      <h2 class="card-title">Historial de sesiones</h2>
+      <div class="coming-soon">
+        <span class="material-symbols-outlined">fitness_center</span>
+        <p>Próximamente</p>
+      </div>
+    </div>
+
+    <!-- Evaluaciones — próximamente -->
+    <div class="info-card">
+      <h2 class="card-title">Evaluaciones</h2>
+      <div class="coming-soon">
+        <span class="material-symbols-outlined">analytics</span>
+        <p>Próximamente</p>
+      </div>
+    </div>
+
+  }
+
+</div>

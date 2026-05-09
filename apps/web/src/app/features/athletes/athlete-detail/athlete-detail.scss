@@ -1,0 +1,222 @@
+.athlete-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── HEADER ───────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+
+  .material-symbols-outlined { font-size: 20px; }
+
+  &:hover { color: #c99734; }
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #c99734;
+  color: #0d0d0d;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  .material-symbols-outlined { font-size: 18px; }
+  &:hover { background-color: #e8b84a; }
+}
+
+// ── PERFIL ───────────────────────────────────────────────────
+.profile-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #c99734;
+  color: #0d0d0d;
+  font-family: 'Cairo', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: 'Cairo', sans-serif;
+  margin: 0;
+}
+
+.profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+
+  .material-symbols-outlined { font-size: 16px; }
+}
+
+// ── INFO GRID ────────────────────────────────────────────────
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.info-card {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 24px;
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: 'Cairo', sans-serif;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  .info-label {
+    font-size: 13px;
+    color: #535353;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 500;
+  }
+
+  .info-value {
+    font-size: 13px;
+    color: #1a1a1a;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+// ── STATUS BADGE ─────────────────────────────────────────────
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+
+  &.status-active   { background: rgba(74,222,128,0.15);  color: #15803d; }
+  &.status-inactive { background: rgba(248,113,113,0.15); color: #b91c1c; }
+  &.status-trial    { background: rgba(251,191,36,0.15);  color: #b45309; }
+}
+
+// ── COMING SOON ──────────────────────────────────────────────
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  color: #9ca3af;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+
+  .material-symbols-outlined {
+    font-size: 36px;
+    color: #e5e5e5;
+  }
+}
+
+// ── LOADING ──────────────────────────────────────────────────
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+
+  .material-symbols-outlined {
+    font-size: 40px;
+    color: #c99734;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spinning { animation: spin 1s linear infinite; }

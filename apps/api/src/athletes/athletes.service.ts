@@ -58,8 +58,7 @@ export class AthletesService {
           users ( full_name, email, phone )
         ),
         guardians ( * ),
-        plans ( * ),
-        assessments ( * )
+        plans ( * )
       `)
       .eq('id', id)
       .single();

@@ -29,6 +29,12 @@ export const appRoutes: Route[] = [
           import('./features/athletes/athletes-list/athletes-list')
             .then(m => m.AthletesList),
       },
+      {
+        path: 'athletes/:id',
+        loadComponent: () =>
+          import('./features/athletes/athlete-detail/athlete-detail')
+            .then(m => m.AthleteDetail),
+      },
     ],
   },
   {
