@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-athlete-form',
@@ -13,6 +14,7 @@ export class AthleteForm implements OnInit {
   private route   = inject(ActivatedRoute);
   private router  = inject(Router);
   private service = inject(AthletesService);
+  private toast = inject(ToastService);
 
   isEdit   = signal(false);
   loading  = signal(false);
@@ -79,10 +81,14 @@ export class AthleteForm implements OnInit {
 
     request.subscribe({
       next: (athlete) => {
-        this.router.navigate(['/athletes', athlete.id]);
+        this.toast.success(
+          this.isEdit() ? 'Deportista actualizado correctamente' : 'Deportista creado correctamente'
+        );
+        setTimeout(() => this.router.navigate(['/athletes', athlete.id]), 500);
       },
+
       error: () => {
-        this.error.set('Error al guardar. Intenta de nuevo.');
+        this.toast.error('Error al guardar. Intenta de nuevo.');
         this.saving.set(false);
       },
     });

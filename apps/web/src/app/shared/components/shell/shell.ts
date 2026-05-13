@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { filter } from 'rxjs/operators';
+import { Toast } from '../toast/toast';
 
 interface NavItem {
   label: string;
@@ -24,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterModule],
+  imports: [RouterModule, Toast],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
