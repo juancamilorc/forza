@@ -30,6 +30,18 @@ export const appRoutes: Route[] = [
             .then(m => m.AthletesList),
       },
       {
+        path: 'athletes/new',
+        loadComponent: () =>
+          import('./features/athletes/athlete-form/athlete-form')
+            .then(m => m.AthleteForm),
+      },
+      {
+        path: 'athletes/:id/edit',
+        loadComponent: () =>
+          import('./features/athletes/athlete-form/athlete-form')
+            .then(m => m.AthleteForm),
+      },
+      {
         path: 'athletes/:id',
         loadComponent: () =>
           import('./features/athletes/athlete-detail/athlete-detail')

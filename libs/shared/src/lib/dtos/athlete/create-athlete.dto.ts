@@ -36,4 +36,8 @@ export class CreateAthleteDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsString()
+  @IsOptional()
+  gender?: string;
 }

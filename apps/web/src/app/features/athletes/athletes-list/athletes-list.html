@@ -6,12 +6,12 @@
       <h1 class="page-title">Deportistas</h1>
       <p class="page-subtitle">{{ filtered().length }} deportistas registrados</p>
     </div>
-    @if (canCreate()) {
-      <button class="btn-primary">
-        <span class="material-symbols-outlined">person_add</span>
-        Nuevo deportista
-      </button>
-    }
+      @if (canCreate()) {
+        <button class="btn-primary" (click)="goToNew()">
+          <span class="material-symbols-outlined">person_add</span>
+          Nuevo deportista
+        </button>
+      }
   </div>
 
   <!-- Búsqueda -->

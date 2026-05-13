@@ -7,7 +7,7 @@
       Deportistas
     </button>
     @if (canEdit() && athlete()) {
-      <button class="btn-primary">
+      <button class="btn-primary" (click)="goToEdit()">
         <span class="material-symbols-outlined">edit</span>
         Editar
       </button>

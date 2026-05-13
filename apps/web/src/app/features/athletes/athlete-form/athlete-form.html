@@ -1,0 +1,139 @@
+<div class="athlete-form">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Deportistas
+    </button>
+    <h1 class="page-title">
+      {{ isEdit() ? 'Editar deportista' : 'Nuevo deportista' }}
+    </h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="form-card">
+
+      <!-- Error -->
+      @if (error()) {
+        <div class="error-banner">
+          <span class="material-symbols-outlined">error</span>
+          {{ error() }}
+        </div>
+      }
+
+      <div class="form-grid">
+
+        <!-- Nombre -->
+        <div class="form-group">
+          <label class="form-label" for="first_name">Nombre <span class="required">*</span></label>
+          <input
+            id="first_name"
+            type="text"
+            class="form-input"
+            placeholder="Ej: Carlos"
+            [value]="form().first_name"
+            (input)="updateField('first_name', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Apellido -->
+        <div class="form-group">
+          <label class="form-label" for="last_name">Apellido <span class="required">*</span></label>
+          <input
+            id="last_name"
+            type="text"
+            class="form-input"
+            placeholder="Ej: Pérez"
+            [value]="form().last_name"
+            (input)="updateField('last_name', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Fecha de nacimiento -->
+        <div class="form-group">
+          <label class="form-label" for="birth_date">Fecha de nacimiento <span class="required">*</span></label>
+          <input
+            id="birth_date"
+            type="date"
+            class="form-input"
+            [value]="form().birth_date"
+            (input)="updateField('birth_date', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Género -->
+        <div class="form-group">
+          <label class="form-label" for="gender">Género</label>
+          <select
+            id="gender"
+            class="form-input"
+            [value]="form().gender"
+            (change)="updateField('gender', $any($event.target).value)"
+          >
+            <option value="">Seleccionar...</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+          </select>
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label class="form-label" for="status">Estado</label>
+          <select
+            id="status"
+            class="form-input"
+            [value]="form().status"
+            (change)="updateField('status', $any($event.target).value)"
+          >
+            <option value="trial">Prueba</option>
+            <option value="active">Activo</option>
+            <option value="inactive">Inactivo</option>
+          </select>
+        </div>
+
+        <!-- Notas -->
+        <div class="form-group full-width">
+          <label class="form-label" for="notes">Notas</label>
+          <textarea
+            id="notes"
+            class="form-input textarea"
+            placeholder="Observaciones adicionales..."
+            [value]="form().notes"
+            (input)="updateField('notes', $any($event.target).value)"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="goBack()">
+          Cancelar
+        </button>
+        <button
+          class="btn-primary"
+          (click)="onSubmit()"
+          [disabled]="saving()"
+        >
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">save</span>
+            {{ isEdit() ? 'Guardar cambios' : 'Crear deportista' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

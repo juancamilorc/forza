@@ -57,4 +57,8 @@ export class AthletesList implements OnInit {
   canCreate(): boolean {
     return ['super_admin', 'admin'].includes(this.role);
   }
+
+  goToNew() {
+    this.router.navigate(['/athletes/new']);
+  }
 }

@@ -50,4 +50,8 @@ export class AthleteDetail implements OnInit {
   canEdit(): boolean {
     return ['super_admin', 'admin'].includes(this.role);
   }
+
+  goToEdit() {
+   this.router.navigate(['/athletes', this.athlete()!.id, 'edit']);
+  }
 }
