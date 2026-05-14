@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,12 +10,13 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
-  private auth = inject(AuthService);
+  private auth      = inject(AuthService);
+  private dashboard = inject(DashboardService);
+  private router    = inject(Router);
 
   user = this.auth.getCurrentUser();
   role = this.auth.getRole() ?? '';
 
-  // Stats — por ahora con datos estáticos, después los conectamos al backend
   stats = signal({
     athletes:    0,
     sessions:    0,
@@ -22,7 +25,10 @@ export class Dashboard implements OnInit {
   });
 
   ngOnInit() {
-    // Aquí  al backend después
+    this.dashboard.getStats().subscribe({
+      next: (data) => this.stats.set(data),
+      error: (err)  => console.error('Error cargando stats:', err),
+    });
   }
 
   getGreeting(): string {
@@ -30,5 +36,9 @@ export class Dashboard implements OnInit {
     if (hour < 12) return 'Buenos días';
     if (hour < 18) return 'Buenas tardes';
     return 'Buenas noches';
+  }
+
+  goTo(route: string) {
+    this.router.navigate([route]);
   }
 }
