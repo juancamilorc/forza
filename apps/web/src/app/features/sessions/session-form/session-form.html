@@ -1,0 +1,149 @@
+<div class="session-form">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Sesiones
+    </button>
+    <h1 class="page-title">Registrar sesión</h1>
+  </div>
+
+  <div class="form-card">
+
+    @if (error()) {
+      <div class="error-banner">
+        <span class="material-symbols-outlined">error</span>
+        {{ error() }}
+      </div>
+    }
+
+    <div class="form-grid">
+
+      <!-- Deportista -->
+      <div class="form-group full-width">
+        <label class="form-label" for="athlete_id">
+          Deportista <span class="required">*</span>
+        </label>
+        <select
+          id="athlete_id"
+          class="form-input"
+          [value]="form().athlete_id"
+          (change)="onAthleteChange($any($event.target).value)"
+        >
+          <option value="">Seleccionar deportista...</option>
+          @for (athlete of athletesList(); track athlete.id) {
+            <option [value]="athlete.id">
+              {{ athlete.first_name }} {{ athlete.last_name }}
+            </option>
+          }
+        </select>
+      </div>
+
+       <!-- Entrenador — solo admin/super_admin -->
+        @if (isAdminOrSuper()) {
+          <div class="form-group full-width">
+            <label class="form-label" for="trainer_id">
+              Entrenador <span class="required">*</span>
+            </label>
+            <select
+              id="trainer_id"
+              class="form-input"
+              [value]="form().trainer_id"
+              (change)="updateField('trainer_id', $any($event.target).value)"
+            >
+              <option value="">Seleccionar entrenador...</option>
+              @for (trainer of trainersList(); track trainer.id) {
+                <option [value]="trainer.id">
+                  {{ trainer.users?.full_name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+
+      <!-- Nombre de la sesión -->
+      <div class="form-group full-width">
+        <label class="form-label" for="session_name">Nombre de la sesión</label>
+        <input
+          id="session_name"
+          type="text"
+          class="form-input"
+          placeholder="Ej: Clase técnica #3"
+          [value]="form().session_name"
+          (input)="updateField('session_name', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Fecha -->
+      <div class="form-group">
+        <label class="form-label" for="session_date">
+          Fecha <span class="required">*</span>
+        </label>
+        <input
+          id="session_date"
+          type="date"
+          class="form-input"
+          [value]="form().session_date"
+          (input)="updateField('session_date', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Hora -->
+      <div class="form-group">
+        <label class="form-label" for="session_time">
+          Hora <span class="required">*</span>
+        </label>
+        <input
+          id="session_time"
+          type="time"
+          class="form-input"
+          [value]="form().session_time"
+          (input)="updateField('session_time', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Ubicación -->
+      <div class="form-group full-width">
+        <label class="form-label" for="location">
+          Ubicación <span class="required">*</span>
+        </label>
+        <input
+          id="location"
+          type="text"
+          class="form-input"
+          placeholder="Ej: Laureles, Medellín"
+          [value]="form().location"
+          (input)="updateField('location', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Notas -->
+      <div class="form-group full-width">
+        <label class="form-label" for="trainer_notes">Notas del entrenador</label>
+        <textarea
+          id="trainer_notes"
+          class="form-input textarea"
+          placeholder="Observaciones de la sesión..."
+          [value]="form().trainer_notes"
+          (input)="updateField('trainer_notes', $any($event.target).value)"
+        ></textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="goBack()">Cancelar</button>
+      <button class="btn-primary" (click)="onSubmit()" [disabled]="saving()">
+        @if (saving()) {
+          <span class="material-symbols-outlined spinning">progress_activity</span>
+          Guardando...
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+          Registrar sesión
+        }
+      </button>
+    </div>
+
+  </div>
+
+</div>

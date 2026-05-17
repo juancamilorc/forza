@@ -1,0 +1,73 @@
+<div class="sessions-list">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Sesiones</h1>
+      <p class="page-subtitle">{{ filtered().length }} sesiones</p>
+    </div>
+    @if (canCreate()) {
+      <button class="btn-primary" (click)="goToNew()">
+        <span class="material-symbols-outlined">add</span>
+        Registrar sesión
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <button class="filter-btn" [class.active]="filterStatus() === 'all'"       (click)="applyFilter('all')">Todas</button>
+    <button class="filter-btn" [class.active]="filterStatus() === 'pending'"   (click)="applyFilter('pending')">Pendientes</button>
+    <button class="filter-btn" [class.active]="filterStatus() === 'completed'" (click)="applyFilter('completed')">Completadas</button>
+    <button class="filter-btn" [class.active]="filterStatus() === 'cancelled'" (click)="applyFilter('cancelled')">Canceladas</button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando sesiones...</p>
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (!loading()) {
+    <div class="sessions-grid">
+      @for (session of filtered(); track session.id) {
+        <div class="session-card">
+          <div class="session-date">
+            <span class="day">{{ session.session_date | date:'dd' }}</span>
+            <span class="month">{{ session.session_date | date:'MMM' }}</span>
+          </div>
+          <div class="session-info">
+            <span class="session-athlete">
+              {{ session.athletes?.first_name }} {{ session.athletes?.last_name }}
+            </span>
+            <span class="session-meta">
+              <span class="material-symbols-outlined">schedule</span>
+              {{ session.session_time | slice:0:5 }}
+              <span class="material-symbols-outlined">location_on</span>
+              {{ session.location }}
+            </span>
+          </div>
+          <div class="session-badges">
+            <span class="status-badge status-{{ session.status }}">
+              {{ getStatusLabel(session.status) }}
+            </span>
+            <span class="confirm-badge confirm-{{ session.confirmation_status }}">
+              {{ getConfirmationLabel(session.confirmation_status) }}
+            </span>
+          </div>
+        </div>
+      }
+
+      @empty {
+        <div class="empty-state">
+          <span class="material-symbols-outlined">fitness_center</span>
+          <p>No hay sesiones</p>
+        </div>
+      }
+    </div>
+  }
+
+</div>

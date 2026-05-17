@@ -23,4 +23,10 @@ export class AuthController {
   signOut(@CurrentUser() user: any) {
     return this.auth.signOut(user.id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('trainer-id')
+  async getTrainerId(@CurrentUser() user: any) {
+    return this.auth.getTrainerId(user.sub);
+  }
 }

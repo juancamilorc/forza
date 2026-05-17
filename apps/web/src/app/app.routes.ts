@@ -47,6 +47,18 @@ export const appRoutes: Route[] = [
           import('./features/athletes/athlete-detail/athlete-detail')
             .then(m => m.AthleteDetail),
       },
+      {
+        path: 'sessions',
+        loadComponent: () =>
+          import('./features/sessions/sessions-list/sessions-list')
+            .then(m => m.SessionsList),
+      },
+      {
+        path: 'sessions/new',
+        loadComponent: () =>
+          import('./features/sessions/session-form/session-form')
+            .then(m => m.SessionForm),
+      },
     ],
   },
   {

@@ -51,4 +51,13 @@ export class AuthService {
     if (error) throw new UnauthorizedException('Usuario no encontrado');
     return data;
   }
+
+  async getTrainerId(userId: string) {
+  const { data } = await this.supabase.db
+    .from('trainers')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+  return { trainer_id: data?.id ?? null };
+}
 }

@@ -100,4 +100,14 @@ export class AdminService {
     if (error) throw new BadRequestException(error.message);
     return data;
   }
+
+  async getTrainers() {
+    const { data, error } = await this.supabase.db
+      .from('trainers')
+      .select('id, user_id, users(full_name, email)')
+      .order('created_at', { ascending: true });
+
+    if (error) throw new BadRequestException(error.message);
+    return data;
+  }
 }

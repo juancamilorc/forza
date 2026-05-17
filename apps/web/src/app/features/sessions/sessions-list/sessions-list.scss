@@ -1,0 +1,205 @@
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: 'Cairo', sans-serif;
+    margin: 0 0 4px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+    color: #535353;
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+  }
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #c99734;
+  color: #0d0d0d;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  .material-symbols-outlined { font-size: 18px; }
+  &:hover { background-color: #e8b84a; }
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  background: #ffffff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #535353;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { border-color: #c99734; color: #1a1a1a; }
+  &.active {
+    background: #c99734;
+    border-color: #c99734;
+    color: #0d0d0d;
+  }
+}
+
+.sessions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  transition: all 0.2s;
+
+  &:hover { border-color: #c99734; }
+}
+
+.session-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+  background: rgba(201, 151, 52, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+
+  .day {
+    font-size: 20px;
+    font-weight: 900;
+    color: #c99734;
+    font-family: 'Cairo', sans-serif;
+    line-height: 1;
+  }
+
+  .month {
+    font-size: 10px;
+    font-weight: 600;
+    color: #535353;
+    font-family: 'Cairo', sans-serif;
+    text-transform: uppercase;
+  }
+}
+
+.session-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .session-athlete {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .session-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #535353;
+    font-family: 'Cairo', sans-serif;
+
+    .material-symbols-outlined { font-size: 14px; }
+  }
+}
+
+.session-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+
+  &.status-pending   { background: rgba(251,191,36,0.15);  color: #b45309; }
+  &.status-completed { background: rgba(74,222,128,0.15);  color: #15803d; }
+  &.status-cancelled { background: rgba(248,113,113,0.15); color: #b91c1c; }
+}
+
+.confirm-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+
+  &.confirm-pending  { background: #f3f4f6; color: #6b7280; }
+  &.confirm-partial  { background: rgba(96,165,250,0.15); color: #1d4ed8; }
+  &.confirm-verified { background: rgba(74,222,128,0.15); color: #15803d; }
+  &.confirm-conflict { background: rgba(248,113,113,0.15); color: #b91c1c; }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+
+  .material-symbols-outlined { font-size: 40px; color: #c99734; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spinning { animation: spin 1s linear infinite; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+
+  .material-symbols-outlined { font-size: 48px; color: #e5e5e5; }
+}
