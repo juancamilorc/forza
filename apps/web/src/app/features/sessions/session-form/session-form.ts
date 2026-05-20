@@ -93,7 +93,6 @@ export class SessionForm implements OnInit {
 
   onSubmit() {
     const f = this.form();
-      console.log('Form data:', f); // ← agrega esto
     if (!f.athlete_id || !f.session_date || !f.session_time || !f.location) {
       this.error.set('Deportista, fecha, hora y ubicación son obligatorios');
       return;
@@ -113,7 +112,6 @@ export class SessionForm implements OnInit {
       trainer_notes: f.trainer_notes || null,
     };
     
-    console.log('Sending to API:', JSON.stringify(data));
     this.service.create(data).subscribe({
       next: () => {
         this.toast.success('Sesión registrada correctamente');

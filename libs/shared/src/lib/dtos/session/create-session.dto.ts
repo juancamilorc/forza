@@ -1,5 +1,4 @@
 import {
-  IsUUID,
   IsNotEmpty,
   IsDateString,
   IsString,
@@ -14,15 +13,15 @@ export enum SessionStatus {
 }
 
 export class CreateSessionDto {
-  @IsUUID()
-  @IsNotEmpty()
-  plan_id!: string;
+  @IsString()
+  @IsOptional()
+  plan_id?: string | null;
 
-  @IsUUID()
-  @IsNotEmpty()
-  trainer_id!: string;
+  @IsString()
+  @IsOptional()
+  trainer_id?: string | null;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 
@@ -54,7 +53,7 @@ export class CreateSessionDto {
   @IsOptional()
   cancellation_reason?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   rescheduled_from?: string;
 }

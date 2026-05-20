@@ -62,6 +62,7 @@ export class SessionsService {
         session_date:          dto.session_date,
         session_time:          dto.session_time,
         location:              dto.location,
+        session_name:          dto.session_name ?? null,
         status:                dto.status ?? 'pending',
         trainer_notes:         dto.trainer_notes ?? null,
         confirmed_by_trainer:  false,
