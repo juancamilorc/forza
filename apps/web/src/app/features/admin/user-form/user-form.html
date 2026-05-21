@@ -1,0 +1,135 @@
+<div class="user-form">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Usuarios
+    </button>
+    <h1 class="page-title">
+      {{ isEdit() ? 'Editar usuario' : 'Nuevo usuario' }}
+    </h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="form-card">
+
+      @if (error()) {
+        <div class="error-banner">
+          <span class="material-symbols-outlined">error</span>
+          {{ error() }}
+        </div>
+      }
+
+      <div class="form-grid">
+
+        <!-- Nombre completo -->
+        <div class="form-group full-width">
+          <label class="form-label" for="full_name">
+            Nombre completo <span class="required">*</span>
+          </label>
+          <input
+            id="full_name"
+            type="text"
+            class="form-input"
+            placeholder="Ej: Carlos Pérez"
+            [value]="form().full_name"
+            (input)="updateField('full_name', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            Email <span class="required">*</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            [class.readonly]="isEdit()"
+            placeholder="correo@forza.com"
+            [value]="form().email"
+            [disabled]="isEdit()"
+            (input)="updateField('email', $any($event.target).value)"
+          />
+          @if (isEdit()) {
+            <span class="field-hint">El email no se puede modificar</span>
+          }
+        </div>
+
+        <!-- Rol -->
+        <div class="form-group">
+          <label class="form-label" for="role">
+            Rol <span class="required">*</span>
+          </label>
+          <select
+            id="role"
+            class="form-input"
+            [value]="form().role"
+            (change)="updateField('role', $any($event.target).value)"
+          >
+            <option value="">Seleccionar rol...</option>
+            <option value="admin">Admin</option>
+            <option value="trainer">Entrenador</option>
+            <option value="nutritionist">Nutricionista</option>
+            <option value="super_admin">Super Admin</option>
+          </select>
+        </div>
+
+        <!-- Contraseña — solo al crear -->
+        @if (!isEdit()) {
+          <div class="form-group">
+            <label class="form-label" for="password">
+              Contraseña <span class="required">*</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              class="form-input"
+              placeholder="Mínimo 6 caracteres"
+              [value]="form().password"
+              (input)="updateField('password', $any($event.target).value)"
+            />
+          </div>
+        }
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label class="form-label" for="phone">Teléfono</label>
+          <input
+            id="phone"
+            type="tel"
+            class="form-input"
+            placeholder="Ej: 3001234567"
+            [value]="form().phone"
+            (input)="updateField('phone', $any($event.target).value)"
+          />
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="goBack()">Cancelar</button>
+        <button class="btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">save</span>
+            {{ isEdit() ? 'Guardar cambios' : 'Crear usuario' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

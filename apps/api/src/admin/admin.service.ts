@@ -40,15 +40,26 @@ export class AdminService {
 
   // ── CREATE USER ──────────────────────────────────────────────
   async create(dto: CreateUserDto) {
+    // Pre-check: email duplicado antes de llamar a auth
+    const { data: existing } = await this.supabase.db
+      .from('users')
+      .select('id')
+      .eq('email', dto.email)
+      .maybeSingle();
+
+    if (existing) throw new ConflictException('El email ya está registrado');
+
     // Paso 1 — crear en auth.users
     const { data: authData, error: authError } = await this.supabase.db.auth.admin.createUser({
-      email:             dto.email,
-      password:          dto.password,
-      email_confirm:     true, // no requiere verificar email
+      email:          dto.email,
+      password:       dto.password,
+      email_confirm:  true,
+      user_metadata:  { full_name: dto.full_name, role: dto.role, phone: dto.phone ?? null },
     });
 
     if (authError) {
-      if (authError.message.includes('already registered')) {
+      const msg = authError.message.toLowerCase();
+      if (msg.includes('already') || msg.includes('duplicate') || msg.includes('database error')) {
         throw new ConflictException('El email ya está registrado');
       }
       throw new BadRequestException(authError.message);

@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { rolesGuard } from './core/guards/roles.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -58,6 +59,32 @@ export const appRoutes: Route[] = [
         loadComponent: () =>
           import('./features/sessions/session-form/session-form')
             .then(m => m.SessionForm),
+      },
+      {
+        path: 'admin',
+        redirectTo: 'admin/users',
+        pathMatch: 'full',
+      },
+      {
+        path: 'admin/users',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/admin/users-list/users-list')
+            .then(m => m.UsersList),
+      },
+      {
+        path: 'admin/users/new',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/admin/user-form/user-form')
+            .then(m => m.UserForm),
+      },
+      {
+        path: 'admin/users/:id/edit',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/admin/user-form/user-form')
+            .then(m => m.UserForm),
       },
     ],
   },
