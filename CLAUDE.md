@@ -319,18 +319,15 @@ weights: 300 | 400 | 500 | 600 | 700 | 900
 ## 11. ENVIRONMENT VARIABLES
 
 ```bash
-# Backend (apps/api/.env)
-SUPABASE_URL=https://nhegevwfgunvberilthm.supabase.co
-SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
-JWT_SECRET=...
+# Backend (apps/api/.env) — never commit real values
+SUPABASE_URL=https://[PROJECT_REF].supabase.co
+SUPABASE_ANON_KEY=[see .env]
+SUPABASE_SERVICE_ROLE_KEY=[see .env]
+JWT_SECRET=[see .env]
 JWT_EXPIRES_IN=7d
 API_PORT=3000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:4200
-
-# Frontend (apps/web/src/environments/environment.ts)
-apiUrl: 'http://localhost:3000/api'
 ```
 
 ---
@@ -338,15 +335,8 @@ apiUrl: 'http://localhost:3000/api'
 ## 12. TEST CREDENTIALS
 
 ```
-Super Admin:
-  email:    admin@forza.com
-  password: Forza2024!
-  user_id:  16fa562a-4d41-4b97-84bc-a5231bf89c14
-  trainer_id (in trainers table): a0f9f3be-23d0-4e64-9cec-5f82b366c2d0
-
-Trainer:
-  email:    trainer@forza.com
-  password: Forza2024!
+Admin:   admin@forza.com / [see .env]
+Trainer: trainer@forza.com / [see .env]
 ```
 
 ---
