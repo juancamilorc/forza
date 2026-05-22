@@ -61,6 +61,27 @@ export const appRoutes: Route[] = [
             .then(m => m.SessionForm),
       },
       {
+        path: 'payments',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/payments/payments-list/payments-list')
+            .then(m => m.PaymentsList),
+      },
+      {
+        path: 'payments/new',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/payments/payment-form/payment-form')
+            .then(m => m.PaymentForm),
+      },
+      {
+        path: 'payments/:id/edit',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/payments/payment-form/payment-form')
+            .then(m => m.PaymentForm),
+      },
+      {
         path: 'admin',
         redirectTo: 'admin/users',
         pathMatch: 'full',

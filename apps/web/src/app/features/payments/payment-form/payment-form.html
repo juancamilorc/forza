@@ -1,0 +1,146 @@
+<div class="payment-form">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Pagos
+    </button>
+    <h1 class="page-title">{{ isEdit() ? 'Editar pago' : 'Registrar pago' }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="form-card">
+
+      @if (error()) {
+        <div class="error-banner">
+          <span class="material-symbols-outlined">error</span>
+          {{ error() }}
+        </div>
+      }
+
+      <div class="form-grid">
+
+        <!-- Deportista -->
+        <div class="form-group full-width">
+          <label class="form-label" for="athlete_id">Deportista <span class="required">*</span></label>
+          <select
+            id="athlete_id"
+            class="form-input"
+            (change)="onAthleteChange($any($event.target).value)"
+          >
+            <option value="" [selected]="!form().athlete_id">Seleccionar deportista...</option>
+            @for (a of athletesList(); track a.id) {
+              <option [value]="a.id" [selected]="form().athlete_id === a.id">{{ a.first_name }} {{ a.last_name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Monto total -->
+        <div class="form-group">
+          <label class="form-label" for="amount">Monto total (COP) <span class="required">*</span></label>
+          <input
+            id="amount"
+            type="number"
+            class="form-input"
+            placeholder="0"
+            min="0"
+            [value]="form().amount"
+            (input)="updateField('amount', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Monto pagado -->
+        <div class="form-group">
+          <label class="form-label" for="amount_paid">Monto pagado (COP)</label>
+          <input
+            id="amount_paid"
+            type="number"
+            class="form-input"
+            placeholder="0"
+            min="0"
+            [value]="form().amount_paid"
+            (input)="updateField('amount_paid', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Método de pago -->
+        <div class="form-group">
+          <label class="form-label" for="method">Método de pago</label>
+          <select
+            id="method"
+            class="form-input"
+            [value]="form().method"
+            (change)="updateField('method', $any($event.target).value)"
+          >
+            <option value="">Sin especificar</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <!-- Número de referencia (solo transferencia) -->
+        @if (showReferencia()) {
+          <div class="form-group">
+            <label class="form-label" for="referencia">Número de referencia</label>
+            <input
+              id="referencia"
+              type="text"
+              class="form-input"
+              placeholder="Ej: 20240521-001"
+              [value]="form().referencia"
+              (input)="updateField('referencia', $any($event.target).value)"
+            />
+          </div>
+        }
+
+        <!-- Fecha de vencimiento -->
+        <div class="form-group">
+          <label class="form-label" for="due_date">Fecha de vencimiento</label>
+          <input
+            id="due_date"
+            type="date"
+            class="form-input"
+            [value]="form().due_date"
+            (input)="updateField('due_date', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Notas -->
+        <div class="form-group full-width">
+          <label class="form-label" for="notes">Notas</label>
+          <textarea
+            id="notes"
+            class="form-input textarea"
+            placeholder="Observaciones adicionales..."
+            [value]="form().notes"
+            (input)="updateField('notes', $any($event.target).value)"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="goBack()">Cancelar</button>
+        <button class="btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">save</span>
+            {{ isEdit() ? 'Guardar cambios' : 'Registrar pago' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

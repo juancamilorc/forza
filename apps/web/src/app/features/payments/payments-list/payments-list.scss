@@ -1,0 +1,185 @@
+.payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .page-title   { font-size: 24px; font-weight: 700; color: #1a1a1a; font-family: 'Cairo', sans-serif; margin: 0 0 4px; }
+  .page-subtitle { font-size: 13px; color: #535353; font-family: 'Cairo', sans-serif; margin: 0; }
+}
+
+.btn-primary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 20px; background: #c99734; color: #0d0d0d;
+  border: none; border-radius: 8px;
+  font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: background-color 0.2s;
+  .material-symbols-outlined { font-size: 18px; }
+  &:hover { background: #e8b84a; }
+}
+
+.filters-bar { display: flex; flex-direction: column; gap: 12px; }
+
+.search-bar { position: relative;
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #535353; font-size: 20px; }
+}
+
+.search-input {
+  width: 100%; padding: 12px 12px 12px 44px;
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 8px;
+  font-family: 'Cairo', sans-serif; font-size: 14px; color: #1a1a1a;
+  outline: none; box-sizing: border-box; transition: border-color 0.2s;
+  &:focus { border-color: #c99734; }
+  &::placeholder { color: #9ca3af; }
+}
+
+.status-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.filter-chip {
+  padding: 6px 16px; border: 1px solid #e5e5e5; border-radius: 20px;
+  background: #fff; font-family: 'Cairo', sans-serif; font-size: 13px;
+  font-weight: 500; color: #535353; cursor: pointer; transition: all 0.2s;
+  &:hover { border-color: #c99734; color: #c99734; }
+  &.active { background: #c99734; border-color: #c99734; color: #0d0d0d; font-weight: 700; }
+}
+
+.loading {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px;
+  color: #535353; font-family: 'Cairo', sans-serif;
+  .material-symbols-outlined { font-size: 40px; color: #c99734; }
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spinning { animation: spin 1s linear infinite; }
+
+.table-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; }
+
+.payments-table {
+  width: 100%; border-collapse: collapse;
+
+  thead tr { background: #f9f9f9; border-bottom: 1px solid #e5e5e5; }
+
+  th {
+    padding: 12px 16px; text-align: left;
+    font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; color: #535353;
+  }
+
+  td {
+    padding: 14px 16px; border-bottom: 1px solid #f0f0f0;
+    font-family: 'Cairo', sans-serif; font-size: 14px; color: #1a1a1a;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+}
+
+.athlete-name { font-weight: 600; }
+.text-mid { color: #535353; }
+.amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+.saldo-pendiente { color: #b91c1c; }
+
+.status-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; font-family: 'Cairo', sans-serif;
+
+  &.status-pendiente { background: rgba(251,191,36,0.15); color: #b45309; }
+  &.status-parcial   { background: rgba(96,165,250,0.15); color: #1d4ed8; }
+  &.status-pagado    { background: rgba(74,222,128,0.15); color: #15803d; }
+}
+
+.actions-cell { display: flex; gap: 4px; }
+
+.icon-btn {
+  width: 34px; height: 34px; border: none; border-radius: 8px;
+  background: transparent; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #535353; transition: all 0.2s;
+  .material-symbols-outlined { font-size: 19px; }
+  &:hover { background: #f0f0f0; color: #1a1a1a; }
+  &.gold { color: #c99734; &:hover { background: rgba(201,151,52,0.1); } }
+}
+
+.empty-cell { text-align: center; }
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px;
+  color: #535353; font-family: 'Cairo', sans-serif;
+  .material-symbols-outlined { font-size: 48px; color: #c99734; }
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 24px;
+}
+
+.modal {
+  background: #fff; border-radius: 16px;
+  width: 100%; max-width: 440px;
+  display: flex; flex-direction: column; gap: 0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .modal-title { font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 0; }
+}
+
+.modal-close {
+  width: 32px; height: 32px; border: none; border-radius: 8px;
+  background: transparent; cursor: pointer; color: #535353;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  &:hover { background: #f0f0f0; color: #1a1a1a; }
+}
+
+.modal-body {
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.abono-info {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+
+  .abono-label { font-family: 'Cairo', sans-serif; font-size: 13px; color: #535353; }
+  .abono-value { font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .abono-value.highlight { color: #b91c1c; font-size: 16px; }
+}
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+
+.form-label {
+  font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; color: #1a1a1a;
+}
+
+.form-input {
+  padding: 10px 14px; border: 1px solid #e5e5e5; border-radius: 8px;
+  font-family: 'Cairo', sans-serif; font-size: 14px; color: #1a1a1a;
+  background: #fff; outline: none; transition: border-color 0.2s;
+  &:focus { border-color: #c99734; }
+  &::placeholder { color: #9ca3af; }
+}
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-secondary {
+  padding: 10px 20px; background: transparent; border: 1px solid #e5e5e5; border-radius: 8px;
+  font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: #535353;
+  cursor: pointer; transition: all 0.2s;
+  &:hover { border-color: #1a1a1a; color: #1a1a1a; }
+}

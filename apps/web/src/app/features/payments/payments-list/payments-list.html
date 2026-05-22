@@ -1,0 +1,186 @@
+<div class="payments-list">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Pagos</h1>
+      <p class="page-subtitle">{{ filtered().length }} registros</p>
+    </div>
+    <button class="btn-primary" (click)="goToNew()">
+      <span class="material-symbols-outlined">add</span>
+      Registrar pago
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="search-bar">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Buscar por deportista..."
+        class="search-input"
+        (input)="onSearch($event)"
+      />
+    </div>
+    <div class="status-filters">
+      <button class="filter-chip" [class.active]="statusFilter() === ''"           (click)="onStatusFilter('')">Todos</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'pendiente'"  (click)="onStatusFilter('pendiente')">Pendiente</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'parcial'"    (click)="onStatusFilter('parcial')">Parcial</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'pagado'"     (click)="onStatusFilter('pagado')">Pagado</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando pagos...</p>
+    </div>
+  }
+
+  <!-- Tabla -->
+  @if (!loading()) {
+    <div class="table-card">
+      <table class="payments-table">
+        <thead>
+          <tr>
+            <th>Deportista</th>
+            <th>Plan</th>
+            <th>Total</th>
+            <th>Pagado</th>
+            <th>Saldo</th>
+            <th>Método</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of filtered(); track payment.id) {
+            <tr>
+              <td class="athlete-cell">
+                <span class="athlete-name">
+                  {{ payment.athletes?.first_name }} {{ payment.athletes?.last_name }}
+                </span>
+              </td>
+              <td class="text-mid">{{ payment.plans?.plan_type ?? '—' }}</td>
+              <td class="amount">{{ formatCOP(payment.amount) }}</td>
+              <td class="amount">{{ formatCOP(payment.amount_paid) }}</td>
+              <td class="amount" [class.saldo-pendiente]="getSaldo(payment) > 0">
+                {{ formatCOP(getSaldo(payment)) }}
+              </td>
+              <td class="text-mid">{{ getMethodLabel(payment.method) }}</td>
+              <td class="text-mid">{{ payment.due_date ?? '—' }}</td>
+              <td>
+                <span class="status-badge status-{{ payment.status }}">
+                  {{ getStatusLabel(payment.status) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                @if (payment.status !== 'pagado') {
+                  <button class="icon-btn gold" title="Registrar abono" (click)="openAbono(payment)">
+                    <span class="material-symbols-outlined">payments</span>
+                  </button>
+                }
+                <button class="icon-btn" title="Editar" (click)="goToEdit(payment.id)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+              </td>
+            </tr>
+          }
+
+          @empty {
+            <tr>
+              <td colspan="9" class="empty-cell">
+                <div class="empty-state">
+                  <span class="material-symbols-outlined">payments</span>
+                  <p>No se encontraron pagos</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Modal abono -->
+@if (abonoTarget()) {
+  <div class="modal-overlay" (click)="closeAbono()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2 class="modal-title">Registrar abono</h2>
+        <button class="modal-close" (click)="closeAbono()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="abono-info">
+          <span class="abono-label">Deportista</span>
+          <span class="abono-value">{{ abonoTarget()!.athletes?.first_name }} {{ abonoTarget()!.athletes?.last_name }}</span>
+        </div>
+        <div class="abono-info">
+          <span class="abono-label">Saldo pendiente</span>
+          <span class="abono-value highlight">{{ formatCOP(getSaldo(abonoTarget()!)) }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Valor del abono *</label>
+          <input
+            type="number"
+            class="form-input"
+            placeholder="0"
+            min="1"
+            [value]="abonoMonto()"
+            (input)="abonoMonto.set($any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Método de pago</label>
+          <select
+            class="form-input"
+            [value]="abonoMethod()"
+            (change)="abonoMethod.set($any($event.target).value)"
+          >
+            <option value="transferencia">Transferencia</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        @if (abonoMethod() === 'transferencia') {
+          <div class="form-group">
+            <label class="form-label">Número de referencia</label>
+            <input
+              type="text"
+              class="form-input"
+              placeholder="Ej: 123456789"
+              [value]="abonoRef()"
+              (input)="abonoRef.set($any($event.target).value)"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAbono()">Cancelar</button>
+        <button class="btn-primary" (click)="confirmarAbono()" [disabled]="abonoSaving()">
+          @if (abonoSaving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">check</span>
+            Confirmar abono
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

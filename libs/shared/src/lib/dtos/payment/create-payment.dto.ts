@@ -1,5 +1,4 @@
 import {
-  IsUUID,
   IsNotEmpty,
   IsNumber,
   IsDateString,
@@ -22,11 +21,11 @@ export enum PaymentStatus {
 }
 
 export class CreatePaymentDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   plan_id?: string;
 
@@ -51,6 +50,10 @@ export class CreatePaymentDto {
   @IsOptional()
   method?: PaymentMethod;
 
+  @IsString()
+  @IsOptional()
+  referencia?: string;
+
   @IsEnum(PaymentStatus)
   @IsOptional()
   status?: PaymentStatus;
@@ -59,7 +62,7 @@ export class CreatePaymentDto {
   @IsOptional()
   notes?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   registered_by?: string;
 }
