@@ -26,33 +26,43 @@ export class ScheduleController {
   // GET /api/schedule?trainer_id=uuid&date=2026-04-25
   @Roles('super_admin', 'admin', 'trainer')
   @Get()
-  findAll(
+  async findAll(
     @CurrentUser() user: any,
     @Query('trainer_id') trainerId?: string,
     @Query('date') date?: string,
   ) {
     if (user.role === 'trainer') {
-      return this.schedule.findAll(user.trainer_id, date);
+      const myTrainerId = await this.schedule.getTrainerIdByUserId(user.id);
+      if (!myTrainerId) return [];
+      return this.schedule.findAll(myTrainerId, date);
     }
     return this.schedule.findAll(trainerId, date);
   }
 
   // GET /api/schedule/:id
-  @Roles('super_admin','admin', 'trainer')
+  @Roles('super_admin', 'admin', 'trainer')
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.schedule.findOne(id);
   }
 
   // POST /api/schedule
-  @Roles('super_admin', 'admin')
+  @Roles('super_admin', 'admin', 'trainer')
   @Post()
-  create(@Body() dto: CreateAppointmentDto) {
+  async create(
+    @CurrentUser() user: any,
+    @Body() dto: CreateAppointmentDto,
+  ) {
+    if (user.role === 'trainer') {
+      const myTrainerId = await this.schedule.getTrainerIdByUserId(user.id);
+      if (!myTrainerId) throw new Error('El usuario no tiene perfil de entrenador');
+      return this.schedule.create({ ...dto, trainer_id: myTrainerId });
+    }
     return this.schedule.create(dto);
   }
 
   // PATCH /api/schedule/:id
-  @Roles('super_admin', 'admin')
+  @Roles('super_admin', 'admin', 'trainer')
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,

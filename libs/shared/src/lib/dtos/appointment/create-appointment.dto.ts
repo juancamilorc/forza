@@ -1,5 +1,4 @@
 import {
-  IsUUID,
   IsNotEmpty,
   IsEnum,
   IsDateString,
@@ -20,11 +19,11 @@ export enum AppointmentStatus {
 }
 
 export class CreateAppointmentDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   trainer_id!: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   athlete_id?: string;
 

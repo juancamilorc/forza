@@ -1,0 +1,158 @@
+<div class="schedule-list">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Agenda</h1>
+      <p class="page-subtitle">{{ filtered().length }} citas</p>
+    </div>
+    <button class="btn-primary" (click)="goToNew()">
+      <span class="material-symbols-outlined">add</span>
+      Nueva cita
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="status-filters">
+      <button class="filter-chip" [class.active]="statusFilter() === ''"          (click)="onStatusFilter('')">Todas</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'scheduled'" (click)="onStatusFilter('scheduled')">Programadas</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'completed'" (click)="onStatusFilter('completed')">Completadas</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'cancelled'" (click)="onStatusFilter('cancelled')">Canceladas</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'no_show'"   (click)="onStatusFilter('no_show')">No asistió</button>
+    </div>
+
+    @if (isAdmin && trainers().length > 0) {
+      <div class="trainer-filter">
+        <span class="filter-label">Entrenador:</span>
+        <select class="filter-select" (change)="onTrainerFilter($any($event.target).value)">
+          <option value="">Todos</option>
+          @for (t of trainers(); track t.id) {
+            <option [value]="t.id">{{ t.users?.full_name }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando agenda...</p>
+    </div>
+  }
+
+  <!-- Tabla -->
+  @if (!loading()) {
+    <div class="table-card">
+      <table class="schedule-table">
+        <thead>
+          <tr>
+            <th>Deportista</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Lugar</th>
+            @if (isAdmin) { <th>Entrenador</th> }
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filtered(); track a.id) {
+            <tr>
+              <td class="athlete-cell">
+                @if (a.athletes) {
+                  {{ a.athletes.first_name }} {{ a.athletes.last_name }}
+                } @else {
+                  <span class="text-mid">Sin asignar</span>
+                }
+              </td>
+              <td>
+                <span class="type-badge type-{{ a.type }}">{{ getTypeLabel(a.type) }}</span>
+              </td>
+              <td class="date-cell">{{ formatDate(a.scheduled_date) }}</td>
+              <td class="time-cell">{{ formatTime(a.scheduled_time) }}</td>
+              <td class="text-mid">{{ a.location ?? '—' }}</td>
+              @if (isAdmin) {
+                <td class="text-mid">{{ getTrainerName(a.trainer_id) }}</td>
+              }
+              <td>
+                <span class="status-badge status-{{ a.status }}">{{ getStatusLabel(a.status) }}</span>
+              </td>
+              <td class="actions-cell">
+                <button class="icon-btn gold" title="Abrir en Google Calendar" (click)="openCalendarLink(a)">
+                  <span class="material-symbols-outlined">calendar_add_on</span>
+                </button>
+                <button class="icon-btn" title="Copiar link Google Calendar" (click)="copyCalendarLink(a)">
+                  <span class="material-symbols-outlined">content_copy</span>
+                </button>
+                <button class="icon-btn" title="Editar" (click)="goToEdit(a.id)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                @if (isSuperAdmin) {
+                  <button class="icon-btn danger" title="Eliminar" (click)="openDelete(a)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+
+          @empty {
+            <tr>
+              <td [attr.colspan]="isAdmin ? 8 : 7" class="empty-cell">
+                <div class="empty-state">
+                  <span class="material-symbols-outlined">calendar_today</span>
+                  <p>No hay citas registradas</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Modal eliminar -->
+@if (deleteTarget()) {
+  <div class="modal-overlay" (click)="closeDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Eliminar cita</h2>
+        <button class="modal-close" (click)="closeDelete()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text">
+          ¿Eliminar la cita de
+          <strong>
+            @if (deleteTarget()!.athletes) {
+              {{ deleteTarget()!.athletes!.first_name }} {{ deleteTarget()!.athletes!.last_name }}
+            } @else {
+              Sin deportista
+            }
+          </strong>
+          del <strong>{{ formatDate(deleteTarget()!.scheduled_date) }}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeDelete()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmDelete()" [disabled]="deleting()">
+          @if (deleting()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Eliminando...
+          } @else {
+            <span class="material-symbols-outlined">delete</span>
+            Eliminar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

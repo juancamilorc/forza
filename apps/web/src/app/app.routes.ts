@@ -61,6 +61,24 @@ export const appRoutes: Route[] = [
             .then(m => m.SessionForm),
       },
       {
+        path: 'schedule',
+        loadComponent: () =>
+          import('./features/schedule/schedule-list/schedule-list')
+            .then(m => m.ScheduleList),
+      },
+      {
+        path: 'schedule/new',
+        loadComponent: () =>
+          import('./features/schedule/appointment-form/appointment-form')
+            .then(m => m.AppointmentForm),
+      },
+      {
+        path: 'schedule/:id/edit',
+        loadComponent: () =>
+          import('./features/schedule/appointment-form/appointment-form')
+            .then(m => m.AppointmentForm),
+      },
+      {
         path: 'payments',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>

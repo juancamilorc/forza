@@ -1,0 +1,159 @@
+<div class="appointment-form">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Agenda
+    </button>
+    <h1 class="page-title">{{ isEdit() ? 'Editar cita' : 'Nueva cita' }}</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="form-card">
+
+      @if (error()) {
+        <div class="error-banner">
+          <span class="material-symbols-outlined">error</span>
+          {{ error() }}
+        </div>
+      }
+
+      <div class="form-grid">
+
+        <!-- Entrenador (solo admin) -->
+        @if (isAdmin) {
+          <div class="form-group full-width">
+            <label class="form-label" for="trainer_id">Entrenador <span class="required">*</span></label>
+            <select
+              id="trainer_id"
+              class="form-input"
+              (change)="updateField('trainer_id', $any($event.target).value)"
+            >
+              <option value="" [selected]="!form().trainer_id">Seleccionar entrenador...</option>
+              @for (t of trainersList(); track t.id) {
+                <option [value]="t.id" [selected]="form().trainer_id === t.id">{{ t.users?.full_name }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Deportista -->
+        <div class="form-group full-width">
+          <label class="form-label" for="athlete_id">Deportista <span class="optional">(opcional)</span></label>
+          <select
+            id="athlete_id"
+            class="form-input"
+            (change)="updateField('athlete_id', $any($event.target).value)"
+          >
+            <option value="" [selected]="!form().athlete_id">Sin asignar (ej. prueba sin registro)</option>
+            @for (a of athletesList(); track a.id) {
+              <option [value]="a.id" [selected]="form().athlete_id === a.id">{{ a.first_name }} {{ a.last_name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Tipo -->
+        <div class="form-group">
+          <label class="form-label" for="type">Tipo <span class="required">*</span></label>
+          <select
+            id="type"
+            class="form-input"
+            (change)="updateField('type', $any($event.target).value)"
+          >
+            <option value="regular" [selected]="form().type === 'regular'">Regular</option>
+            <option value="trial"   [selected]="form().type === 'trial'">Prueba</option>
+          </select>
+        </div>
+
+        <!-- Estado (solo en edición) -->
+        @if (isEdit()) {
+          <div class="form-group">
+            <label class="form-label" for="status">Estado</label>
+            <select
+              id="status"
+              class="form-input"
+              (change)="updateField('status', $any($event.target).value)"
+            >
+              <option value="scheduled"  [selected]="form().status === 'scheduled'">Programada</option>
+              <option value="completed"  [selected]="form().status === 'completed'">Completada</option>
+              <option value="cancelled"  [selected]="form().status === 'cancelled'">Cancelada</option>
+              <option value="no_show"    [selected]="form().status === 'no_show'">No asistió</option>
+            </select>
+          </div>
+        }
+
+        <!-- Fecha -->
+        <div class="form-group">
+          <label class="form-label" for="scheduled_date">Fecha <span class="required">*</span></label>
+          <input
+            id="scheduled_date"
+            type="date"
+            class="form-input"
+            [value]="form().scheduled_date"
+            (input)="updateField('scheduled_date', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Hora -->
+        <div class="form-group">
+          <label class="form-label" for="scheduled_time">Hora <span class="required">*</span></label>
+          <input
+            id="scheduled_time"
+            type="time"
+            class="form-input"
+            [value]="form().scheduled_time"
+            (input)="updateField('scheduled_time', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Lugar -->
+        <div class="form-group full-width">
+          <label class="form-label" for="location">Lugar</label>
+          <input
+            id="location"
+            type="text"
+            class="form-input"
+            placeholder="Ej: Cancha El Campín, Parque El Poblado..."
+            [value]="form().location"
+            (input)="updateField('location', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Notas -->
+        <div class="form-group full-width">
+          <label class="form-label" for="notes">Notas</label>
+          <textarea
+            id="notes"
+            class="form-input textarea"
+            placeholder="Observaciones adicionales..."
+            [value]="form().notes"
+            (input)="updateField('notes', $any($event.target).value)"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="goBack()">Cancelar</button>
+        <button class="btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">save</span>
+            {{ isEdit() ? 'Guardar cambios' : 'Registrar cita' }}
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+
+</div>

@@ -17,7 +17,8 @@ export class ScheduleService {
       .from('appointments')
       .select(`
         *,
-        athletes ( id, first_name, last_name )
+        athletes ( id, first_name, last_name ),
+        trainers ( id, users ( full_name ) )
       `)
       .order('scheduled_date', { ascending: true })
       .order('scheduled_time', { ascending: true });
@@ -36,7 +37,8 @@ export class ScheduleService {
       .from('appointments')
       .select(`
         *,
-        athletes ( id, first_name, last_name )
+        athletes ( id, first_name, last_name ),
+        trainers ( id, users ( full_name ) )
       `)
       .eq('id', id)
       .single();
@@ -79,6 +81,16 @@ export class ScheduleService {
 
     if (error) throw new BadRequestException(error.message);
     return data;
+  }
+
+  // ── TRAINER ID LOOKUP ────────────────────────────────────────
+  async getTrainerIdByUserId(userId: string): Promise<string | null> {
+    const { data } = await this.supabase.db
+      .from('trainers')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+    return data?.id ?? null;
   }
 
   // ── DELETE ───────────────────────────────────────────────────
