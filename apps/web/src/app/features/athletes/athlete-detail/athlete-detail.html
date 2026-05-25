@@ -194,13 +194,127 @@
       }
     </div>
 
-    <!-- Evaluaciones — próximamente -->
+    <!-- Evaluaciones -->
     <div class="info-card">
       <h2 class="card-title">Evaluaciones</h2>
-      <div class="coming-soon">
-        <span class="material-symbols-outlined">analytics</span>
-        <p>Próximamente</p>
-      </div>
+
+      @if (loadingAssessments()) {
+        <div class="plan-loading">
+          <span class="material-symbols-outlined spinning">progress_activity</span>
+        </div>
+      } @else {
+        <div class="assessments-grid">
+
+          <!-- Nutricional -->
+          <div class="assessment-card">
+            <div class="assessment-header">
+              <span class="material-symbols-outlined assessment-icon nutri">nutrition</span>
+              <div>
+                <p class="assessment-type">Nutricional</p>
+                <p class="assessment-count">{{ nutritionalList().length }} evaluación{{ nutritionalList().length !== 1 ? 'es' : '' }}</p>
+              </div>
+            </div>
+            @if (nutritionalList().length > 0) {
+              <div class="assessment-date">{{ formatDate(nutritionalList()[0].evaluation_date) }}</div>
+              <div class="assessment-metrics">
+                @if (nutritionalList()[0].imc != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">IMC</span>
+                    <span class="metric-value">{{ nutritionalList()[0].imc }}</span>
+                  </div>
+                }
+                @if (nutritionalList()[0].porcentaje_grasa != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">% Grasa</span>
+                    <span class="metric-value">{{ nutritionalList()[0].porcentaje_grasa }}%</span>
+                  </div>
+                }
+                @if (nutritionalList()[0].clasificacion_imc) {
+                  <div class="metric-row">
+                    <span class="metric-label">Clasif. IMC</span>
+                    <span class="metric-value">{{ nutritionalList()[0].clasificacion_imc }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="assessment-empty">Sin evaluaciones</p>
+            }
+          </div>
+
+          <!-- Técnica -->
+          <div class="assessment-card">
+            <div class="assessment-header">
+              <span class="material-symbols-outlined assessment-icon tech">sports_soccer</span>
+              <div>
+                <p class="assessment-type">Técnica</p>
+                <p class="assessment-count">{{ technicalList().length }} evaluación{{ technicalList().length !== 1 ? 'es' : '' }}</p>
+              </div>
+            </div>
+            @if (technicalList().length > 0) {
+              <div class="assessment-date">{{ formatDate(technicalList()[0].evaluation_date) }}</div>
+              <div class="assessment-metrics">
+                @if (technicalList()[0].control_efectividad_total_pct != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">Control</span>
+                    <span class="metric-value">{{ technicalList()[0].control_efectividad_total_pct }}%</span>
+                  </div>
+                }
+                @if (technicalList()[0].pase_efectividad_pct != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">Pase</span>
+                    <span class="metric-value">{{ technicalList()[0].pase_efectividad_pct }}%</span>
+                  </div>
+                }
+                @if (technicalList()[0].definicion_efectividad_total_pct != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">Definición</span>
+                    <span class="metric-value">{{ technicalList()[0].definicion_efectividad_total_pct }}%</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="assessment-empty">Sin evaluaciones</p>
+            }
+          </div>
+
+          <!-- Física -->
+          <div class="assessment-card">
+            <div class="assessment-header">
+              <span class="material-symbols-outlined assessment-icon phys">directions_run</span>
+              <div>
+                <p class="assessment-type">Física</p>
+                <p class="assessment-count">{{ physicalList().length }} evaluación{{ physicalList().length !== 1 ? 'es' : '' }}</p>
+              </div>
+            </div>
+            @if (physicalList().length > 0) {
+              <div class="assessment-date">{{ formatDate(physicalList()[0].evaluation_date) }}</div>
+              <div class="assessment-metrics">
+                @if (physicalList()[0].salto_vertical_cm != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">Salto vertical</span>
+                    <span class="metric-value">{{ physicalList()[0].salto_vertical_cm }} cm</span>
+                  </div>
+                }
+                @if (physicalList()[0].salto_vertical_clasificacion) {
+                  <div class="metric-row">
+                    <span class="metric-label">Clasif.</span>
+                    <span class="metric-value">{{ getPhysicalClassLabel(physicalList()[0].salto_vertical_clasificacion!) }}</span>
+                  </div>
+                }
+                @if (physicalList()[0].sprint_20m != null) {
+                  <div class="metric-row">
+                    <span class="metric-label">Sprint 20m</span>
+                    <span class="metric-value">{{ physicalList()[0].sprint_20m }}s</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="assessment-empty">Sin evaluaciones</p>
+            }
+          </div>
+
+        </div>
+      }
     </div>
 
   }

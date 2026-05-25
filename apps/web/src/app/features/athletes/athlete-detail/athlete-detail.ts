@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { PlansService, Plan } from '../../../core/services/plans.service';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
+import { AssessmentsService, NutritionalAssessment, TechnicalAssessment, PhysicalAssessment } from '../../../core/services/assessments.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { DatePipe } from '@angular/common';
 
@@ -13,19 +14,24 @@ import { DatePipe } from '@angular/common';
   styleUrl: './athlete-detail.scss',
 })
 export class AthleteDetail implements OnInit {
-  private route           = inject(ActivatedRoute);
-  private router          = inject(Router);
-  private service         = inject(AthletesService);
-  private plansService    = inject(PlansService);
-  private sessionsService = inject(SessionsService);
-  private auth            = inject(AuthService);
+  private route               = inject(ActivatedRoute);
+  private router              = inject(Router);
+  private service             = inject(AthletesService);
+  private plansService        = inject(PlansService);
+  private sessionsService     = inject(SessionsService);
+  private assessmentsService  = inject(AssessmentsService);
+  private auth                = inject(AuthService);
 
   athlete          = signal<Athlete | null>(null);
   activePlan       = signal<Plan | null>(null);
-  sessions         = signal<Session[]>([]);
-  loading          = signal(true);
-  loadingPlan      = signal(true);
-  loadingSessions  = signal(true);
+  sessions              = signal<Session[]>([]);
+  nutritionalList       = signal<NutritionalAssessment[]>([]);
+  technicalList         = signal<TechnicalAssessment[]>([]);
+  physicalList          = signal<PhysicalAssessment[]>([]);
+  loading               = signal(true);
+  loadingPlan           = signal(true);
+  loadingSessions       = signal(true);
+  loadingAssessments    = signal(true);
   role             = this.auth.getRole() ?? '';
 
   completedSessions = computed(() =>
@@ -69,6 +75,22 @@ export class AthleteDetail implements OnInit {
         this.loadingSessions.set(false);
       },
       error: () => this.loadingSessions.set(false),
+    });
+
+    let pending = 3;
+    const done = () => { if (--pending === 0) this.loadingAssessments.set(false); };
+
+    this.assessmentsService.getNutritionalByAthlete(id).subscribe({
+      next: (d) => { this.nutritionalList.set(d); done(); },
+      error: () => done(),
+    });
+    this.assessmentsService.getTechnicalByAthlete(id).subscribe({
+      next: (d) => { this.technicalList.set(d); done(); },
+      error: () => done(),
+    });
+    this.assessmentsService.getPhysicalByAthlete(id).subscribe({
+      next: (d) => { this.physicalList.set(d); done(); },
+      error: () => done(),
     });
   }
 
@@ -122,6 +144,9 @@ export class AthleteDetail implements OnInit {
     const ampm = hour >= 12 ? 'pm' : 'am';
     return `${hour % 12 || 12}:${m} ${ampm}`;
   }
+
+  getPhysicalClassLabel(c: string)  { return this.assessmentsService.getPhysicalClassLabel(c); }
+  getTechnicalClassLabel(c: string) { return this.assessmentsService.getTechnicalClassLabel(c); }
 
   canEdit(): boolean {
     return ['super_admin', 'admin'].includes(this.role);

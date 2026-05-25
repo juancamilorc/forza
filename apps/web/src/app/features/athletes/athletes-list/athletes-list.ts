@@ -32,7 +32,7 @@ export class AthletesList implements OnInit {
   }
 
   private normalize(str: string): string {
-    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
   }
 
   onSearch(event: Event) {
