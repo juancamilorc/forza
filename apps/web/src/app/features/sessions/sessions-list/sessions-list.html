@@ -72,6 +72,20 @@
             <span class="confirm-badge confirm-{{ session.confirmation_status }}">
               {{ getConfirmationLabel(session.confirmation_status) }}
             </span>
+            @if (canConfirm(session)) {
+              <button
+                class="btn-confirm"
+                [disabled]="confirmingId() === session.id"
+                (click)="confirmSession(session.id)"
+              >
+                @if (confirmingId() === session.id) {
+                  <span class="material-symbols-outlined spinning">progress_activity</span>
+                } @else {
+                  <span class="material-symbols-outlined">check_circle</span>
+                }
+                Confirmar
+              </button>
+            }
           </div>
         </div>
       }

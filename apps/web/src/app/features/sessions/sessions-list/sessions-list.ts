@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DatePipe, SlicePipe } from '@angular/common';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-sessions-list',
@@ -14,13 +15,15 @@ export class SessionsList implements OnInit {
   private service = inject(SessionsService);
   private auth    = inject(AuthService);
   private router  = inject(Router);
+  private toast   = inject(ToastService);
 
-  sessions     = signal<Session[]>([]);
-  filtered     = signal<Session[]>([]);
-  loading      = signal(true);
-  role         = this.auth.getRole() ?? '';
-  search       = signal('');
-  filterStatus = signal('all');
+  sessions      = signal<Session[]>([]);
+  filtered      = signal<Session[]>([]);
+  loading       = signal(true);
+  confirmingId  = signal<string | null>(null);
+  role          = this.auth.getRole() ?? '';
+  search        = signal('');
+  filterStatus  = signal('all');
 
   ngOnInit() {
     this.service.getAll().subscribe({
@@ -96,5 +99,31 @@ export class SessionsList implements OnInit {
 
   canCreate(): boolean {
     return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  canConfirm(session: Session): boolean {
+    if (session.status !== 'pending') return false;
+    if (session.confirmed_by_trainer) return false;
+    return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  confirmSession(id: string) {
+    this.confirmingId.set(id);
+    this.service.confirmTrainer(id).subscribe({
+      next: () => {
+        this.toast.show('Sesión confirmada correctamente', 'success');
+        this.service.getAll().subscribe({
+          next: (data) => {
+            this.sessions.set(data);
+            this.applyFilters();
+            this.confirmingId.set(null);
+          },
+        });
+      },
+      error: () => {
+        this.confirmingId.set(null);
+        this.toast.show('Error al confirmar la sesión', 'error');
+      },
+    });
   }
 }

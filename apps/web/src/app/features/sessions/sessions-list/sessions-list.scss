@@ -210,6 +210,34 @@
   &.confirm-conflict           { background: rgba(248,113,113,0.15); color: #b91c1c; }
 }
 
+.btn-confirm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  border-radius: 20px;
+  color: #15803d;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .material-symbols-outlined { font-size: 14px; }
+
+  &:hover:not(:disabled) {
+    background: rgba(74, 222, 128, 0.25);
+    border-color: #15803d;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .loading {
   display: flex;
   flex-direction: column;
