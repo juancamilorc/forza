@@ -20,7 +20,8 @@ export class SessionsService {
       .select(`
         *,
         athletes ( id, first_name, last_name ),
-        plans ( id, plan_type, total_sessions )
+        plans ( id, plan_type, total_sessions ),
+        trainers ( id, users ( full_name ) )
       `)
       .order('session_date', { ascending: false });
 
@@ -30,6 +31,16 @@ export class SessionsService {
     const { data, error } = await query;
     if (error) throw new BadRequestException(error.message);
     return data;
+  }
+
+  // ── TRAINER ID LOOKUP ────────────────────────────────────────
+  async getTrainerIdByUserId(userId: string): Promise<string | null> {
+    const { data } = await this.supabase.db
+      .from('trainers')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+    return data?.id ?? null;
   }
 
   // ── GET ONE ──────────────────────────────────────────────────
@@ -53,6 +64,12 @@ export class SessionsService {
     const confirmation_token = uuidv4();
     const token_expires_at = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
 
+    const { count } = await this.supabase.db
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('athlete_id', dto.athlete_id);
+    const session_number = (count ?? 0) + 1;
+
     const { data, error } = await this.supabase.db
       .from('sessions')
       .insert({
@@ -69,6 +86,7 @@ export class SessionsService {
         confirmed_by_guardian: false,
         confirmation_token,
         token_expires_at,
+        session_number,
       })
       .select()
       .single();

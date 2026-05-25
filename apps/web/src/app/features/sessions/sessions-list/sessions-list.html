@@ -14,12 +14,23 @@
     }
   </div>
 
-  <!-- Filtros -->
-  <div class="filters">
-    <button class="filter-btn" [class.active]="filterStatus() === 'all'"       (click)="applyFilter('all')">Todas</button>
-    <button class="filter-btn" [class.active]="filterStatus() === 'pending'"   (click)="applyFilter('pending')">Pendientes</button>
-    <button class="filter-btn" [class.active]="filterStatus() === 'completed'" (click)="applyFilter('completed')">Completadas</button>
-    <button class="filter-btn" [class.active]="filterStatus() === 'cancelled'" (click)="applyFilter('cancelled')">Canceladas</button>
+  <!-- Búsqueda + filtros -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar deportista..."
+        (input)="onSearch($event)"
+      />
+    </div>
+    <div class="filters">
+      <button class="filter-btn" [class.active]="filterStatus() === 'all'"       (click)="applyFilter('all')">Todas</button>
+      <button class="filter-btn" [class.active]="filterStatus() === 'pending'"   (click)="applyFilter('pending')">Pendientes</button>
+      <button class="filter-btn" [class.active]="filterStatus() === 'completed'" (click)="applyFilter('completed')">Completadas</button>
+      <button class="filter-btn" [class.active]="filterStatus() === 'cancelled'" (click)="applyFilter('cancelled')">Canceladas</button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -48,6 +59,10 @@
               {{ session.session_time | slice:0:5 }}
               <span class="material-symbols-outlined">location_on</span>
               {{ session.location }}
+              @if (isAdminOrSuper()) {
+                <span class="material-symbols-outlined">person</span>
+                {{ getTrainerName(session) }}
+              }
             </span>
           </div>
           <div class="session-badges">

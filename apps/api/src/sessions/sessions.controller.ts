@@ -26,13 +26,15 @@ export class SessionsController {
   // GET /api/sessions
   @Roles('super_admin', 'admin', 'trainer')
   @Get()
-  findAll(
+  async findAll(
     @CurrentUser() user: any,
     @Query('trainer_id') trainerId?: string,
     @Query('athlete_id') athleteId?: string,
   ) {
     if (user.role === 'trainer') {
-      return this.sessions.findAll(user.trainer_id, athleteId);
+      const myTrainerId = await this.sessions.getTrainerIdByUserId(user.id);
+      if (!myTrainerId) return [];
+      return this.sessions.findAll(myTrainerId, athleteId);
     }
     return this.sessions.findAll(trainerId, athleteId);
   }

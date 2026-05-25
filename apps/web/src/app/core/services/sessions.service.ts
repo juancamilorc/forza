@@ -18,8 +18,9 @@ export interface Session {
   confirmed_by_guardian: boolean;
   confirmation_token:    string;
   trainer_notes:         string | null;
-  athletes?:             any;
-  plans?:                any;
+  athletes?:             { id: string; first_name: string; last_name: string };
+  plans?:                { id: string; plan_type: string; total_sessions: number };
+  trainers?:             { id: string; users: { full_name: string } };
 }
 
 @Injectable({ providedIn: 'root' })

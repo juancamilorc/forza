@@ -15,11 +15,11 @@ export class SessionsList implements OnInit {
   private auth    = inject(AuthService);
   private router  = inject(Router);
 
-  sessions  = signal<Session[]>([]);
-  filtered  = signal<Session[]>([]);
-  loading   = signal(true);
-  role      = this.auth.getRole() ?? '';
-
+  sessions     = signal<Session[]>([]);
+  filtered     = signal<Session[]>([]);
+  loading      = signal(true);
+  role         = this.auth.getRole() ?? '';
+  search       = signal('');
   filterStatus = signal('all');
 
   ngOnInit() {
@@ -33,13 +33,32 @@ export class SessionsList implements OnInit {
     });
   }
 
+  private normalize(str: string): string {
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  private applyFilters() {
+    const term   = this.search();
+    const status = this.filterStatus();
+
+    this.filtered.set(
+      this.sessions().filter(s => {
+        const name   = this.normalize(`${s.athletes?.first_name ?? ''} ${s.athletes?.last_name ?? ''}`);
+        const matchSearch = !term || name.includes(term);
+        const matchStatus = status === 'all' || s.status === status;
+        return matchSearch && matchStatus;
+      })
+    );
+  }
+
+  onSearch(event: Event) {
+    this.search.set(this.normalize((event.target as HTMLInputElement).value));
+    this.applyFilters();
+  }
+
   applyFilter(status: string) {
     this.filterStatus.set(status);
-    if (status === 'all') {
-      this.filtered.set(this.sessions());
-    } else {
-      this.filtered.set(this.sessions().filter(s => s.status === status));
-    }
+    this.applyFilters();
   }
 
   goToNew() {
@@ -57,12 +76,22 @@ export class SessionsList implements OnInit {
 
   getConfirmationLabel(status: string): string {
     const labels: Record<string, string> = {
-      pending:  'Sin confirmar',
-      partial:  'Parcial',
-      verified: 'Verificada',
-      conflict: 'Conflicto',
+      pending:            'Sin confirmar',
+      partial:            'Parcial',
+      trainer_confirmed:  'Entrenador ✓',
+      guardian_confirmed: 'Acudiente ✓',
+      fully_confirmed:    'Confirmada',
+      verified:           'Confirmada',
     };
     return labels[status] ?? status;
+  }
+
+  getTrainerName(session: Session): string {
+    return session.trainers?.users?.full_name ?? '—';
+  }
+
+  isAdminOrSuper(): boolean {
+    return ['super_admin', 'admin'].includes(this.role);
   }
 
   canCreate(): boolean {

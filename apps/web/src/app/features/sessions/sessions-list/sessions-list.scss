@@ -44,6 +44,40 @@
   &:hover { background-color: #e8b84a; }
 }
 
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 0 14px;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: #c99734; }
+
+  .search-icon { font-size: 18px; color: #9ca3af; }
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 0;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: transparent;
+
+  &::placeholder { color: #9ca3af; }
+}
+
 .filters {
   display: flex;
   gap: 8px;
@@ -167,10 +201,13 @@
   border-radius: 20px;
   font-family: 'Cairo', sans-serif;
 
-  &.confirm-pending  { background: #f3f4f6; color: #6b7280; }
-  &.confirm-partial  { background: rgba(96,165,250,0.15); color: #1d4ed8; }
-  &.confirm-verified { background: rgba(74,222,128,0.15); color: #15803d; }
-  &.confirm-conflict { background: rgba(248,113,113,0.15); color: #b91c1c; }
+  &.confirm-pending            { background: #f3f4f6; color: #6b7280; }
+  &.confirm-partial            { background: rgba(251,191,36,0.15); color: #b45309; }
+  &.confirm-trainer_confirmed  { background: rgba(96,165,250,0.15); color: #1d4ed8; }
+  &.confirm-guardian_confirmed { background: rgba(251,191,36,0.15); color: #b45309; }
+  &.confirm-fully_confirmed    { background: rgba(74,222,128,0.15); color: #15803d; }
+  &.confirm-verified           { background: rgba(74,222,128,0.15); color: #15803d; }
+  &.confirm-conflict           { background: rgba(248,113,113,0.15); color: #b91c1c; }
 }
 
 .loading {
