@@ -11,7 +11,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
-import { CreateAppointmentDto } from '@forza/shared';
+import { CreateAppointmentDto, RescheduleAppointmentDto } from '@forza/shared';
 import { UpdateAppointmentDto } from '@forza/shared';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -69,6 +69,23 @@ export class ScheduleController {
     @Body() dto: UpdateAppointmentDto,
   ) {
     return this.schedule.update(id, dto);
+  }
+
+  // PATCH /api/schedule/:id/reschedule
+  @Roles('super_admin', 'admin', 'trainer')
+  @Patch(':id/reschedule')
+  reschedule(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: RescheduleAppointmentDto,
+  ) {
+    return this.schedule.reschedule(id, dto);
+  }
+
+  // PATCH /api/schedule/:id/cancel
+  @Roles('super_admin', 'admin', 'trainer')
+  @Patch(':id/cancel')
+  cancel(@Param('id', ParseUUIDPipe) id: string) {
+    return this.schedule.cancel(id);
   }
 
   // DELETE /api/schedule/:id

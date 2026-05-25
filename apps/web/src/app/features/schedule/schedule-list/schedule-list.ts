@@ -27,6 +27,16 @@ export class ScheduleList implements OnInit {
   isAdmin      = this.role === 'super_admin' || this.role === 'admin';
   isSuperAdmin = this.role === 'super_admin';
 
+  // Modal reprogramar
+  rescheduleTarget = signal<Appointment | null>(null);
+  rescheduleDate   = signal('');
+  rescheduleTime   = signal('');
+  rescheduling     = signal(false);
+
+  // Modal cancelar
+  cancelTarget = signal<Appointment | null>(null);
+  cancelling   = signal(false);
+
   // Modal eliminar
   deleteTarget = signal<Appointment | null>(null);
   deleting     = signal(false);
@@ -87,9 +97,69 @@ export class ScheduleList implements OnInit {
     window.open(this.service.buildCalendarLink(a), '_blank');
   }
 
-  goToNew()       { this.router.navigate(['/schedule/new']); }
+  goToNew()            { this.router.navigate(['/schedule/new']); }
   goToEdit(id: string) { this.router.navigate(['/schedule', id, 'edit']); }
 
+  // ── REPROGRAMAR ─────────────────────────────────────────────
+  openReschedule(a: Appointment) {
+    this.rescheduleTarget.set(a);
+    this.rescheduleDate.set(a.scheduled_date);
+    this.rescheduleTime.set(a.scheduled_time.slice(0, 5));
+  }
+  closeReschedule() { this.rescheduleTarget.set(null); }
+
+  confirmReschedule() {
+    const target = this.rescheduleTarget();
+    if (!target) return;
+    this.rescheduling.set(true);
+    this.service.reschedule(target.id, this.rescheduleDate(), this.rescheduleTime()).subscribe({
+      next: (updated) => {
+        this.appointments.update(list =>
+          list.map(a => a.id === updated.id ? { ...a, ...updated } : a)
+        );
+        this.applyFilters();
+        this.toast.success('Cita reprogramada correctamente');
+        this.rescheduling.set(false);
+        this.closeReschedule();
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Error al reprogramar la cita';
+        this.toast.error(msg);
+        this.rescheduling.set(false);
+      },
+    });
+  }
+
+  canReschedule(a: Appointment): boolean {
+    return a.status === 'scheduled' && (a.reschedule_count ?? 0) < 2;
+  }
+
+  // ── CANCELAR ────────────────────────────────────────────────
+  openCancel(a: Appointment)  { this.cancelTarget.set(a); }
+  closeCancel()               { this.cancelTarget.set(null); }
+
+  confirmCancel() {
+    const target = this.cancelTarget();
+    if (!target) return;
+    this.cancelling.set(true);
+    this.service.cancel(target.id).subscribe({
+      next: (updated) => {
+        this.appointments.update(list =>
+          list.map(a => a.id === updated.id ? { ...a, ...updated } : a)
+        );
+        this.applyFilters();
+        this.toast.success('Cita cancelada');
+        this.cancelling.set(false);
+        this.closeCancel();
+      },
+      error: () => {
+        this.toast.error('Error al cancelar la cita');
+        this.cancelling.set(false);
+      },
+    });
+  }
+
+  // ── ELIMINAR ────────────────────────────────────────────────
   openDelete(a: Appointment) { this.deleteTarget.set(a); }
   closeDelete()              { this.deleteTarget.set(null); }
 

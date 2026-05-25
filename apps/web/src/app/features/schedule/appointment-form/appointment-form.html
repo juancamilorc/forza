@@ -38,7 +38,7 @@
             >
               <option value="" [selected]="!form().trainer_id">Seleccionar entrenador...</option>
               @for (t of trainersList(); track t.id) {
-                <option [value]="t.id" [selected]="form().trainer_id === t.id">{{ t.users?.full_name }}</option>
+                <option [value]="t.id" [selected]="form().trainer_id === t.id">{{ t.users.full_name }}</option>
               }
             </select>
           </div>

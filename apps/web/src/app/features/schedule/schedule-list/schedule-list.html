@@ -28,7 +28,7 @@
         <select class="filter-select" (change)="onTrainerFilter($any($event.target).value)">
           <option value="">Todos</option>
           @for (t of trainers(); track t.id) {
-            <option [value]="t.id">{{ t.users?.full_name }}</option>
+            <option [value]="t.id">{{ t.users.full_name }}</option>
           }
         </select>
       </div>
@@ -82,12 +82,24 @@
                 <span class="status-badge status-{{ a.status }}">{{ getStatusLabel(a.status) }}</span>
               </td>
               <td class="actions-cell">
-                <button class="icon-btn gold" title="Abrir en Google Calendar" (click)="openCalendarLink(a)">
-                  <span class="material-symbols-outlined">calendar_add_on</span>
-                </button>
-                <button class="icon-btn" title="Copiar link Google Calendar" (click)="copyCalendarLink(a)">
-                  <span class="material-symbols-outlined">content_copy</span>
-                </button>
+                @if (a.status === 'scheduled') {
+                  <button class="icon-btn gold" title="Abrir en Google Calendar" (click)="openCalendarLink(a)">
+                    <span class="material-symbols-outlined">calendar_add_on</span>
+                  </button>
+                  <button class="icon-btn" title="Copiar link Google Calendar" (click)="copyCalendarLink(a)">
+                    <span class="material-symbols-outlined">content_copy</span>
+                  </button>
+                }
+                @if (canReschedule(a)) {
+                  <button class="icon-btn warn" title="Reprogramar ({{ 2 - a.reschedule_count }} restante{{ 2 - a.reschedule_count === 1 ? '' : 's' }})" (click)="openReschedule(a)">
+                    <span class="material-symbols-outlined">event_repeat</span>
+                  </button>
+                }
+                @if (a.status === 'scheduled') {
+                  <button class="icon-btn danger" title="Cancelar cita" (click)="openCancel(a)">
+                    <span class="material-symbols-outlined">event_busy</span>
+                  </button>
+                }
                 <button class="icon-btn" title="Editar" (click)="goToEdit(a.id)">
                   <span class="material-symbols-outlined">edit</span>
                 </button>
@@ -116,6 +128,106 @@
   }
 
 </div>
+
+<!-- Modal reprogramar -->
+@if (rescheduleTarget()) {
+  <div class="modal-overlay" (click)="closeReschedule()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Reprogramar cita</h2>
+        <button class="modal-close" (click)="closeReschedule()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        @if (rescheduleTarget()!.reschedule_count > 0) {
+          <p class="reschedule-info">
+            Esta cita ya fue reprogramada {{ rescheduleTarget()!.reschedule_count }}
+            {{ rescheduleTarget()!.reschedule_count === 1 ? 'vez' : 'veces' }}.
+            Queda {{ 2 - rescheduleTarget()!.reschedule_count }}
+            {{ 2 - rescheduleTarget()!.reschedule_count === 1 ? 'reprogramación disponible' : 'reprogramaciones disponibles' }}.
+          </p>
+        }
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">Nueva fecha</label>
+            <input
+              type="date"
+              class="form-input"
+              [value]="rescheduleDate()"
+              (input)="rescheduleDate.set($any($event.target).value)"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nueva hora</label>
+            <input
+              type="time"
+              class="form-input"
+              [value]="rescheduleTime()"
+              (input)="rescheduleTime.set($any($event.target).value)"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeReschedule()">Cancelar</button>
+        <button
+          class="btn-primary"
+          (click)="confirmReschedule()"
+          [disabled]="rescheduling() || !rescheduleDate() || !rescheduleTime()"
+        >
+          @if (rescheduling()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">event_repeat</span>
+            Reprogramar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal cancelar -->
+@if (cancelTarget()) {
+  <div class="modal-overlay" (click)="closeCancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Cancelar cita</h2>
+        <button class="modal-close" (click)="closeCancel()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text">
+          ¿Cancelar la cita de
+          <strong>
+            @if (cancelTarget()!.athletes) {
+              {{ cancelTarget()!.athletes!.first_name }} {{ cancelTarget()!.athletes!.last_name }}
+            } @else {
+              Sin deportista
+            }
+          </strong>
+          del <strong>{{ formatDate(cancelTarget()!.scheduled_date) }}</strong>?
+          El estado cambiará a "Cancelada".
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeCancel()">Volver</button>
+        <button class="btn-danger" (click)="confirmCancel()" [disabled]="cancelling()">
+          @if (cancelling()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Cancelando...
+          } @else {
+            <span class="material-symbols-outlined">event_busy</span>
+            Cancelar cita
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 <!-- Modal eliminar -->
 @if (deleteTarget()) {

@@ -3,18 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 export interface Appointment {
-  id:             string;
-  trainer_id:     string;
-  athlete_id:     string | null;
-  type:           'trial' | 'regular';
-  status:         'scheduled' | 'completed' | 'cancelled' | 'no_show';
-  scheduled_date: string;
-  scheduled_time: string;
-  location:       string | null;
-  notes:          string | null;
-  created_at:     string;
-  athletes?:      { id: string; first_name: string; last_name: string } | null;
-  trainers?:      { id: string; users: { full_name: string } } | null;
+  id:               string;
+  trainer_id:       string;
+  athlete_id:       string | null;
+  type:             'trial' | 'regular';
+  status:           'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  scheduled_date:   string;
+  scheduled_time:   string;
+  location:         string | null;
+  notes:            string | null;
+  reschedule_count: number;
+  created_at:       string;
+  athletes?:        { id: string; first_name: string; last_name: string } | null;
+  trainers?:        { id: string; users: { full_name: string } } | null;
 }
 
 export interface TrainerOption {
@@ -45,6 +46,17 @@ export class ScheduleService {
 
   update(id: string, data: Partial<Appointment>) {
     return this.http.patch<Appointment>(`${this.base}/${id}`, data);
+  }
+
+  reschedule(id: string, scheduledDate: string, scheduledTime: string) {
+    return this.http.patch<Appointment>(`${this.base}/${id}/reschedule`, {
+      scheduled_date: scheduledDate,
+      scheduled_time: scheduledTime,
+    });
+  }
+
+  cancel(id: string) {
+    return this.http.patch<Appointment>(`${this.base}/${id}/cancel`, {});
   }
 
   delete(id: string) {

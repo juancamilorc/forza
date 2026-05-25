@@ -16,6 +16,7 @@ export * from './lib/dtos/session/update-session.dto';
 export * from './lib/dtos/appointment/create-appointment.dto';
 export * from './lib/dtos/appointment/appointment-response.dto';
 export * from './lib/dtos/appointment/update-appointment.dto';
+export * from './lib/dtos/appointment/reschedule-appointment.dto';
 
 export * from './lib/dtos/user/create-user.dto';
 export * from './lib/dtos/user/user-response.dto';

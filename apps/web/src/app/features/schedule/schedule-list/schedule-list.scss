@@ -104,6 +104,7 @@
   .material-symbols-outlined { font-size: 19px; }
   &:hover  { background: #f0f0f0; color: #1a1a1a; }
   &.gold   { color: #c99734; &:hover { background: rgba(201,151,52,0.1); } }
+  &.warn   { color: #d97706; &:hover { background: rgba(217,119,6,0.1); } }
   &.danger { color: #ef4444; &:hover { background: rgba(239,68,68,0.1); } }
 }
 
@@ -148,6 +149,26 @@
   cursor: pointer; transition: all 0.2s;
   &:hover { border-color: #1a1a1a; color: #1a1a1a; }
 }
+.reschedule-info {
+  font-family: 'Cairo', sans-serif; font-size: 13px; color: #d97706;
+  background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+}
+
+.modal-form { display: flex; flex-direction: column; gap: 16px; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label {
+  font-family: 'Cairo', sans-serif; font-size: 13px;
+  font-weight: 600; color: #1a1a1a;
+}
+.form-input {
+  padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 8px;
+  font-family: 'Cairo', sans-serif; font-size: 14px; color: #1a1a1a;
+  outline: none; transition: border-color 0.2s;
+  &:focus { border-color: #c99734; }
+}
+
 .btn-danger {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 20px; background: #ef4444; color: #fff;

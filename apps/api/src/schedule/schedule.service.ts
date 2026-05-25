@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
-import { CreateAppointmentDto } from '@forza/shared';
+import { CreateAppointmentDto, RescheduleAppointmentDto } from '@forza/shared';
 import { UpdateAppointmentDto } from '@forza/shared';
 
 @Injectable()
@@ -75,6 +75,45 @@ export class ScheduleService {
     const { data, error } = await this.supabase.db
       .from('appointments')
       .update({ ...dto })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new BadRequestException(error.message);
+    return data;
+  }
+
+  // ── RESCHEDULE ───────────────────────────────────────────────
+  async reschedule(id: string, dto: RescheduleAppointmentDto) {
+    const current = await this.findOne(id);
+
+    const count = (current as any).reschedule_count ?? 0;
+    if (count >= 2) {
+      throw new BadRequestException('Esta cita ya alcanzó el límite de 2 reprogramaciones');
+    }
+
+    const { data, error } = await this.supabase.db
+      .from('appointments')
+      .update({
+        scheduled_date:   dto.scheduled_date,
+        scheduled_time:   dto.scheduled_time,
+        reschedule_count: count + 1,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw new BadRequestException(error.message);
+    return data;
+  }
+
+  // ── CANCEL ───────────────────────────────────────────────────
+  async cancel(id: string) {
+    await this.findOne(id);
+
+    const { data, error } = await this.supabase.db
+      .from('appointments')
+      .update({ status: 'cancelled' })
       .eq('id', id)
       .select()
       .single();
