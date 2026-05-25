@@ -24,9 +24,11 @@ export class AthletesController {
   constructor(private readonly athletes: AthletesService) {}
 
   @Get()
-  findAll(@CurrentUser() user: any, @Query('trainer_id') trainerId?: string) {
+  async findAll(@CurrentUser() user: any, @Query('trainer_id') trainerId?: string) {
     if (user.role === 'trainer') {
-      return this.athletes.findAll(user.trainer_id);
+      const myTrainerId = await this.athletes.getTrainerIdByUserId(user.id);
+      if (!myTrainerId) return [];
+      return this.athletes.findAll(myTrainerId);
     }
     return this.athletes.findAll(trainerId);
   }

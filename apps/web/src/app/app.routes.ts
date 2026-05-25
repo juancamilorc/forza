@@ -4,6 +4,11 @@ import { rolesGuard } from './core/guards/roles.guard';
 
 export const appRoutes: Route[] = [
   {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login').then(m => m.Login),
@@ -18,11 +23,6 @@ export const appRoutes: Route[] = [
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/dashboard').then(m => m.Dashboard),
-      },
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
       },
       {
         path: 'athletes',
@@ -129,6 +129,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
   },
 ];

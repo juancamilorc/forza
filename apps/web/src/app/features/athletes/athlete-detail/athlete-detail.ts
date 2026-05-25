@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
+import { PlansService, Plan } from '../../../core/services/plans.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { DatePipe } from '@angular/common';
 
@@ -11,17 +12,21 @@ import { DatePipe } from '@angular/common';
   styleUrl: './athlete-detail.scss',
 })
 export class AthleteDetail implements OnInit {
-  private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
-  private service = inject(AthletesService);
-  private auth    = inject(AuthService);
+  private route        = inject(ActivatedRoute);
+  private router       = inject(Router);
+  private service      = inject(AthletesService);
+  private plansService = inject(PlansService);
+  private auth         = inject(AuthService);
 
-  athlete = signal<Athlete | null>(null);
-  loading = signal(true);
-  role    = this.auth.getRole() ?? '';
+  athlete     = signal<Athlete | null>(null);
+  activePlan  = signal<Plan | null>(null);
+  loading     = signal(true);
+  loadingPlan = signal(true);
+  role        = this.auth.getRole() ?? '';
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
+
     this.service.getOne(id).subscribe({
       next: (data) => {
         this.athlete.set(data);
@@ -31,6 +36,15 @@ export class AthleteDetail implements OnInit {
         this.loading.set(false);
         this.router.navigate(['/athletes']);
       },
+    });
+
+    this.plansService.getByAthlete(id).subscribe({
+      next: (plans) => {
+        const active = plans.find(p => p.is_active) ?? null;
+        this.activePlan.set(active);
+        this.loadingPlan.set(false);
+      },
+      error: () => this.loadingPlan.set(false),
     });
   }
 
@@ -45,6 +59,10 @@ export class AthleteDetail implements OnInit {
       trial:    'Prueba',
     };
     return labels[status] ?? status;
+  }
+
+  getPlanLabel(type: string): string {
+    return this.plansService.getPlanLabel(type);
   }
 
   canEdit(): boolean {

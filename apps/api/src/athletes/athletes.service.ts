@@ -22,6 +22,15 @@ export class AthletesService {
     return age;
   }
 
+  async getTrainerIdByUserId(userId: string): Promise<string | null> {
+    const { data } = await this.supabase.db
+      .from('trainers')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+    return data?.id ?? null;
+  }
+
   async findAll(trainerId?: string) {
     let query = this.supabase.db
       .from('athletes')

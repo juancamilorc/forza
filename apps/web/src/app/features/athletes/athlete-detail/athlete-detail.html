@@ -84,13 +84,52 @@
         </div>
       </div>
 
-      <!-- Plan activo — próximamente -->
+      <!-- Plan activo -->
       <div class="info-card">
         <h2 class="card-title">Plan activo</h2>
-        <div class="coming-soon">
-          <span class="material-symbols-outlined">assignment</span>
-          <p>Próximamente</p>
-        </div>
+
+        @if (loadingPlan()) {
+          <div class="plan-loading">
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+          </div>
+        } @else if (activePlan()) {
+          @if (activePlan()!.is_frozen) {
+            <div class="plan-frozen-banner">
+              <span class="material-symbols-outlined">ac_unit</span>
+              Plan congelado
+              @if (activePlan()!.frozen_reason) {
+                — {{ activePlan()!.frozen_reason }}
+              }
+            </div>
+          }
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="info-label">Tipo</span>
+              <span class="info-value plan-type">{{ getPlanLabel(activePlan()!.plan_type) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Inicio</span>
+              <span class="info-value">{{ activePlan()!.start_date | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Total sesiones</span>
+              <span class="info-value">{{ activePlan()!.total_sessions }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Estado</span>
+              @if (activePlan()!.is_frozen) {
+                <span class="plan-badge plan-frozen">Congelado</span>
+              } @else {
+                <span class="plan-badge plan-active">Activo</span>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="coming-soon">
+            <span class="material-symbols-outlined">assignment</span>
+            <p>Sin plan activo</p>
+          </div>
+        }
       </div>
     </div>
 

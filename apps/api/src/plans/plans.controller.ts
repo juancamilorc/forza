@@ -23,14 +23,14 @@ export class PlansController {
   constructor(private readonly plans: PlansService) {}
 
   // GET /api/plans?athlete_id=uuid
-  @Roles('super_admin', 'admin')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Get()
   findAll(@Query('athlete_id') athleteId?: string) {
     return this.plans.findAll(athleteId);
   }
 
   // GET /api/plans/:id
-  @Roles('super_admin', 'admin')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.plans.findOne(id);
