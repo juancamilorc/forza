@@ -115,6 +115,16 @@
               <span class="info-label">Total sesiones</span>
               <span class="info-value">{{ activePlan()!.total_sessions }}</span>
             </div>
+            @if (!loadingSessions()) {
+              <div class="info-row">
+                <span class="info-label">Completadas</span>
+                <span class="info-value">{{ completedSessions() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Restantes</span>
+                <span class="info-value sessions-remaining">{{ remainingSessions() }}</span>
+              </div>
+            }
             <div class="info-row">
               <span class="info-label">Estado</span>
               @if (activePlan()!.is_frozen) {
@@ -133,13 +143,55 @@
       </div>
     </div>
 
-    <!-- Sesiones — próximamente -->
+    <!-- Historial de sesiones -->
     <div class="info-card">
       <h2 class="card-title">Historial de sesiones</h2>
-      <div class="coming-soon">
-        <span class="material-symbols-outlined">fitness_center</span>
-        <p>Próximamente</p>
-      </div>
+
+      @if (loadingSessions()) {
+        <div class="plan-loading">
+          <span class="material-symbols-outlined spinning">progress_activity</span>
+        </div>
+      } @else if (sessions().length > 0) {
+        <div class="sessions-table-wrap">
+          <table class="sessions-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Lugar</th>
+                <th>Estado</th>
+                <th>Confirmación</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of sessions(); track s.id) {
+                <tr>
+                  <td class="session-num">{{ s.session_number }}</td>
+                  <td class="session-date">{{ formatDate(s.session_date) }}</td>
+                  <td class="text-mid">{{ formatTime(s.session_time) }}</td>
+                  <td class="text-mid">{{ s.location }}</td>
+                  <td>
+                    <span class="session-badge session-{{ s.status }}">
+                      {{ getSessionStatusLabel(s.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="confirm-badge confirm-{{ s.confirmation_status }}">
+                      {{ getConfirmationLabel(s.confirmation_status) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="coming-soon">
+          <span class="material-symbols-outlined">fitness_center</span>
+          <p>Sin sesiones registradas</p>
+        </div>
+      }
     </div>
 
     <!-- Evaluaciones — próximamente -->

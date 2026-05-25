@@ -31,12 +31,16 @@ export class AthletesList implements OnInit {
     });
   }
 
+  private normalize(str: string): string {
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  }
+
   onSearch(event: Event) {
-    const term = (event.target as HTMLInputElement).value.toLowerCase();
+    const term = this.normalize((event.target as HTMLInputElement).value);
     this.search.set(term);
     this.filtered.set(
       this.athletes().filter(a =>
-        `${a.first_name} ${a.last_name}`.toLowerCase().includes(term)
+        this.normalize(`${a.first_name} ${a.last_name}`).includes(term)
       )
     );
   }
