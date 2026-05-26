@@ -1,5 +1,4 @@
 import {
-  IsUUID,
   IsNotEmpty,
   IsDateString,
   IsOptional,
@@ -17,11 +16,11 @@ export enum NutritionalClassification {
 }
 
 export class CreateNutritionalAssessmentDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   evaluator_id!: string;
 

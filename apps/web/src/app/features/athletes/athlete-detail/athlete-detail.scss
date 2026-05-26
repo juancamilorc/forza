@@ -136,6 +136,38 @@
     padding-bottom: 12px;
     border-bottom: 1px solid #f0f0f0;
   }
+
+  .card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+
+    .card-title {
+      margin-bottom: 0;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: rgba(201, 151, 52, 0.1);
+  border: 1px solid rgba(201, 151, 52, 0.35);
+  border-radius: 8px;
+  color: #c99734;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .material-symbols-outlined { font-size: 16px; }
+  &:hover { background: rgba(201, 151, 52, 0.2); }
 }
 
 .info-rows {

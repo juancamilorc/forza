@@ -1,0 +1,405 @@
+<div class="nutri-form">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      @if (athlete()) { {{ athlete()!.first_name }} {{ athlete()!.last_name }} } @else { Deportistas }
+    </button>
+    <h1 class="page-title">Evaluación nutricional</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading() && athlete()) {
+
+    <!-- ── 1. IDENTIFICACIÓN ───────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Identificación</h2>
+      <div class="fields-grid">
+
+        <div class="field-group field-full">
+          <label class="field-label">Deportista</label>
+          <div class="field-static">{{ athlete()!.first_name }} {{ athlete()!.last_name }}</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Fecha de evaluación <span class="required">*</span></label>
+          <input type="date" class="field-input"
+            [value]="form().evaluation_date"
+            (input)="updateStr('evaluation_date', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Período / etiqueta</label>
+          <input type="text" class="field-input" placeholder="Ej: Inicio 2026"
+            [value]="form().period_label"
+            (input)="updateStr('period_label', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Posición</label>
+          <input type="text" class="field-input" placeholder="Ej: Delantero"
+            [value]="form().position"
+            (input)="updateStr('position', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 2. MEDIDAS CORPORALES ───────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Medidas corporales</h2>
+      <div class="fields-grid">
+
+        <div class="field-group">
+          <label class="field-label">Peso (kg)</label>
+          <input type="number" step="0.1" min="0" class="field-input" placeholder="Ej: 65.5"
+            [value]="form().peso_kg ?? ''"
+            (input)="updateNum('peso_kg', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Talla (cm)</label>
+          <input type="number" step="0.1" min="0" class="field-input" placeholder="Ej: 172"
+            [value]="form().talla_cm ?? ''"
+            (input)="updateNum('talla_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Perímetro muñeca (cm)</label>
+          <input type="number" step="0.1" min="0" class="field-input" placeholder="Ej: 16.5"
+            [value]="form().perimetro_muneca_cm ?? ''"
+            (input)="updateNum('perimetro_muneca_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Perímetro pantorrilla (cm)</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().perimetro_pantorrilla_cm ?? ''"
+            (input)="updateNum('perimetro_pantorrilla_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Perímetro brazo tenso (cm)</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().perimetro_brazo_tenso_cm ?? ''"
+            (input)="updateNum('perimetro_brazo_tenso_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Perímetro brazo relajado (cm)</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().perimetro_brazo_cm ?? ''"
+            (input)="updateNum('perimetro_brazo_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Diámetro húmero (cm)</label>
+          <input type="number" step="0.01" min="0" class="field-input"
+            [value]="form().diametro_humero_cm ?? ''"
+            (input)="updateNum('diametro_humero_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Diámetro fémur (cm)</label>
+          <input type="number" step="0.01" min="0" class="field-input"
+            [value]="form().diametro_femur_cm ?? ''"
+            (input)="updateNum('diametro_femur_cm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">% Grasa deseado</label>
+          <input type="number" step="0.1" min="0" max="50" class="field-input" placeholder="Ej: 12"
+            [value]="form().porcentaje_grasa_deseado ?? ''"
+            (input)="updateNum('porcentaje_grasa_deseado', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 3. PLIEGUES CUTÁNEOS ────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Pliegues cutáneos (mm)</h2>
+      <p class="card-hint">Ingresa los 6 pliegues para calcular los resultados automáticamente.</p>
+      <div class="fields-grid">
+
+        <div class="field-group">
+          <label class="field-label">Tricipital</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_tricipital_mm ?? ''"
+            (input)="updateNum('pliegue_tricipital_mm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Subescapular</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_subescapular_mm ?? ''"
+            (input)="updateNum('pliegue_subescapular_mm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Supraespinal</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_supraespinal_mm ?? ''"
+            (input)="updateNum('pliegue_supraespinal_mm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Abdominal</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_abdominal_mm ?? ''"
+            (input)="updateNum('pliegue_abdominal_mm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Muslo</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_muslo_mm ?? ''"
+            (input)="updateNum('pliegue_muslo_mm', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Pantorrilla</label>
+          <input type="number" step="0.1" min="0" class="field-input"
+            [value]="form().pliegue_pantorrilla_mm ?? ''"
+            (input)="updateNum('pliegue_pantorrilla_mm', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 4. RESULTADOS CALCULADOS ───────────────────────── -->
+    <div class="form-card results-card">
+      <h2 class="card-title">
+        <span class="material-symbols-outlined">calculate</span>
+        Resultados calculados
+      </h2>
+
+      @if (results()) {
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="result-label">Sumatoria pliegues</span>
+            <span class="result-value">{{ results()!.sumatoria }} mm</span>
+          </div>
+          <div class="result-item highlight">
+            <span class="result-label">% Grasa corporal</span>
+            <span class="result-value">{{ results()!.pct_grasa }}%</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Peso graso</span>
+            <span class="result-value">{{ results()!.peso_graso }} kg</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Masa libre de grasa</span>
+            <span class="result-value">{{ results()!.mlg }} kg</span>
+          </div>
+          <div class="result-item highlight">
+            <span class="result-label">IMC</span>
+            <span class="result-value">{{ results()!.imc }}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">IAKS</span>
+            <span class="result-value">{{ results()!.iaks }}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">IMLG</span>
+            <span class="result-value">{{ results()!.imlg }}</span>
+          </div>
+          @if (results()!.complexion != null) {
+            <div class="result-item">
+              <span class="result-label">Complexión ósea</span>
+              <span class="result-value">{{ results()!.complexion }}</span>
+            </div>
+          }
+          @if (results()!.peso_ideal != null) {
+            <div class="result-item highlight">
+              <span class="result-label">Peso ideal</span>
+              <span class="result-value">{{ results()!.peso_ideal }} kg</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="results-empty">
+          <span class="material-symbols-outlined">info</span>
+          Ingresa peso, talla y los 6 pliegues para ver los resultados.
+        </div>
+      }
+    </div>
+
+    <!-- ── 5. CLASIFICACIONES ─────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Clasificaciones</h2>
+      <p class="card-hint">Selecciona manualmente según criterio clínico.</p>
+
+      <div class="clasificaciones-list">
+
+        <div class="clasif-row">
+          <span class="clasif-label">% Grasa corporal</span>
+          <div class="semaforo">
+            @for (opt of semaforo; track opt) {
+              <button type="button"
+                class="semaforo-btn semaforo-{{ opt }}"
+                [class.selected]="form().clasificacion_grasa === opt"
+                (click)="setClasificacion('clasificacion_grasa', opt)">
+                {{ opt }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="clasif-row">
+          <span class="clasif-label">IAKS</span>
+          <div class="semaforo">
+            @for (opt of semaforo; track opt) {
+              <button type="button"
+                class="semaforo-btn semaforo-{{ opt }}"
+                [class.selected]="form().clasificacion_iaks === opt"
+                (click)="setClasificacion('clasificacion_iaks', opt)">
+                {{ opt }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="clasif-row">
+          <span class="clasif-label">Pliegues cutáneos</span>
+          <div class="semaforo">
+            @for (opt of semaforo; track opt) {
+              <button type="button"
+                class="semaforo-btn semaforo-{{ opt }}"
+                [class.selected]="form().clasificacion_pliegues === opt"
+                (click)="setClasificacion('clasificacion_pliegues', opt)">
+                {{ opt }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="clasif-row">
+          <span class="clasif-label">Clasificación IMC</span>
+          <input type="text" class="field-input clasif-input" placeholder="Ej: Normopeso"
+            [value]="form().clasificacion_imc"
+            (input)="updateStr('clasificacion_imc', $event)" />
+        </div>
+
+        <div class="clasif-row">
+          <span class="clasif-label">Clasificación talla/edad</span>
+          <input type="text" class="field-input clasif-input" placeholder="Ej: Talla normal"
+            [value]="form().clasificacion_talla_edad"
+            (input)="updateStr('clasificacion_talla_edad', $event)" />
+        </div>
+
+        <div class="clasif-row clasif-row--full">
+          <span class="clasif-label">Clasificación antropométrica general</span>
+          <textarea class="field-textarea" rows="2" placeholder="Descripción general..."
+            [value]="form().clasificacion_antropometrica"
+            (input)="updateStr('clasificacion_antropometrica', $event)"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 6. PLAN ALIMENTICIO ────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Plan alimenticio</h2>
+      <div class="fields-grid">
+
+        <div class="field-group field-full">
+          <label class="field-label">Horario de entrenamiento</label>
+          <input type="text" class="field-input" placeholder="Ej: Lunes y miércoles 4pm"
+            [value]="form().horario_entrenamiento"
+            (input)="updateStr('horario_entrenamiento', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Desayuno</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_desayuno"
+            (input)="updateStr('plan_desayuno', $event)"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Media mañana</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_media_manana"
+            (input)="updateStr('plan_media_manana', $event)"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Almuerzo</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_almuerzo"
+            (input)="updateStr('plan_almuerzo', $event)"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Media tarde</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_media_tarde"
+            (input)="updateStr('plan_media_tarde', $event)"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Cena</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_cena"
+            (input)="updateStr('plan_cena', $event)"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Fin de semana</label>
+          <textarea class="field-textarea" rows="3"
+            [value]="form().plan_finde"
+            (input)="updateStr('plan_finde', $event)"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 7. OBSERVACIONES ───────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Observaciones y recomendaciones</h2>
+      <div class="fields-grid">
+
+        <div class="field-group field-full">
+          <label class="field-label">Recomendaciones</label>
+          <textarea class="field-textarea" rows="4" placeholder="Recomendaciones nutricionales generales..."
+            [value]="form().recomendaciones"
+            (input)="updateStr('recomendaciones', $event)"></textarea>
+        </div>
+
+        <div class="field-group field-full">
+          <label class="field-label">Notas de comparación</label>
+          <textarea class="field-textarea" rows="3" placeholder="Comparación con evaluación anterior..."
+            [value]="form().notas_comparacion"
+            (input)="updateStr('notas_comparacion', $event)"></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ACCIONES ───────────────────────────────────────── -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="goBack()" [disabled]="saving()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-primary" (click)="submit()" [disabled]="saving()">
+        @if (saving()) {
+          <span class="material-symbols-outlined spinning">progress_activity</span>
+          Guardando...
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+          Guardar evaluación
+        }
+      </button>
+    </div>
+
+  }
+
+</div>

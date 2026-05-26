@@ -100,6 +100,13 @@ export const appRoutes: Route[] = [
             .then(m => m.PaymentForm),
       },
       {
+        path: 'assessments/nutritional/new',
+        canActivate: [rolesGuard('super_admin', 'nutritionist')],
+        loadComponent: () =>
+          import('./features/assessments/nutritional-form/nutritional-form')
+            .then(m => m.NutritionalForm),
+      },
+      {
         path: 'admin',
         redirectTo: 'admin/users',
         pathMatch: 'full',

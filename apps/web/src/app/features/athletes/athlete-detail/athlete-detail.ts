@@ -153,6 +153,12 @@ export class AthleteDetail implements OnInit {
   }
 
   goToEdit() {
-   this.router.navigate(['/athletes', this.athlete()!.id, 'edit']);
+    this.router.navigate(['/athletes', this.athlete()!.id, 'edit']);
+  }
+
+  goToNutritionalForm() {
+    this.router.navigate(['/assessments/nutritional/new'], {
+      queryParams: { athlete_id: this.athlete()!.id },
+    });
   }
 }
