@@ -1,11 +1,28 @@
 <div class="shell">
 
+  <!-- Overlay mobile -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-overlay" (click)="toggleSidebar()"></div>
+  }
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen()">
 
     <!-- Logo -->
     <div class="sidebar-logo">
       <img src="logo-forza-amarillo.png" alt="FORZA" class="logo-img" />
+    </div>
+
+    <!-- Usuario (solo mobile) -->
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">{{ user?.full_name?.charAt(0) }}</div>
+      <div class="sidebar-user-info">
+        <span class="sidebar-user-name">{{ user?.full_name }}</span>
+        <span class="role-badge role-{{ role }}">{{ getRoleBadge() }}</span>
+      </div>
+      <button class="icon-btn">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
     </div>
 
     <!-- Navegación -->
@@ -38,17 +55,15 @@
     <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
-        <!-- vacío por ahora -->
+        <img src="logo-forza-amarillo.png" alt="FORZA" class="topbar-logo" />
       </div>
 
       <div class="topbar-right">
-        <!-- Notificaciones -->
-        <button class="icon-btn">
+        <!-- Desktop: notificaciones + usuario completo -->
+        <button class="icon-btn desktop-only">
           <span class="material-symbols-outlined">notifications</span>
         </button>
-
-        <!-- Usuario -->
-        <div class="user-info">
+        <div class="user-info desktop-only">
           <div class="user-details">
             <span class="user-name">{{ user?.full_name }}</span>
             <span class="role-badge role-{{ role }}">{{ getRoleBadge() }}</span>
@@ -57,6 +72,14 @@
             {{ user?.full_name?.charAt(0) }}
           </div>
         </div>
+
+        <!-- Mobile: solo nombre + hamburguesa -->
+        <span class="user-name mobile-only">{{ user?.full_name }}</span>
+        <button class="hamburger" (click)="toggleSidebar()">
+          <span class="material-symbols-outlined">
+            {{ sidebarOpen() ? 'close' : 'menu' }}
+          </span>
+        </button>
       </div>
     </header>
 

@@ -222,3 +222,129 @@
   background-color: #f5f5f5;
   color: #1a1a1a;
 }
+
+// ── TOPBAR LOGO ──────────────────────────────────────────────
+.topbar-logo {
+  display: none;
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+// ── HAMBURGER ────────────────────────────────────────────────
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 8px;
+  border-radius: 8px;
+  align-items: center;
+  transition: color 0.2s;
+
+  &:hover { color: #c99734; }
+  .material-symbols-outlined { font-size: 24px; }
+}
+
+// ── SIDEBAR USER (solo mobile) ───────────────────────────────
+.sidebar-user {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(201, 151, 52, 0.15);
+}
+
+.sidebar-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #c99734;
+  color: #0d0d0d;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── OVERLAY MOBILE ───────────────────────────────────────────
+.sidebar-overlay {
+  display: none;
+}
+
+// ── RESPONSIVE ──────────────────────────────────────────────
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+
+  .mobile-only {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .topbar-logo {
+    display: block;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .sidebar-user {
+    display: flex;
+  }
+
+  .sidebar {
+    transform: translateX(-240px);
+    transition: transform 0.25s ease;
+    z-index: 200;
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  .main-wrapper {
+    margin-left: 0;
+  }
+
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 199;
+  }
+}

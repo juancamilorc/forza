@@ -33,19 +33,27 @@ export class Shell {
   private auth   = inject(AuthService);
   private router = inject(Router);
 
-  user     = this.auth.getCurrentUser();
-  role     = this.auth.getRole() ?? '';
-  navItems = NAV_ITEMS.filter(item => item.roles.includes(this.role));
-  currentRoute = signal(this.router.url);
+  user        = this.auth.getCurrentUser();
+  role        = this.auth.getRole() ?? '';
+  navItems    = NAV_ITEMS.filter(item => item.roles.includes(this.role));
+  currentRoute  = signal(this.router.url);
+  sidebarOpen   = signal(false);
 
   constructor() {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe((e: any) => this.currentRoute.set(e.urlAfterRedirects));
+      .subscribe((e: any) => {
+        this.currentRoute.set(e.urlAfterRedirects);
+        this.sidebarOpen.set(false);
+      });
   }
 
   isActive(route: string): boolean {
     return this.currentRoute().startsWith(route);
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen.update(v => !v);
   }
 
   logout() {
