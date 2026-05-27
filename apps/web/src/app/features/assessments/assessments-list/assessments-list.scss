@@ -1,0 +1,216 @@
+$gold:    #c99734;
+$card-bg: #ffffff;
+$text-dark: #1a1a1a;
+$text-mid:  #535353;
+$border:    #e5e5e5;
+
+.assessments-page {
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0;
+}
+
+// ── Filtros ────────────────────────────────────────────────────────────
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.type-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid $border;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-mid;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+
+  &:hover { border-color: #bbb; }
+
+  &.active {
+    background: $text-dark;
+    border-color: $text-dark;
+    color: #fff;
+  }
+}
+
+.chip-nutri.active { background: #15803d; border-color: #15803d; }
+.chip-tech.active  { background: #1d4ed8; border-color: #1d4ed8; }
+.chip-phys.active  { background: #b45309; border-color: #b45309; }
+
+.athlete-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 12px;
+  background: rgba($gold, 0.1);
+  border: 1px solid rgba($gold, 0.35);
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: darken($gold, 10%);
+  font-family: inherit;
+
+  .material-symbols-outlined { font-size: 16px; }
+}
+
+.chip-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: darken($gold, 10%);
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  margin-left: 2px;
+
+  &:hover { opacity: 1; }
+
+  .material-symbols-outlined { font-size: 15px; }
+}
+
+.search-input {
+  padding: 7px 12px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: $text-dark;
+  background: #fafafa;
+  outline: none;
+  width: 220px;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $gold; background: #fff; }
+}
+
+// ── Loading / Empty ────────────────────────────────────────────────────
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px;
+  gap: 12px;
+  color: $text-mid;
+
+  .material-symbols-outlined { font-size: 48px; color: #ccc; }
+  p { margin: 0; }
+}
+
+// ── Table ──────────────────────────────────────────────────────────────
+.list-card {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: #f9f9f9;
+    border-bottom: 1px solid $border;
+  }
+
+  th {
+    padding: 10px 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-mid;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  tbody tr { border-bottom: 1px solid $border; }
+  tbody tr:last-child { border-bottom: none; }
+}
+
+.list-row {
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:hover { background: #fafafa; }
+
+  td {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    color: $text-dark;
+    vertical-align: middle;
+  }
+}
+
+// ── Type badge ─────────────────────────────────────────────────────────
+.type-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.type-nutritional { background: #dcfce7; color: #15803d; }
+  &.type-technical   { background: #dbeafe; color: #1d4ed8; }
+  &.type-physical    { background: #fef3c7; color: #b45309; }
+}
+
+.athlete-name { font-weight: 600; }
+.date-cell    { color: $text-mid; white-space: nowrap; }
+.period-cell  { color: $text-mid; font-size: 0.8rem; }
+.metric-cell  { color: $text-mid; font-size: 0.82rem; }
+
+.arrow-cell {
+  color: #ccc;
+  width: 32px;
+  text-align: right;
+
+  .material-symbols-outlined { font-size: 20px; vertical-align: middle; }
+}
+
+.spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ── Responsive ─────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .assessments-page { padding: 20px 16px; }
+
+  .search-input { width: 100%; }
+
+  .list-table {
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(6), td:nth-child(6) { display: none; }
+  }
+}

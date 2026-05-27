@@ -1,0 +1,217 @@
+<div class="detail-page">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Evaluaciones
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+    </div>
+  }
+
+  @if (!loading() && assessment()) {
+    <!-- Encabezado -->
+    <div class="detail-header">
+      <div class="type-badge type-technical">Técnica</div>
+      <h1 class="athlete-name" (click)="goToAthlete()">
+        {{ assessment()!.athletes?.first_name }} {{ assessment()!.athletes?.last_name }}
+        <span class="material-symbols-outlined link-icon">open_in_new</span>
+      </h1>
+      <div class="detail-meta">
+        <span>{{ assessment()!.evaluation_date | date:'dd/MM/yyyy' }}</span>
+        @if (assessment()!.period_label) {
+          <span class="dot">·</span>
+          <span>{{ assessment()!.period_label }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Control de balón -->
+    <div class="info-card">
+      <div class="card-title-row">
+        <h2 class="card-title">Control de balón</h2>
+        <div class="pct-badge">
+          Total: <strong>{{ pct(assessment()!.control_efectividad_total_pct) }}</strong>
+        </div>
+        @if (assessment()!.control_clasificacion) {
+          <span class="clasif-badge {{ classCss(assessment()!.control_clasificacion) }}">
+            {{ classLabel(assessment()!.control_clasificacion) }}
+          </span>
+        }
+      </div>
+
+      <table class="control-table">
+        <thead>
+          <tr>
+            <th>Zona</th>
+            <th>Derecha</th>
+            <th>Izquierda</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rastrero</td>
+            <td class="score">{{ assessment()!.control_rastrero_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_rastrero_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr>
+            <td>Media altura</td>
+            <td class="score">{{ assessment()!.control_media_altura_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_media_altura_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr>
+            <td>Alto</td>
+            <td class="score">{{ assessment()!.control_alto_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_alto_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr class="total-row">
+            <td>Efectividad</td>
+            <td class="score">{{ pct(assessment()!.control_efectividad_derecha_pct) }}</td>
+            <td class="score">{{ pct(assessment()!.control_efectividad_izquierda_pct) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      @if (assessment()!.control_notas) {
+        <p class="section-notes">{{ assessment()!.control_notas }}</p>
+      }
+    </div>
+
+    <!-- Pase -->
+    <div class="info-card">
+      <div class="card-title-row">
+        <h2 class="card-title">Precisión en el pase</h2>
+        <div class="pct-badge">
+          Total: <strong>{{ pct(assessment()!.pase_efectividad_pct) }}</strong>
+        </div>
+        @if (assessment()!.pase_clasificacion) {
+          <span class="clasif-badge {{ classCss(assessment()!.pase_clasificacion) }}">
+            {{ classLabel(assessment()!.pase_clasificacion) }}
+          </span>
+        }
+      </div>
+      <div class="pase-row">
+        <div class="pase-box">
+          <span class="pase-label">Pierna derecha</span>
+          <span class="pase-score">{{ assessment()!.pase_derecha ?? '—' }} / 4</span>
+        </div>
+        <div class="pase-box">
+          <span class="pase-label">Pierna izquierda</span>
+          <span class="pase-score">{{ assessment()!.pase_izquierda ?? '—' }} / 4</span>
+        </div>
+      </div>
+      @if (assessment()!.pase_notas) {
+        <p class="section-notes">{{ assessment()!.pase_notas }}</p>
+      }
+    </div>
+
+    <!-- Definición -->
+    <div class="info-card">
+      <div class="card-title-row">
+        <h2 class="card-title">Definición</h2>
+        <div class="pct-badge">
+          Total: <strong>{{ pct(assessment()!.definicion_efectividad_total_pct) }}</strong>
+        </div>
+        @if (assessment()!.definicion_clasificacion) {
+          <span class="clasif-badge {{ classCss(assessment()!.definicion_clasificacion) }}">
+            {{ classLabel(assessment()!.definicion_clasificacion) }}
+          </span>
+        }
+      </div>
+
+      <table class="control-table">
+        <thead>
+          <tr>
+            <th>Carril</th>
+            <th>Derecha</th>
+            <th>Izquierda</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Carril derecho</td>
+            <td class="score">{{ assessment()!.definicion_carril_der_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_der_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr>
+            <td>Carril central</td>
+            <td class="score">{{ assessment()!.definicion_carril_cen_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_cen_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr>
+            <td>Carril izquierdo</td>
+            <td class="score">{{ assessment()!.definicion_carril_izq_dr ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_izq_iz ?? '—' }} / 2</td>
+          </tr>
+          <tr class="total-row">
+            <td>Efectividad</td>
+            <td class="score">{{ pct(assessment()!.definicion_efectividad_dr_pct) }}</td>
+            <td class="score">{{ pct(assessment()!.definicion_efectividad_iz_pct) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      @if (assessment()!.definicion_notas) {
+        <p class="section-notes">{{ assessment()!.definicion_notas }}</p>
+      }
+    </div>
+
+    <!-- Conducción y cambios de dirección -->
+    @if (assessment()!.conduccion_5m || assessment()!.cambios_direccion_derecha) {
+      <div class="info-card">
+        <h2 class="card-title">Conducción y agilidad</h2>
+        <div class="section-grid">
+          @if (assessment()!.conduccion_5m || assessment()!.conduccion_10m || assessment()!.conduccion_20m) {
+            <div>
+              <p class="sub-title">Conducción velocidad</p>
+              <div class="info-rows">
+                @if (assessment()!.conduccion_5m != null) {
+                  <div class="info-row">
+                    <span class="info-label">5 m</span>
+                    <span class="info-value">{{ fmt(assessment()!.conduccion_5m) }} s</span>
+                  </div>
+                }
+                @if (assessment()!.conduccion_10m != null) {
+                  <div class="info-row">
+                    <span class="info-label">10 m</span>
+                    <span class="info-value">{{ fmt(assessment()!.conduccion_10m) }} s</span>
+                  </div>
+                }
+                @if (assessment()!.conduccion_20m != null) {
+                  <div class="info-row">
+                    <span class="info-label">20 m</span>
+                    <span class="info-value">{{ fmt(assessment()!.conduccion_20m) }} s</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @if (assessment()!.cambios_direccion_derecha != null || assessment()!.cambios_direccion_izquierda != null) {
+            <div>
+              <p class="sub-title">Cambios de dirección</p>
+              <div class="info-rows">
+                @if (assessment()!.cambios_direccion_derecha != null) {
+                  <div class="info-row">
+                    <span class="info-label">Derecha</span>
+                    <span class="info-value">{{ fmt(assessment()!.cambios_direccion_derecha) }} s</span>
+                  </div>
+                }
+                @if (assessment()!.cambios_direccion_izquierda != null) {
+                  <div class="info-row">
+                    <span class="info-label">Izquierda</span>
+                    <span class="info-value">{{ fmt(assessment()!.cambios_direccion_izquierda) }} s</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+</div>

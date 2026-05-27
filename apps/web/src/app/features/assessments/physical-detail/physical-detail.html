@@ -1,0 +1,147 @@
+<div class="detail-page">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Evaluaciones
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+    </div>
+  }
+
+  @if (!loading() && assessment()) {
+    <!-- Encabezado -->
+    <div class="detail-header">
+      <div class="type-badge type-physical">Física</div>
+      <h1 class="athlete-name" (click)="goToAthlete()">
+        {{ assessment()!.athletes?.first_name }} {{ assessment()!.athletes?.last_name }}
+        <span class="material-symbols-outlined link-icon">open_in_new</span>
+      </h1>
+      <div class="detail-meta">
+        <span>{{ assessment()!.evaluation_date | date:'dd/MM/yyyy' }}</span>
+        @if (assessment()!.period_label) {
+          <span class="dot">·</span>
+          <span>{{ assessment()!.period_label }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- Movilidad -->
+    <div class="info-card">
+      <div class="card-title-row">
+        <h2 class="card-title">Movilidad — Overhead Squat</h2>
+        @if (assessment()!.movilidad_clasificacion) {
+          <span class="clasif-badge {{ classCss(assessment()!.movilidad_clasificacion) }}">
+            {{ classLabel(assessment()!.movilidad_clasificacion) }}
+          </span>
+        }
+      </div>
+
+      <div class="legend">
+        <span class="legend-item score-0">0 No logra</span>
+        <span class="legend-item score-1">1 Comp. importantes</span>
+        <span class="legend-item score-2">2 Comp. menores</span>
+        <span class="legend-item score-3">3 Perfecto</span>
+      </div>
+
+      <div class="movil-grid">
+        @for (zone of movilZones; track zone.field) {
+          <div class="movil-zone">
+            <div class="movil-header">
+              <span class="movil-label">{{ zone.label }}</span>
+              @if (getValue(zone.field); as v) {
+                <span class="movil-score score-{{ v }}">{{ v }}</span>
+              } @else {
+                <span class="movil-score score-empty">—</span>
+              }
+            </div>
+            @if (getAnalisis(zone.analisis)) {
+              <p class="movil-analisis">{{ getAnalisis(zone.analisis) }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      @if (assessment()!.movilidad_notas) {
+        <p class="section-notes">{{ assessment()!.movilidad_notas }}</p>
+      }
+    </div>
+
+    <!-- Saltos -->
+    <div class="info-card">
+      <h2 class="card-title">Saltos</h2>
+      <div class="saltos-grid">
+        @if (assessment()!.salto_vertical_cm != null) {
+          <div class="salto-box">
+            <span class="salto-type">Salto vertical</span>
+            <span class="salto-value">{{ fmt(assessment()!.salto_vertical_cm, 1) }} <small>cm</small></span>
+            @if (assessment()!.salto_vertical_clasificacion) {
+              <span class="clasif-badge {{ classCss(assessment()!.salto_vertical_clasificacion) }}">
+                {{ classLabel(assessment()!.salto_vertical_clasificacion) }}
+              </span>
+            }
+            @if (assessment()!.salto_vertical_notas) {
+              <p class="salto-notes">{{ assessment()!.salto_vertical_notas }}</p>
+            }
+          </div>
+        }
+        @if (assessment()!.salto_horizontal_cm != null) {
+          <div class="salto-box">
+            <span class="salto-type">Salto horizontal</span>
+            <span class="salto-value">{{ fmt(assessment()!.salto_horizontal_cm, 1) }} <small>cm</small></span>
+            @if (assessment()!.salto_horizontal_clasificacion) {
+              <span class="clasif-badge {{ classCss(assessment()!.salto_horizontal_clasificacion) }}">
+                {{ classLabel(assessment()!.salto_horizontal_clasificacion) }}
+              </span>
+            }
+            @if (assessment()!.salto_horizontal_notas) {
+              <p class="salto-notes">{{ assessment()!.salto_horizontal_notas }}</p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sprint -->
+    @if (assessment()!.sprint_5m != null || assessment()!.sprint_10m != null || assessment()!.sprint_20m != null) {
+      <div class="info-card">
+        <h2 class="card-title">Sprint progresivo</h2>
+        <div class="sprint-row">
+          @if (assessment()!.sprint_5m != null) {
+            <div class="sprint-box">
+              <span class="sprint-dist">5 m</span>
+              <span class="sprint-time">{{ fmt(assessment()!.sprint_5m) }}</span>
+              <span class="sprint-unit">seg</span>
+            </div>
+          }
+          @if (assessment()!.sprint_10m != null) {
+            <div class="sprint-box">
+              <span class="sprint-dist">10 m</span>
+              <span class="sprint-time">{{ fmt(assessment()!.sprint_10m) }}</span>
+              <span class="sprint-unit">seg</span>
+            </div>
+          }
+          @if (assessment()!.sprint_15m != null) {
+            <div class="sprint-box">
+              <span class="sprint-dist">15 m</span>
+              <span class="sprint-time">{{ fmt(assessment()!.sprint_15m) }}</span>
+              <span class="sprint-unit">seg</span>
+            </div>
+          }
+          @if (assessment()!.sprint_20m != null) {
+            <div class="sprint-box highlight">
+              <span class="sprint-dist">20 m</span>
+              <span class="sprint-time">{{ fmt(assessment()!.sprint_20m) }}</span>
+              <span class="sprint-unit">seg</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+
+</div>

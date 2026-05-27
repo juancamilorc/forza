@@ -310,6 +310,16 @@
   gap: 10px;
 }
 
+.assessment-card-link {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: #c99734;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+}
+
 .assessment-header {
   display: flex;
   align-items: center;

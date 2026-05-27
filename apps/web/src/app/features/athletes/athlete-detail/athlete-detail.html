@@ -226,7 +226,7 @@
         <div class="assessments-grid">
 
           <!-- Nutricional -->
-          <div class="assessment-card">
+          <div class="assessment-card assessment-card-link" (click)="goToAssessments('nutritional')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon nutri">nutrition</span>
               <div>
@@ -262,7 +262,7 @@
           </div>
 
           <!-- Técnica -->
-          <div class="assessment-card">
+          <div class="assessment-card assessment-card-link" (click)="goToAssessments('technical')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon tech">sports_soccer</span>
               <div>
@@ -298,7 +298,7 @@
           </div>
 
           <!-- Física -->
-          <div class="assessment-card">
+          <div class="assessment-card assessment-card-link" (click)="goToAssessments('physical')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon phys">directions_run</span>
               <div>

@@ -1,0 +1,300 @@
+$gold:    #c99734;
+$card-bg: #ffffff;
+$text-dark: #1a1a1a;
+$text-mid:  #535353;
+$border:    #e5e5e5;
+
+.detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header { margin-bottom: 4px; }
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-mid;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover { background: #f5f5f5; }
+  .material-symbols-outlined { font-size: 18px; }
+}
+
+.detail-header {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+
+  &.type-physical { background: #fef3c7; color: #b45309; }
+}
+
+.athlete-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0 0 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover { color: $gold; }
+  .link-icon { font-size: 16px; color: #aaa; }
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: $text-mid;
+
+  .dot { color: #ccc; }
+}
+
+.info-card {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $border;
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid $border;
+}
+
+.card-title-row .card-title { margin: 0; padding: 0; border: none; }
+
+.clasif-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.semaforo-excelente       { background: #dcfce7; color: #15803d; }
+.semaforo-bueno           { background: #d1fae5; color: #059669; }
+.semaforo-promedio        { background: #fef9c3; color: #b45309; }
+.semaforo-debajo_promedio { background: #fee2e2; color: #b91c1c; }
+
+// ── Movilidad ──────────────────────────────────────────────────────────
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.legend-item {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.score-0 { background: #fee2e2; color: #b91c1c; }
+.score-1 { background: #fef9c3; color: #b45309; }
+.score-2 { background: #dbeafe; color: #1d4ed8; }
+.score-3 { background: #dcfce7; color: #15803d; }
+.score-empty { background: #f5f5f5; color: $text-mid; }
+
+.movil-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.movil-zone {
+  background: #f9f9f9;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.movil-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.movil-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $text-dark;
+}
+
+.movil-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.movil-analisis {
+  font-size: 0.78rem;
+  color: $text-mid;
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.section-notes {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  color: $text-mid;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+// ── Saltos ─────────────────────────────────────────────────────────────
+.saltos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.salto-box {
+  background: #f9f9f9;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.salto-type {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: $text-mid;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.salto-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $text-dark;
+  line-height: 1.1;
+
+  small {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $text-mid;
+  }
+}
+
+.salto-notes {
+  font-size: 0.78rem;
+  color: $text-mid;
+  margin: 0;
+  font-style: italic;
+}
+
+// ── Sprint ─────────────────────────────────────────────────────────────
+.sprint-row {
+  display: flex;
+  gap: 12px;
+}
+
+.sprint-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 10px;
+  background: #f9f9f9;
+  border: 1px solid $border;
+  border-radius: 10px;
+  gap: 2px;
+
+  &.highlight {
+    background: #fffbeb;
+    border-color: rgba($gold, 0.4);
+  }
+}
+
+.sprint-dist {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $text-mid;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sprint-time {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.sprint-unit {
+  font-size: 0.72rem;
+  color: $text-mid;
+}
+
+// ── Loading ─────────────────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+
+  .material-symbols-outlined { font-size: 40px; color: #ccc; }
+}
+
+.spinning { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .detail-page { padding: 20px 16px; }
+  .movil-grid { grid-template-columns: repeat(2, 1fr); }
+  .saltos-grid { grid-template-columns: 1fr; }
+  .sprint-row { flex-wrap: wrap; }
+  .sprint-box { min-width: calc(50% - 6px); }
+}

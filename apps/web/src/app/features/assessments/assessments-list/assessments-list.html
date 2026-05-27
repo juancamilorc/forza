@@ -1,0 +1,84 @@
+<div class="assessments-page">
+
+  <div class="page-header">
+    <h1 class="page-title">Evaluaciones</h1>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="type-chips">
+      <button class="chip" [class.active]="filterType() === 'all'"          (click)="setFilter('all')">Todas</button>
+      <button class="chip chip-nutri" [class.active]="filterType() === 'nutritional'" (click)="setFilter('nutritional')">Nutricional</button>
+      <button class="chip chip-tech"  [class.active]="filterType() === 'technical'"   (click)="setFilter('technical')">Técnica</button>
+      <button class="chip chip-phys"  [class.active]="filterType() === 'physical'"    (click)="setFilter('physical')">Física</button>
+    </div>
+    @if (filterAthleteName()) {
+      <div class="athlete-chip">
+        <span class="material-symbols-outlined">person</span>
+        {{ filterAthleteName() }}
+        <button class="chip-clear" (click)="clearAthleteFilter()" title="Quitar filtro">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    } @else {
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Buscar deportista..."
+        [value]="searchText()"
+        (input)="setSearch($any($event.target).value)"
+      />
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando evaluaciones...</p>
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (!loading()) {
+    @if (filteredRows().length > 0) {
+      <div class="list-card">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Deportista</th>
+              <th>Fecha</th>
+              <th>Período</th>
+              <th colspan="2">Métricas</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredRows(); track row.id) {
+              <tr class="list-row" (click)="goToDetail(row)">
+                <td>
+                  <span class="type-badge type-{{ row.type }}">{{ typeLabel(row.type) }}</span>
+                </td>
+                <td class="athlete-name">{{ row.athlete_name }}</td>
+                <td class="date-cell">{{ formatDate(row.evaluation_date) }}</td>
+                <td class="period-cell">{{ row.period_label ?? '—' }}</td>
+                <td class="metric-cell">{{ row.metric1 }}</td>
+                <td class="metric-cell">{{ row.metric2 }}</td>
+                <td class="arrow-cell">
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="material-symbols-outlined">analytics</span>
+        <p>No hay evaluaciones</p>
+      </div>
+    }
+  }
+
+</div>

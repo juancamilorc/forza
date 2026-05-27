@@ -100,6 +100,12 @@ export const appRoutes: Route[] = [
             .then(m => m.PaymentForm),
       },
       {
+        path: 'assessments',
+        loadComponent: () =>
+          import('./features/assessments/assessments-list/assessments-list')
+            .then(m => m.AssessmentsList),
+      },
+      {
         path: 'assessments/nutritional/new',
         canActivate: [rolesGuard('super_admin', 'nutritionist')],
         loadComponent: () =>
@@ -119,6 +125,24 @@ export const appRoutes: Route[] = [
         loadComponent: () =>
           import('./features/assessments/physical-form/physical-form')
             .then(m => m.PhysicalForm),
+      },
+      {
+        path: 'assessments/nutritional/:id',
+        loadComponent: () =>
+          import('./features/assessments/nutritional-detail/nutritional-detail')
+            .then(m => m.NutritionalDetail),
+      },
+      {
+        path: 'assessments/technical/:id',
+        loadComponent: () =>
+          import('./features/assessments/technical-detail/technical-detail')
+            .then(m => m.TechnicalDetail),
+      },
+      {
+        path: 'assessments/physical/:id',
+        loadComponent: () =>
+          import('./features/assessments/physical-detail/physical-detail')
+            .then(m => m.PhysicalDetail),
       },
       {
         path: 'videos',

@@ -1,0 +1,339 @@
+<div class="detail-page">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Evaluaciones
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+    </div>
+  }
+
+  @if (!loading() && assessment()) {
+    <!-- Encabezado -->
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <div class="type-badge type-nutritional">Nutricional</div>
+        <h1 class="athlete-name" (click)="goToAthlete()">
+          {{ assessment()!.athletes?.first_name }} {{ assessment()!.athletes?.last_name }}
+          <span class="material-symbols-outlined link-icon">open_in_new</span>
+        </h1>
+        <div class="detail-meta">
+          <span>{{ assessment()!.evaluation_date | date:'dd/MM/yyyy' }}</span>
+          @if (assessment()!.period_label) {
+            <span class="dot">·</span>
+            <span>{{ assessment()!.period_label }}</span>
+          }
+          @if (assessment()!.position) {
+            <span class="dot">·</span>
+            <span>{{ assessment()!.position }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Medidas corporales -->
+    <div class="section-grid">
+      <div class="info-card">
+        <h2 class="card-title">Medidas corporales</h2>
+        <div class="info-rows">
+          @if (assessment()!.peso_kg != null) {
+            <div class="info-row">
+              <span class="info-label">Peso</span>
+              <span class="info-value">{{ fmt(assessment()!.peso_kg) }} kg</span>
+            </div>
+          }
+          @if (assessment()!.talla_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Talla</span>
+              <span class="info-value">{{ fmt(assessment()!.talla_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.perimetro_muneca_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Perímetro muñeca</span>
+              <span class="info-value">{{ fmt(assessment()!.perimetro_muneca_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.perimetro_brazo_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Perímetro brazo</span>
+              <span class="info-value">{{ fmt(assessment()!.perimetro_brazo_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.perimetro_brazo_tenso_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Brazo tenso</span>
+              <span class="info-value">{{ fmt(assessment()!.perimetro_brazo_tenso_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.perimetro_pantorrilla_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Perímetro pantorrilla</span>
+              <span class="info-value">{{ fmt(assessment()!.perimetro_pantorrilla_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.diametro_humero_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Diámetro húmero</span>
+              <span class="info-value">{{ fmt(assessment()!.diametro_humero_cm, 1) }} cm</span>
+            </div>
+          }
+          @if (assessment()!.diametro_femur_cm != null) {
+            <div class="info-row">
+              <span class="info-label">Diámetro fémur</span>
+              <span class="info-value">{{ fmt(assessment()!.diametro_femur_cm, 1) }} cm</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Pliegues cutáneos -->
+      @if (hasPliegues()) {
+        <div class="info-card">
+          <h2 class="card-title">Pliegues cutáneos</h2>
+          <div class="info-rows">
+            @if (assessment()!.pliegue_tricipital_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Tricipital</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_tricipital_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.pliegue_subescapular_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Subescapular</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_subescapular_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.pliegue_supraespinal_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Supraespinal</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_supraespinal_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.pliegue_abdominal_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Abdominal</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_abdominal_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.pliegue_muslo_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Muslo</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_muslo_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.pliegue_pantorrilla_mm != null) {
+              <div class="info-row">
+                <span class="info-label">Pantorrilla</span>
+                <span class="info-value">{{ fmt(assessment()!.pliegue_pantorrilla_mm, 1) }} mm</span>
+              </div>
+            }
+            @if (assessment()!.sumatoria_pliegues_mm != null) {
+              <div class="info-row highlight">
+                <span class="info-label">Sumatoria</span>
+                <span class="info-value">{{ fmt(assessment()!.sumatoria_pliegues_mm, 1) }} mm</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Resultados calculados -->
+    <div class="info-card">
+      <h2 class="card-title">Resultados calculados</h2>
+      <div class="metrics-grid">
+        @if (assessment()!.imc != null) {
+          <div class="metric-box">
+            <span class="metric-label">IMC</span>
+            <span class="metric-value">{{ fmt(assessment()!.imc) }}</span>
+            <span class="metric-unit">kg/m²</span>
+          </div>
+        }
+        @if (assessment()!.porcentaje_grasa != null) {
+          <div class="metric-box">
+            <span class="metric-label">% Grasa</span>
+            <span class="metric-value">{{ fmt(assessment()!.porcentaje_grasa) }}</span>
+            <span class="metric-unit">%</span>
+          </div>
+        }
+        @if (assessment()!.peso_graso_kg != null) {
+          <div class="metric-box">
+            <span class="metric-label">Peso graso</span>
+            <span class="metric-value">{{ fmt(assessment()!.peso_graso_kg) }}</span>
+            <span class="metric-unit">kg</span>
+          </div>
+        }
+        @if (assessment()!.masa_libre_grasa_kg != null) {
+          <div class="metric-box">
+            <span class="metric-label">MLG</span>
+            <span class="metric-value">{{ fmt(assessment()!.masa_libre_grasa_kg) }}</span>
+            <span class="metric-unit">kg</span>
+          </div>
+        }
+        @if (assessment()!.iaks != null) {
+          <div class="metric-box">
+            <span class="metric-label">IAKS</span>
+            <span class="metric-value">{{ fmt(assessment()!.iaks, 3) }}</span>
+            <span class="metric-unit"></span>
+          </div>
+        }
+        @if (assessment()!.imlg != null) {
+          <div class="metric-box">
+            <span class="metric-label">IMLG</span>
+            <span class="metric-value">{{ fmt(assessment()!.imlg) }}</span>
+            <span class="metric-unit">kg/m²</span>
+          </div>
+        }
+        @if (assessment()!.complexion_osea != null) {
+          <div class="metric-box">
+            <span class="metric-label">Complexión ósea</span>
+            <span class="metric-value">{{ fmt(assessment()!.complexion_osea) }}</span>
+            <span class="metric-unit"></span>
+          </div>
+        }
+        @if (assessment()!.peso_ideal_kg != null) {
+          <div class="metric-box">
+            <span class="metric-label">Peso ideal</span>
+            <span class="metric-value">{{ fmt(assessment()!.peso_ideal_kg) }}</span>
+            <span class="metric-unit">kg</span>
+          </div>
+        }
+        @if (assessment()!.porcentaje_grasa_deseado != null) {
+          <div class="metric-box">
+            <span class="metric-label">% Grasa deseado</span>
+            <span class="metric-value">{{ fmt(assessment()!.porcentaje_grasa_deseado) }}</span>
+            <span class="metric-unit">%</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Clasificaciones -->
+    <div class="info-card">
+      <h2 class="card-title">Clasificaciones</h2>
+      <div class="clasif-grid">
+        @if (assessment()!.clasificacion_imc) {
+          <div class="clasif-item">
+            <span class="clasif-label">IMC</span>
+            <span class="clasif-badge {{ classCss(assessment()!.clasificacion_imc) }}">
+              {{ classLabel(assessment()!.clasificacion_imc) }}
+            </span>
+          </div>
+        }
+        @if (assessment()!.clasificacion_grasa) {
+          <div class="clasif-item">
+            <span class="clasif-label">% Grasa</span>
+            <span class="clasif-badge {{ classCss(assessment()!.clasificacion_grasa) }}">
+              {{ classLabel(assessment()!.clasificacion_grasa) }}
+            </span>
+          </div>
+        }
+        @if (assessment()!.clasificacion_iaks) {
+          <div class="clasif-item">
+            <span class="clasif-label">IAKS</span>
+            <span class="clasif-badge {{ classCss(assessment()!.clasificacion_iaks) }}">
+              {{ classLabel(assessment()!.clasificacion_iaks) }}
+            </span>
+          </div>
+        }
+        @if (assessment()!.clasificacion_pliegues) {
+          <div class="clasif-item">
+            <span class="clasif-label">Pliegues</span>
+            <span class="clasif-badge {{ classCss(assessment()!.clasificacion_pliegues) }}">
+              {{ classLabel(assessment()!.clasificacion_pliegues) }}
+            </span>
+          </div>
+        }
+        @if (assessment()!.clasificacion_talla_edad) {
+          <div class="clasif-item">
+            <span class="clasif-label">Talla/edad</span>
+            <span class="clasif-badge clasif-badge-text">{{ assessment()!.clasificacion_talla_edad }}</span>
+          </div>
+        }
+        @if (assessment()!.clasificacion_antropometrica) {
+          <div class="clasif-item full-width">
+            <span class="clasif-label">Clasificación antropométrica</span>
+            <span class="clasif-text">{{ assessment()!.clasificacion_antropometrica }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Plan alimenticio -->
+    @if (hasPlan()) {
+      <div class="info-card">
+        <h2 class="card-title">Plan alimenticio</h2>
+        @if (assessment()!.horario_entrenamiento) {
+          <p class="plan-schedule">
+            <span class="material-symbols-outlined">schedule</span>
+            Horario de entrenamiento: {{ assessment()!.horario_entrenamiento }}
+          </p>
+        }
+        <div class="plan-grid">
+          @if (assessment()!.plan_desayuno) {
+            <div class="plan-item">
+              <span class="plan-time">Desayuno</span>
+              <span class="plan-content">{{ assessment()!.plan_desayuno }}</span>
+            </div>
+          }
+          @if (assessment()!.plan_media_manana) {
+            <div class="plan-item">
+              <span class="plan-time">Media mañana</span>
+              <span class="plan-content">{{ assessment()!.plan_media_manana }}</span>
+            </div>
+          }
+          @if (assessment()!.plan_almuerzo) {
+            <div class="plan-item">
+              <span class="plan-time">Almuerzo</span>
+              <span class="plan-content">{{ assessment()!.plan_almuerzo }}</span>
+            </div>
+          }
+          @if (assessment()!.plan_media_tarde) {
+            <div class="plan-item">
+              <span class="plan-time">Media tarde</span>
+              <span class="plan-content">{{ assessment()!.plan_media_tarde }}</span>
+            </div>
+          }
+          @if (assessment()!.plan_cena) {
+            <div class="plan-item">
+              <span class="plan-time">Cena</span>
+              <span class="plan-content">{{ assessment()!.plan_cena }}</span>
+            </div>
+          }
+          @if (assessment()!.plan_finde) {
+            <div class="plan-item">
+              <span class="plan-time">Fin de semana</span>
+              <span class="plan-content">{{ assessment()!.plan_finde }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Observaciones -->
+    @if (assessment()!.recomendaciones || assessment()!.notas_comparacion) {
+      <div class="info-card">
+        <h2 class="card-title">Observaciones</h2>
+        @if (assessment()!.recomendaciones) {
+          <div class="obs-block">
+            <p class="obs-label">Recomendaciones</p>
+            <p class="obs-text">{{ assessment()!.recomendaciones }}</p>
+          </div>
+        }
+        @if (assessment()!.notas_comparacion) {
+          <div class="obs-block">
+            <p class="obs-label">Comparación con evaluación anterior</p>
+            <p class="obs-text">{{ assessment()!.notas_comparacion }}</p>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>
