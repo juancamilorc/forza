@@ -1,0 +1,433 @@
+$gold:       #c99734;
+$dark:       #0d0d0d;
+$surface:    #1c1c1c;
+$content-bg: #f5f5f5;
+$card-bg:    #ffffff;
+$text-dark:  #1a1a1a;
+$text-mid:   #535353;
+$border:     #e5e5e5;
+
+// ── Page ───────────────────────────────────────────────────────────────
+.videos-page {
+  padding: 32px;
+  max-width: 1200px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0;
+}
+
+// ── Buttons ────────────────────────────────────────────────────────────
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: $gold;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: default; }
+
+  .material-symbols-outlined { font-size: 18px; }
+}
+
+.btn-secondary {
+  padding: 9px 18px;
+  background: #fff;
+  color: $text-mid;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: #f9f9f9; }
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+
+.btn-danger {
+  padding: 9px 18px;
+  background: #b91c1c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.88; }
+}
+
+// ── Loading / Empty ────────────────────────────────────────────────────
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+  color: $text-mid;
+
+  .material-symbols-outlined { font-size: 52px; color: #ccc; }
+  p { font-size: 1rem; margin: 0; }
+}
+
+// ── Videos grid ────────────────────────────────────────────────────────
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.video-card {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+
+    .action-btn { opacity: 1; }
+  }
+}
+
+// ── Thumbnail ──────────────────────────────────────────────────────────
+.thumbnail-wrap {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+// Branded fallback — always rendered, img sits on top when available (DOM order)
+.thumbnail-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f5f0e8 0%, #ede5d0 100%);
+  transition: background 0.2s;
+
+  .fallback-icon {
+    font-size: 48px;
+    color: $gold;
+    transition: transform 0.2s;
+  }
+
+  .fallback-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $text-mid;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+}
+
+// img comes after fallback in DOM → renders on top without needing z-index
+.thumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s;
+}
+
+.thumbnail-wrap:hover {
+  .thumbnail        { transform: scale(1.03); }
+  .fallback-icon    { transform: scale(1.12); }
+  .fallback-label   { color: $gold; }
+  .thumbnail-fallback { background: linear-gradient(135deg, #ede5d0 0%, #e0d5ba 100%); }
+}
+
+// ── Info ───────────────────────────────────────────────────────────────
+.video-info {
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.video-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-dark;
+  margin: 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-desc {
+  font-size: 0.8rem;
+  color: $text-mid;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.meta-date,
+.meta-uploader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: $text-mid;
+
+  .material-symbols-outlined { font-size: 14px; }
+}
+
+// ── Card action buttons ────────────────────────────────────────────────
+.video-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+
+  .material-symbols-outlined { font-size: 16px; }
+  &:disabled { cursor: default; }
+}
+
+.edit-btn:hover:not(:disabled)   { background: $gold; }
+.delete-btn:hover:not(:disabled) { background: #b91c1c; }
+
+// ── Spinner ────────────────────────────────────────────────────────────
+.spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ── Modal base ─────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  background: $card-bg;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid $border;
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $text-dark;
+    margin: 0;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $text-mid;
+  display: flex;
+  padding: 4px;
+  border-radius: 6px;
+
+  &:hover { background: #f0f0f0; }
+}
+
+.modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid $border;
+}
+
+// ── Confirm modal ──────────────────────────────────────────────────────
+.modal-confirm {
+  max-width: 400px;
+  text-align: center;
+  padding: 32px 28px 24px;
+  gap: 0;
+
+  .modal-footer {
+    border-top: none;
+    justify-content: center;
+    gap: 12px;
+    padding-top: 8px;
+  }
+}
+
+.confirm-icon {
+  .material-symbols-outlined {
+    font-size: 48px;
+    color: #b91c1c;
+  }
+  margin-bottom: 16px;
+}
+
+.confirm-msg {
+  font-size: 0.95rem;
+  color: $text-dark;
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+// ── Form fields ────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text-mid;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field-input {
+  padding: 9px 12px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: $text-dark;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: $gold; background: #fff; }
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+// ── URL preview ────────────────────────────────────────────────────────
+.url-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.preview-thumb {
+  width: 96px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid $border;
+}
+
+.preview-label {
+  font-size: 0.78rem;
+  color: #15803d;
+  font-weight: 500;
+}
+
+// ── Responsive ─────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .videos-page {
+    padding: 20px 16px;
+  }
+
+  .videos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn { opacity: 1; }
+}

@@ -121,6 +121,13 @@ export const appRoutes: Route[] = [
             .then(m => m.PhysicalForm),
       },
       {
+        path: 'videos',
+        canActivate: [rolesGuard('super_admin', 'admin', 'trainer')],
+        loadComponent: () =>
+          import('./features/videos/videos-list/videos-list')
+            .then(m => m.VideosList),
+      },
+      {
         path: 'admin',
         redirectTo: 'admin/users',
         pathMatch: 'full',

@@ -1,0 +1,236 @@
+<div class="videos-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Videos</h1>
+    @if (canManage()) {
+      <button class="btn-primary" (click)="openAddModal()">
+        <span class="material-symbols-outlined">add</span>
+        Agregar video
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando videos...</p>
+    </div>
+  }
+
+  <!-- Grid de videos -->
+  @if (!loading()) {
+    @if (videos().length > 0) {
+      <div class="videos-grid">
+        @for (video of videos(); track video.id) {
+          <div class="video-card">
+
+            <!-- Thumbnail -->
+            <a [href]="getWatchUrl(video.url)" target="_blank" rel="noopener" class="thumbnail-wrap">
+              <div class="thumbnail-fallback">
+                <span class="material-symbols-outlined fallback-icon">play_circle</span>
+                <span class="fallback-label">Ver video</span>
+              </div>
+              @if (getYoutubeThumbnail(video.url); as thumb) {
+                <img
+                  [src]="thumb"
+                  [alt]="video.title"
+                  class="thumbnail"
+                  loading="lazy"
+                  (error)="onThumbError($event)"
+                />
+              }
+            </a>
+
+            <!-- Info -->
+            <div class="video-info">
+              <h3 class="video-title">{{ video.title }}</h3>
+              @if (video.description) {
+                <p class="video-desc">{{ video.description }}</p>
+              }
+              <div class="video-meta">
+                <span class="meta-date">
+                  <span class="material-symbols-outlined">calendar_today</span>
+                  {{ video.created_at | date:'dd/MM/yyyy' }}
+                </span>
+                @if (video.users?.full_name) {
+                  <span class="meta-uploader">
+                    <span class="material-symbols-outlined">person</span>
+                    {{ video.users!.full_name }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            @if (canManage()) {
+              <div class="video-actions">
+                <button
+                  class="action-btn edit-btn"
+                  (click)="openEdit(video)"
+                  title="Editar"
+                >
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                @if (canDelete()) {
+                  <button
+                    class="action-btn delete-btn"
+                    [disabled]="deletingId() === video.id"
+                    (click)="deleteVideo(video.id, video.title)"
+                    title="Eliminar"
+                  >
+                    @if (deletingId() === video.id) {
+                      <span class="material-symbols-outlined spinning">progress_activity</span>
+                    } @else {
+                      <span class="material-symbols-outlined">delete</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="material-symbols-outlined">video_library</span>
+        <p>No hay videos disponibles</p>
+        @if (canManage()) {
+          <button class="btn-primary" (click)="openAddModal()">Agregar el primero</button>
+        }
+      </div>
+    }
+  }
+
+</div>
+
+<!-- ── Modal: Agregar video ───────────────────────────────────────────── -->
+@if (showAddModal()) {
+  <div class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Agregar video</h2>
+        <button class="modal-close" (click)="closeAddModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label">Título *</label>
+          <input
+            class="field-input"
+            type="text"
+            placeholder="Nombre del video"
+            [value]="addForm.title"
+            (input)="addForm.title = $any($event.target).value"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label">URL (YouTube o Drive) *</label>
+          <input
+            class="field-input"
+            type="url"
+            placeholder="https://youtube.com/watch?v=..."
+            [value]="addForm.url"
+            (input)="setUrl($any($event.target).value)"
+          />
+          @if (getYoutubeThumbnail(formUrl()); as thumb) {
+            <div class="url-preview">
+              <img [src]="thumb" alt="Vista previa" class="preview-thumb" />
+              <span class="preview-label">Vista previa detectada</span>
+            </div>
+          }
+        </div>
+        <div class="field">
+          <label class="field-label">Descripción (opcional)</label>
+          <textarea
+            class="field-input field-textarea"
+            placeholder="Descripción del contenido..."
+            [value]="addForm.description"
+            (input)="addForm.description = $any($event.target).value"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAddModal()" [disabled]="saving()">Cancelar</button>
+        <button
+          class="btn-primary"
+          (click)="submitAdd()"
+          [disabled]="saving() || !addForm.title.trim() || !addForm.url.trim()"
+        >
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+          }
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Modal: Editar video ────────────────────────────────────────────── -->
+@if (showEditModal()) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Editar video</h2>
+        <button class="modal-close" (click)="closeEditModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label">Título *</label>
+          <input
+            class="field-input"
+            type="text"
+            [value]="editForm.title"
+            (input)="editForm.title = $any($event.target).value"
+          />
+        </div>
+        <div class="field">
+          <label class="field-label">Descripción (opcional)</label>
+          <textarea
+            class="field-input field-textarea"
+            placeholder="Descripción del contenido..."
+            [value]="editForm.description"
+            (input)="editForm.description = $any($event.target).value"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeEditModal()" [disabled]="submittingEdit()">Cancelar</button>
+        <button
+          class="btn-primary"
+          (click)="submitEdit()"
+          [disabled]="submittingEdit() || !editForm.title.trim()"
+        >
+          @if (submittingEdit()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+          }
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Modal: Confirmar eliminación ──────────────────────────────────── -->
+@if (showConfirm()) {
+  <div class="modal-overlay" (click)="cancelConfirm()">
+    <div class="modal modal-confirm" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">
+        <span class="material-symbols-outlined">delete_forever</span>
+      </div>
+      <p class="confirm-msg">{{ confirmMsg() }}</p>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cancelConfirm()">Cancelar</button>
+        <button class="btn-danger" (click)="executeDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
