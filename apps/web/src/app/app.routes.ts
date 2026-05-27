@@ -107,6 +107,13 @@ export const appRoutes: Route[] = [
             .then(m => m.NutritionalForm),
       },
       {
+        path: 'assessments/technical/new',
+        canActivate: [rolesGuard('super_admin', 'trainer')],
+        loadComponent: () =>
+          import('./features/assessments/technical-form/technical-form')
+            .then(m => m.TechnicalForm),
+      },
+      {
         path: 'admin',
         redirectTo: 'admin/users',
         pathMatch: 'full',

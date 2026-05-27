@@ -151,6 +151,12 @@
   }
 }
 
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .btn-add {
   display: flex;
   align-items: center;

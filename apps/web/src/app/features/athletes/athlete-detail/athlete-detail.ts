@@ -161,4 +161,10 @@ export class AthleteDetail implements OnInit {
       queryParams: { athlete_id: this.athlete()!.id },
     });
   }
+
+  goToTechnicalForm() {
+    this.router.navigate(['/assessments/technical/new'], {
+      queryParams: { athlete_id: this.athlete()!.id },
+    });
+  }
 }

@@ -1,0 +1,351 @@
+<div class="tech-form">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      @if (athlete()) { {{ athlete()!.first_name }} {{ athlete()!.last_name }} } @else { Deportistas }
+    </button>
+    <h1 class="page-title">Evaluación técnica</h1>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading() && athlete()) {
+
+    <!-- ── 1. IDENTIFICACIÓN ───────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Identificación</h2>
+      <div class="fields-grid">
+
+        <div class="field-group field-full">
+          <label class="field-label">Deportista</label>
+          <div class="field-static">{{ athlete()!.first_name }} {{ athlete()!.last_name }}</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Fecha <span class="required">*</span></label>
+          <input type="date" class="field-input"
+            [value]="form().evaluation_date"
+            (input)="updateStr('evaluation_date', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Período / etiqueta</label>
+          <input type="text" class="field-input" placeholder="Ej: Inicio 2026"
+            [value]="form().period_label"
+            (input)="updateStr('period_label', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 2. CONDUCCIÓN ──────────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Conducción con velocidad (segundos)</h2>
+      <div class="fields-grid">
+
+        <div class="field-group">
+          <label class="field-label">5 metros</label>
+          <input type="number" step="0.01" min="0" class="field-input" placeholder="Ej: 2.34"
+            [value]="form().conduccion_5m ?? ''"
+            (input)="updateNum('conduccion_5m', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">10 metros</label>
+          <input type="number" step="0.01" min="0" class="field-input" placeholder="Ej: 4.12"
+            [value]="form().conduccion_10m ?? ''"
+            (input)="updateNum('conduccion_10m', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">20 metros</label>
+          <input type="number" step="0.01" min="0" class="field-input" placeholder="Ej: 7.85"
+            [value]="form().conduccion_20m ?? ''"
+            (input)="updateNum('conduccion_20m', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 3. CAMBIOS DE DIRECCIÓN ────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Cambios de dirección (segundos)</h2>
+      <div class="fields-grid">
+
+        <div class="field-group">
+          <label class="field-label">Derecha</label>
+          <input type="number" step="0.01" min="0" class="field-input" placeholder="Ej: 5.20"
+            [value]="form().cambios_direccion_derecha ?? ''"
+            (input)="updateNum('cambios_direccion_derecha', $event)" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Izquierda</label>
+          <input type="number" step="0.01" min="0" class="field-input" placeholder="Ej: 5.48"
+            [value]="form().cambios_direccion_izquierda ?? ''"
+            (input)="updateNum('cambios_direccion_izquierda', $event)" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── 4. CONTROL DE BALÓN ────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Control de balón</h2>
+      <p class="card-hint">Selecciona cuántos intentos fueron exitosos (0–2 por zona y pierna).</p>
+
+      <div class="control-table">
+        <div class="control-header">
+          <span></span>
+          <span class="col-label">Derecha</span>
+          <span class="col-label">Izquierda</span>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Rastrero</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_rastrero_dr === v"
+                (click)="set('control_rastrero_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_rastrero_iz === v"
+                (click)="set('control_rastrero_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Media altura</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_media_altura_dr === v"
+                (click)="set('control_media_altura_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_media_altura_iz === v"
+                (click)="set('control_media_altura_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Alto</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_alto_dr === v"
+                (click)="set('control_alto_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().control_alto_iz === v"
+                (click)="set('control_alto_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="section-result">
+        <span class="result-label">Total: {{ results().controlTotal }} / 12</span>
+        <span class="result-pct">{{ results().controlPct }}%</span>
+      </div>
+
+      <div class="clasif-row">
+        <span class="clasif-label">Clasificación</span>
+        <div class="clasif-btns">
+          @for (opt of clasif; track opt) {
+            <button type="button" class="clasif-btn clasif-{{ opt }}"
+              [class.selected]="form().control_clasificacion === opt"
+              (click)="toggleClasif('control_clasificacion', opt)">{{ opt }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:12px">
+        <label class="field-label">Notas</label>
+        <textarea class="field-textarea" rows="2"
+          [value]="form().control_notas"
+          (input)="updateStr('control_notas', $event)"></textarea>
+      </div>
+    </div>
+
+    <!-- ── 5. PRECISIÓN EN EL PASE ───────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Precisión en el pase</h2>
+      <p class="card-hint">Selecciona cuántos pases fueron exitosos (0–4 por pierna).</p>
+
+      <div class="control-table">
+        <div class="control-header">
+          <span></span>
+          <span class="col-label">Derecha</span>
+          <span class="col-label">Izquierda</span>
+        </div>
+        <div class="control-row">
+          <span class="row-label">Pases</span>
+          <div class="score-group">
+            @for (v of vals04; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().pase_derecha === v"
+                (click)="set('pase_derecha', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals04; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().pase_izquierda === v"
+                (click)="set('pase_izquierda', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="section-result">
+        <span class="result-label">Total: {{ results().paseTotal }} / 8</span>
+        <span class="result-pct">{{ results().pasePct }}%</span>
+      </div>
+
+      <div class="clasif-row">
+        <span class="clasif-label">Clasificación</span>
+        <div class="clasif-btns">
+          @for (opt of clasif; track opt) {
+            <button type="button" class="clasif-btn clasif-{{ opt }}"
+              [class.selected]="form().pase_clasificacion === opt"
+              (click)="toggleClasif('pase_clasificacion', opt)">{{ opt }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:12px">
+        <label class="field-label">Notas</label>
+        <textarea class="field-textarea" rows="2"
+          [value]="form().pase_notas"
+          (input)="updateStr('pase_notas', $event)"></textarea>
+      </div>
+    </div>
+
+    <!-- ── 6. DEFINICIÓN ─────────────────────────────────── -->
+    <div class="form-card">
+      <h2 class="card-title">Definición</h2>
+      <p class="card-hint">Selecciona cuántos remates fueron exitosos (0–2 por carril y pierna).</p>
+
+      <div class="control-table">
+        <div class="control-header">
+          <span></span>
+          <span class="col-label">Derecha</span>
+          <span class="col-label">Izquierda</span>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Carril derecho</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_der_dr === v"
+                (click)="set('definicion_carril_der_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_der_iz === v"
+                (click)="set('definicion_carril_der_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Carril central</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_cen_dr === v"
+                (click)="set('definicion_carril_cen_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_cen_iz === v"
+                (click)="set('definicion_carril_cen_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="control-row">
+          <span class="row-label">Carril izquierdo</span>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_izq_dr === v"
+                (click)="set('definicion_carril_izq_dr', v)">{{ v }}</button>
+            }
+          </div>
+          <div class="score-group">
+            @for (v of vals02; track v) {
+              <button type="button" class="score-btn"
+                [class.selected]="form().definicion_carril_izq_iz === v"
+                (click)="set('definicion_carril_izq_iz', v)">{{ v }}</button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="section-result">
+        <span class="result-label">Total: {{ results().defTotal }} / 12</span>
+        <span class="result-pct">{{ results().defPct }}%</span>
+      </div>
+
+      <div class="clasif-row">
+        <span class="clasif-label">Clasificación</span>
+        <div class="clasif-btns">
+          @for (opt of clasif; track opt) {
+            <button type="button" class="clasif-btn clasif-{{ opt }}"
+              [class.selected]="form().definicion_clasificacion === opt"
+              (click)="toggleClasif('definicion_clasificacion', opt)">{{ opt }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:12px">
+        <label class="field-label">Notas</label>
+        <textarea class="field-textarea" rows="2"
+          [value]="form().definicion_notas"
+          (input)="updateStr('definicion_notas', $event)"></textarea>
+      </div>
+    </div>
+
+    <!-- ── ACCIONES ───────────────────────────────────────── -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="goBack()" [disabled]="saving()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-primary" (click)="submit()" [disabled]="saving()">
+        @if (saving()) {
+          <span class="material-symbols-outlined spinning">progress_activity</span>
+          Guardando...
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+          Guardar evaluación
+        }
+      </button>
+    </div>
+
+  }
+</div>
