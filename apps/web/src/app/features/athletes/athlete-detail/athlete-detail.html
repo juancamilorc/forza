@@ -204,6 +204,10 @@
               <span class="material-symbols-outlined">add</span>
               Técnica
             </button>
+            <button class="btn-add" (click)="goToPhysicalForm()">
+              <span class="material-symbols-outlined">add</span>
+              Física
+            </button>
           }
           @if (['super_admin', 'nutritionist'].includes(role)) {
             <button class="btn-add" (click)="goToNutritionalForm()">

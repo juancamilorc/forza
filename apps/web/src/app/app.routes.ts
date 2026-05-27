@@ -114,6 +114,13 @@ export const appRoutes: Route[] = [
             .then(m => m.TechnicalForm),
       },
       {
+        path: 'assessments/physical/new',
+        canActivate: [rolesGuard('super_admin', 'trainer')],
+        loadComponent: () =>
+          import('./features/assessments/physical-form/physical-form')
+            .then(m => m.PhysicalForm),
+      },
+      {
         path: 'admin',
         redirectTo: 'admin/users',
         pathMatch: 'full',

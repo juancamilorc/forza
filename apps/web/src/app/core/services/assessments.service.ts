@@ -55,6 +55,10 @@ export class AssessmentsService {
     return this.http.post<TechnicalAssessment>(`${this.base}/technical`, data);
   }
 
+  createPhysical(data: any) {
+    return this.http.post<PhysicalAssessment>(`${this.base}/physical`, data);
+  }
+
   getTechnicalByAthlete(athleteId: string) {
     return this.http.get<TechnicalAssessment[]>(`${this.base}/technical?athlete_id=${athleteId}`);
   }

@@ -1,5 +1,5 @@
 import {
-  IsUUID, IsNotEmpty, IsDateString, IsOptional,
+  IsNotEmpty, IsDateString, IsOptional,
   IsString, IsNumber, IsEnum, IsInt, Min, Max,
 } from 'class-validator';
 
@@ -11,11 +11,11 @@ export enum PhysicalClassification {
 }
 
 export class CreatePhysicalAssessmentDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   evaluator_id!: string;
 
