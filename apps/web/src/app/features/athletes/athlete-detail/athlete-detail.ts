@@ -162,6 +162,12 @@ export class AthleteDetail implements OnInit {
     });
   }
 
+  goToNewPlan() {
+    this.router.navigate(['/plans/new'], {
+      queryParams: { athlete_id: this.athlete()!.id },
+    });
+  }
+
   goToNutritionalForm() {
     this.router.navigate(['/assessments/nutritional/new'], {
       queryParams: { athlete_id: this.athlete()!.id },

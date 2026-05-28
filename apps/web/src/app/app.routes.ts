@@ -49,6 +49,27 @@ export const appRoutes: Route[] = [
             .then(m => m.AthleteDetail),
       },
       {
+        path: 'plans',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/plans/plans-list/plans-list')
+            .then(m => m.PlansList),
+      },
+      {
+        path: 'plans/new',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/plans/plan-form/plan-form')
+            .then(m => m.PlanForm),
+      },
+      {
+        path: 'plans/:id/edit',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/plans/plan-form/plan-form')
+            .then(m => m.PlanForm),
+      },
+      {
         path: 'sessions',
         loadComponent: () =>
           import('./features/sessions/sessions-list/sessions-list')

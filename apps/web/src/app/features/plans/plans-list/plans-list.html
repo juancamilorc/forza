@@ -1,0 +1,183 @@
+<div class="plans-page">
+
+  <div class="page-header">
+    <h1 class="page-title">Planes</h1>
+    @if (canManage()) {
+      <button class="btn-primary" (click)="goToNew()">
+        <span class="material-symbols-outlined">add</span>
+        Nuevo plan
+      </button>
+    }
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="status-chips">
+      <button class="chip" [class.active]="statusFilter() === 'all'" (click)="setFilter('all')">
+        Todos <span class="chip-count">{{ counts().all }}</span>
+      </button>
+      <button class="chip chip-active" [class.active]="statusFilter() === 'active'" (click)="setFilter('active')">
+        Activos <span class="chip-count">{{ counts().active }}</span>
+      </button>
+      <button class="chip chip-frozen" [class.active]="statusFilter() === 'frozen'" (click)="setFilter('frozen')">
+        Congelados <span class="chip-count">{{ counts().frozen }}</span>
+      </button>
+      <button class="chip chip-cancelled" [class.active]="statusFilter() === 'cancelled'" (click)="setFilter('cancelled')">
+        Cancelados <span class="chip-count">{{ counts().cancelled }}</span>
+      </button>
+    </div>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Buscar deportista..."
+      [value]="searchText()"
+      (input)="setSearch($any($event.target).value)"
+    />
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando planes...</p>
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (!loading()) {
+    @if (filteredPlans().length > 0) {
+      <div class="list-card">
+        <table class="list-table">
+          <thead>
+            <tr>
+              <th>Deportista</th>
+              <th>Tipo</th>
+              <th>Inicio</th>
+              <th>Sesiones</th>
+              <th>Estado</th>
+              @if (canManage()) {
+                <th></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (plan of filteredPlans(); track plan.id) {
+              <tr class="list-row" (click)="goToAthlete(plan, $event)">
+                <td class="athlete-cell">
+                  <span class="athlete-name">{{ athleteName(plan) }}</span>
+                </td>
+                <td>
+                  <span class="plan-type-label">{{ planLabel(plan.plan_type) }}</span>
+                </td>
+                <td class="date-cell">{{ formatDate(plan.start_date) }}</td>
+                <td class="sessions-cell">{{ plan.total_sessions }}</td>
+                <td>
+                  <span class="status-badge {{ statusCss(plan) }}">{{ statusLabel(plan) }}</span>
+                  @if (plan.is_frozen && plan.frozen_reason) {
+                    <span class="frozen-reason">{{ plan.frozen_reason }}</span>
+                  }
+                </td>
+                @if (canManage()) {
+                  <td class="actions-cell" (click)="$event.stopPropagation()">
+                    <!-- Editar — solo si activo y no cancelado -->
+                    @if (plan.is_active) {
+                      <button class="action-btn" title="Editar" (click)="goToEdit(plan, $event)">
+                        <span class="material-symbols-outlined">edit</span>
+                      </button>
+                    }
+                    <!-- Congelar / Descongelar -->
+                    @if (plan.is_active && !plan.is_frozen) {
+                      <button class="action-btn" title="Congelar" (click)="openFreeze(plan, $event)">
+                        <span class="material-symbols-outlined">ac_unit</span>
+                      </button>
+                    }
+                    @if (plan.is_frozen) {
+                      <button class="action-btn" title="Descongelar" (click)="openConfirm(plan, 'unfreeze', $event)">
+                        <span class="material-symbols-outlined">local_fire_department</span>
+                      </button>
+                    }
+                    <!-- Cancelar — solo si activo -->
+                    @if (plan.is_active) {
+                      <button class="action-btn action-cancel" title="Cancelar plan" (click)="openConfirm(plan, 'cancel', $event)">
+                        <span class="material-symbols-outlined">cancel</span>
+                      </button>
+                    }
+                    <!-- Eliminar — solo super_admin -->
+                    @if (isSuperAdmin()) {
+                      <button class="action-btn action-danger" title="Eliminar" (click)="openConfirm(plan, 'delete', $event)">
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="material-symbols-outlined">assignment</span>
+        <p>No hay planes</p>
+      </div>
+    }
+  }
+
+</div>
+
+<!-- Modal: Congelar -->
+@if (freezeTarget()) {
+  <div class="modal-overlay" (click)="closeFreeze()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Congelar plan</h2>
+        <button class="modal-close" (click)="closeFreeze()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Plan de <strong>{{ athleteName(freezeTarget()!) }}</strong> — {{ planLabel(freezeTarget()!.plan_type) }}
+        </p>
+        <label class="field-label">Motivo (opcional)</label>
+        <input
+          class="field-input"
+          type="text"
+          placeholder="Ej: Lesión, vacaciones..."
+          [value]="freezeReason()"
+          (input)="freezeReason.set($any($event.target).value)"
+        />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeFreeze()">Cancelar</button>
+        <button class="btn-freeze" (click)="confirmFreeze()" [disabled]="freezeSaving()">
+          <span class="material-symbols-outlined">ac_unit</span>
+          {{ freezeSaving() ? 'Congelando...' : 'Congelar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal: Confirmar acción -->
+@if (confirmTarget()) {
+  <div class="modal-overlay" (click)="closeConfirm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ confirmTitle() }}</h2>
+        <button class="modal-close" (click)="closeConfirm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">{{ confirmMessage() }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeConfirm()">Cancelar</button>
+        <button class="{{ confirmBtnClass() }}" (click)="runConfirm()" [disabled]="confirmSaving()">
+          {{ confirmSaving() ? 'Procesando...' : confirmBtnLabel() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,175 @@
+$gold:     #c99734;
+$dark:     #1a1a1a;
+$text-mid: #535353;
+$border:   #e5e5e5;
+
+.plan-form-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── Header ─────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: $text-mid;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+
+  .material-symbols-outlined { font-size: 20px; }
+  &:hover { color: $gold; }
+}
+
+// ── Loading ────────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 24px;
+  gap: 12px;
+  color: $text-mid;
+
+  .material-symbols-outlined { font-size: 48px; color: $gold; }
+  p { margin: 0; }
+}
+
+// ── Card ───────────────────────────────────────────────────────
+.form-card {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.form-title {
+  font-family: 'Cairo', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: $dark;
+  margin: 0 0 28px;
+}
+
+// ── Form grid ──────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.full-width { grid-column: 1 / -1; }
+
+.field-label {
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text-mid;
+}
+
+.required { color: #ef4444; }
+
+.field-input,
+.field-select {
+  padding: 9px 12px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.875rem;
+  color: $dark;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus { border-color: $gold; background: #fff; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; background: #f0f0f0; }
+}
+
+.field-hint {
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+// ── Info note ─────────────────────────────────────────────────
+.info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba($gold, 0.08);
+  border: 1px solid rgba($gold, 0.25);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.82rem;
+  color: darken($gold, 10%);
+  margin-bottom: 24px;
+
+  .material-symbols-outlined { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+}
+
+// ── Actions ────────────────────────────────────────────────────
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-ghost {
+  padding: 10px 20px;
+  background: none;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-mid;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: #bbb; color: $dark; }
+}
+
+.btn-primary {
+  padding: 10px 24px;
+  background: $gold;
+  color: #0d0d0d;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover  { background: #e8b84a; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.spinning { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ── Responsive ─────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .form-card { padding: 20px 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+}

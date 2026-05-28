@@ -138,6 +138,12 @@
           <div class="coming-soon">
             <span class="material-symbols-outlined">assignment</span>
             <p>Sin plan activo</p>
+            @if (canEdit()) {
+              <button class="btn-add" (click)="goToNewPlan()">
+                <span class="material-symbols-outlined">add</span>
+                Crear plan
+              </button>
+            }
           </div>
         }
       </div>

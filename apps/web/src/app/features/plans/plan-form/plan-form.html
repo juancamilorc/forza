@@ -1,0 +1,102 @@
+<div class="plan-form-page">
+
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Planes
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  } @else {
+    <div class="form-card">
+      <h1 class="form-title">{{ isEdit ? 'Editar plan' : 'Nuevo plan' }}</h1>
+
+      <div class="form-grid">
+
+        <!-- Deportista -->
+        <div class="field full-width">
+          <label class="field-label">Deportista <span class="required">*</span></label>
+          <select
+            class="field-select"
+            [value]="athleteId()"
+            (change)="athleteId.set($any($event.target).value)"
+            [disabled]="isEdit"
+          >
+            <option value="">Seleccionar deportista...</option>
+            @for (a of athleteList(); track a.id) {
+              <option [value]="a.id" [selected]="a.id === athleteId()">
+                {{ a.first_name }} {{ a.last_name }}
+              </option>
+            }
+          </select>
+          @if (isEdit) {
+            <span class="field-hint">El deportista no se puede cambiar en un plan existente</span>
+          }
+        </div>
+
+        <!-- Tipo de plan -->
+        <div class="field">
+          <label class="field-label">Tipo de plan <span class="required">*</span></label>
+          <select
+            class="field-select"
+            [value]="planType()"
+            (change)="planType.set($any($event.target).value)"
+          >
+            <option value="">Seleccionar tipo...</option>
+            @for (pt of planTypes; track pt.value) {
+              <option [value]="pt.value" [selected]="pt.value === planType()">
+                {{ pt.label }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- Total de sesiones -->
+        <div class="field">
+          <label class="field-label">Total de sesiones <span class="required">*</span></label>
+          <input
+            class="field-input"
+            type="number"
+            min="1"
+            max="200"
+            placeholder="Ej: 24"
+            [value]="totalSessions()"
+            (input)="totalSessions.set($any($event.target).value)"
+          />
+        </div>
+
+        <!-- Fecha de inicio -->
+        <div class="field">
+          <label class="field-label">Fecha de inicio <span class="required">*</span></label>
+          <input
+            class="field-input"
+            type="date"
+            [value]="startDate()"
+            (change)="startDate.set($any($event.target).value)"
+          />
+        </div>
+
+      </div>
+
+      @if (!isEdit) {
+        <p class="info-note">
+          <span class="material-symbols-outlined">info</span>
+          Al crear un nuevo plan, el plan activo anterior del deportista se desactivará automáticamente.
+        </p>
+      }
+
+      <div class="form-actions">
+        <button class="btn-ghost" (click)="goBack()">Cancelar</button>
+        <button class="btn-primary" (click)="save()" [disabled]="!isValid() || saving()">
+          {{ saving() ? 'Guardando...' : (isEdit ? 'Guardar cambios' : 'Crear plan') }}
+        </button>
+      </div>
+    </div>
+  }
+
+</div>
