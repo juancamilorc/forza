@@ -353,6 +353,11 @@ Trainer: trainer@forza.com / [see .env]
 8. Angular `@for` with `<a routerLink>` can cause template errors — use `<button (click)="navigate()">` instead
 9. `date pipe` with locale needs `registerLocaleData(localeEs)` + `{ provide: LOCALE_ID, useValue: 'es-CO' }` in app.config.ts
 10. Sessions `confirmation_status` is auto-updated by Supabase trigger
+11. Plan `UpdateDto` must NOT include `athlete_id` — backend validates UUID and athlete cannot be changed
+12. Deleting a plan fails with FK constraint if payments or sessions reference it — show user-friendly error
+13. Routes `/new` must be declared BEFORE `/:id` in app.routes.ts — Angular matches `/new` as an id otherwise
+14. `z-index` inside `<a>` creates stacking context — action buttons need explicit `z-index` or reorder DOM
+15. Shell provides `padding: 32px` on `.main-content` — feature components must NOT add their own padding or max-width
 
 ---
 
@@ -364,15 +369,19 @@ Trainer: trainer@forza.com / [see .env]
 | Shell (sidebar + topbar) | ✅ Complete |
 | Dashboard (real data) | ✅ Complete |
 | Athletes list | ✅ Complete |
-| Athlete detail | ✅ Complete (plan/sessions/evaluations = "coming soon") |
+| Athlete detail (full: plan, sessions, eval semáforos) | ✅ Complete |
 | Athlete form (create/edit) | ✅ Complete |
-| Sessions list | ✅ Complete |
-| Session form (create) | 🔄 In progress |
-| Schedule | ❌ Pending |
-| Assessments | ❌ Pending |
-| Payments | ❌ Pending |
-| Videos | ❌ Pending |
-| Admin users | ❌ Pending |
+| Sessions list + confirm trainer | ✅ Complete |
+| Session form (create) | ✅ Complete |
+| Schedule (agenda) | ✅ Complete |
+| Assessments list + detail (3 types) | ✅ Complete |
+| Assessment forms (nutri/tech/phys) | ✅ Complete |
+| Plans list + form + freeze/cancel | ✅ Complete |
+| Payments list + form + abono | ✅ Complete |
+| Videos (grid + CRUD) | ✅ Complete |
+| Admin users | ✅ Complete |
+| URLs en español | ❌ Pending (FOR-49) |
+| PDF / vista imprimible evaluaciones | ❌ Phase 2 (FOR-38) |
 
 ---
 
