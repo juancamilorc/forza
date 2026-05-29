@@ -4,29 +4,35 @@ import { environment } from '../../../environments/environment';
 
 // ── List interfaces (lightweight) ─────────────────────────────────────
 export interface NutritionalAssessment {
-  id:                    string;
-  athlete_id:            string;
-  evaluation_date:       string;
-  period_label:          string | null;
-  peso_kg:               number | null;
-  talla_cm:              number | null;
-  imc:                   number | null;
-  porcentaje_grasa:      number | null;
-  clasificacion_imc:     string | null;
-  clasificacion_grasa:   string | null;
-  athletes?:             { id: string; first_name: string; last_name: string } | null;
+  id:                        string;
+  athlete_id:                string;
+  evaluation_date:           string;
+  period_label:              string | null;
+  peso_kg:                   number | null;
+  talla_cm:                  number | null;
+  imc:                       number | null;
+  porcentaje_grasa:          number | null;
+  iaks:                      number | null;
+  sumatoria_pliegues_mm:     number | null;
+  clasificacion_imc:         string | null;
+  clasificacion_grasa:       string | null;
+  clasificacion_iaks:        string | null;
+  clasificacion_pliegues:    string | null;
+  athletes?:                 { id: string; first_name: string; last_name: string } | null;
 }
 
 export interface TechnicalAssessment {
-  id:                              string;
-  athlete_id:                      string;
-  evaluation_date:                 string;
-  period_label:                    string | null;
-  control_efectividad_total_pct:   number | null;
-  pase_efectividad_pct:            number | null;
+  id:                               string;
+  athlete_id:                       string;
+  evaluation_date:                  string;
+  period_label:                     string | null;
+  control_efectividad_total_pct:    number | null;
+  pase_efectividad_pct:             number | null;
   definicion_efectividad_total_pct: number | null;
-  control_clasificacion:           string | null;
-  athletes?:                       { id: string; first_name: string; last_name: string } | null;
+  control_clasificacion:            string | null;
+  pase_clasificacion:               string | null;
+  definicion_clasificacion:         string | null;
+  athletes?:                        { id: string; first_name: string; last_name: string } | null;
 }
 
 export interface PhysicalAssessment {
@@ -37,6 +43,7 @@ export interface PhysicalAssessment {
   salto_vertical_cm:               number | null;
   salto_vertical_clasificacion:    string | null;
   salto_horizontal_cm:             number | null;
+  salto_horizontal_clasificacion:  string | null;
   sprint_20m:                      number | null;
   movilidad_clasificacion:         string | null;
   athletes?:                       { id: string; first_name: string; last_name: string } | null;

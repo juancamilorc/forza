@@ -235,32 +235,41 @@
           <div class="assessment-card assessment-card-link" (click)="goToAssessments('nutritional')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon nutri">nutrition</span>
-              <div>
+              <div class="assessment-header-text">
                 <p class="assessment-type">Nutricional</p>
                 <p class="assessment-count">{{ nutritionalList().length }} evaluación{{ nutritionalList().length !== 1 ? 'es' : '' }}</p>
               </div>
             </div>
             @if (nutritionalList().length > 0) {
-              <div class="assessment-date">{{ formatDate(nutritionalList()[0].evaluation_date) }}</div>
-              <div class="assessment-metrics">
-                @if (nutritionalList()[0].imc != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">IMC</span>
-                    <span class="metric-value">{{ nutritionalList()[0].imc }}</span>
-                  </div>
-                }
-                @if (nutritionalList()[0].porcentaje_grasa != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">% Grasa</span>
-                    <span class="metric-value">{{ nutritionalList()[0].porcentaje_grasa }}%</span>
-                  </div>
-                }
-                @if (nutritionalList()[0].clasificacion_imc) {
-                  <div class="metric-row">
-                    <span class="metric-label">Clasif. IMC</span>
-                    <span class="metric-value">{{ nutritionalList()[0].clasificacion_imc }}</span>
-                  </div>
-                }
+              <div class="assessment-date">{{ formatDateShort(nutritionalList()[0].evaluation_date) }}</div>
+              <div class="semaforo-list">
+                <div class="semaforo-row">
+                  <span class="semaforo-label">% Grasa</span>
+                  @if (nutritionalList()[0].porcentaje_grasa != null) {
+                    <span class="semaforo-value">{{ nutritionalList()[0].porcentaje_grasa?.toFixed(1) }}%</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_grasa) }}">
+                    {{ semaforoLabel('nutri', nutritionalList()[0].clasificacion_grasa) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">IAKS</span>
+                  @if (nutritionalList()[0].iaks != null) {
+                    <span class="semaforo-value">{{ nutritionalList()[0].iaks?.toFixed(1) }}</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_iaks) }}">
+                    {{ semaforoLabel('nutri', nutritionalList()[0].clasificacion_iaks) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Pliegues</span>
+                  @if (nutritionalList()[0].sumatoria_pliegues_mm != null) {
+                    <span class="semaforo-value">{{ nutritionalList()[0].sumatoria_pliegues_mm }} mm</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_pliegues) }}">
+                    {{ semaforoLabel('nutri', nutritionalList()[0].clasificacion_pliegues) }}
+                  </span>
+                </div>
               </div>
             } @else {
               <p class="assessment-empty">Sin evaluaciones</p>
@@ -271,32 +280,41 @@
           <div class="assessment-card assessment-card-link" (click)="goToAssessments('technical')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon tech">sports_soccer</span>
-              <div>
+              <div class="assessment-header-text">
                 <p class="assessment-type">Técnica</p>
                 <p class="assessment-count">{{ technicalList().length }} evaluación{{ technicalList().length !== 1 ? 'es' : '' }}</p>
               </div>
             </div>
             @if (technicalList().length > 0) {
-              <div class="assessment-date">{{ formatDate(technicalList()[0].evaluation_date) }}</div>
-              <div class="assessment-metrics">
-                @if (technicalList()[0].control_efectividad_total_pct != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">Control</span>
-                    <span class="metric-value">{{ technicalList()[0].control_efectividad_total_pct }}%</span>
-                  </div>
-                }
-                @if (technicalList()[0].pase_efectividad_pct != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">Pase</span>
-                    <span class="metric-value">{{ technicalList()[0].pase_efectividad_pct }}%</span>
-                  </div>
-                }
-                @if (technicalList()[0].definicion_efectividad_total_pct != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">Definición</span>
-                    <span class="metric-value">{{ technicalList()[0].definicion_efectividad_total_pct }}%</span>
-                  </div>
-                }
+              <div class="assessment-date">{{ formatDateShort(technicalList()[0].evaluation_date) }}</div>
+              <div class="semaforo-list">
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Control</span>
+                  @if (technicalList()[0].control_efectividad_total_pct != null) {
+                    <span class="semaforo-value">{{ technicalList()[0].control_efectividad_total_pct }}%</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].control_clasificacion) }}">
+                    {{ semaforoLabel('tech', technicalList()[0].control_clasificacion) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Pase</span>
+                  @if (technicalList()[0].pase_efectividad_pct != null) {
+                    <span class="semaforo-value">{{ technicalList()[0].pase_efectividad_pct }}%</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].pase_clasificacion) }}">
+                    {{ semaforoLabel('tech', technicalList()[0].pase_clasificacion) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Definición</span>
+                  @if (technicalList()[0].definicion_efectividad_total_pct != null) {
+                    <span class="semaforo-value">{{ technicalList()[0].definicion_efectividad_total_pct }}%</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].definicion_clasificacion) }}">
+                    {{ semaforoLabel('tech', technicalList()[0].definicion_clasificacion) }}
+                  </span>
+                </div>
               </div>
             } @else {
               <p class="assessment-empty">Sin evaluaciones</p>
@@ -307,32 +325,38 @@
           <div class="assessment-card assessment-card-link" (click)="goToAssessments('physical')">
             <div class="assessment-header">
               <span class="material-symbols-outlined assessment-icon phys">directions_run</span>
-              <div>
+              <div class="assessment-header-text">
                 <p class="assessment-type">Física</p>
                 <p class="assessment-count">{{ physicalList().length }} evaluación{{ physicalList().length !== 1 ? 'es' : '' }}</p>
               </div>
             </div>
             @if (physicalList().length > 0) {
-              <div class="assessment-date">{{ formatDate(physicalList()[0].evaluation_date) }}</div>
-              <div class="assessment-metrics">
-                @if (physicalList()[0].salto_vertical_cm != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">Salto vertical</span>
-                    <span class="metric-value">{{ physicalList()[0].salto_vertical_cm }} cm</span>
-                  </div>
-                }
-                @if (physicalList()[0].salto_vertical_clasificacion) {
-                  <div class="metric-row">
-                    <span class="metric-label">Clasif.</span>
-                    <span class="metric-value">{{ getPhysicalClassLabel(physicalList()[0].salto_vertical_clasificacion!) }}</span>
-                  </div>
-                }
-                @if (physicalList()[0].sprint_20m != null) {
-                  <div class="metric-row">
-                    <span class="metric-label">Sprint 20m</span>
-                    <span class="metric-value">{{ physicalList()[0].sprint_20m }}s</span>
-                  </div>
-                }
+              <div class="assessment-date">{{ formatDateShort(physicalList()[0].evaluation_date) }}</div>
+              <div class="semaforo-list">
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Movilidad</span>
+                  <span class="semaforo-chip {{ semaforoCss('phys', physicalList()[0].movilidad_clasificacion) }}">
+                    {{ semaforoLabel('phys', physicalList()[0].movilidad_clasificacion) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Salto vertical</span>
+                  @if (physicalList()[0].salto_vertical_cm != null) {
+                    <span class="semaforo-value">{{ physicalList()[0].salto_vertical_cm }} cm</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('phys', physicalList()[0].salto_vertical_clasificacion) }}">
+                    {{ semaforoLabel('phys', physicalList()[0].salto_vertical_clasificacion) }}
+                  </span>
+                </div>
+                <div class="semaforo-row">
+                  <span class="semaforo-label">Salto horizontal</span>
+                  @if (physicalList()[0].salto_horizontal_cm != null) {
+                    <span class="semaforo-value">{{ physicalList()[0].salto_horizontal_cm }} cm</span>
+                  }
+                  <span class="semaforo-chip {{ semaforoCss('phys', physicalList()[0].salto_horizontal_clasificacion) }}">
+                    {{ semaforoLabel('phys', physicalList()[0].salto_horizontal_clasificacion) }}
+                  </span>
+                </div>
               </div>
             } @else {
               <p class="assessment-empty">Sin evaluaciones</p>

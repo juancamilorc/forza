@@ -391,3 +391,66 @@
 }
 
 .spinning { animation: spin 1s linear infinite; }
+
+// ── SEMÁFOROS EN CARDS DE EVALUACIONES ───────────────────────
+.assessment-header-text { flex: 1; min-width: 0; }
+
+.semaforo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.semaforo-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.semaforo-label {
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  color: #535353;
+  flex: 1;
+  min-width: 0;
+}
+
+.semaforo-value {
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.semaforo-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  // Nutricional
+  &.semaforo-adecuado  { background: rgba(74,222,128,0.15);  color: #15803d; }
+  &.semaforo-aceptable { background: rgba(251,191,36,0.15);  color: #b45309; }
+  &.semaforo-alto      { background: rgba(248,113,113,0.15); color: #b91c1c; }
+  &.semaforo-bajo      { background: rgba(96,165,250,0.15);  color: #1d4ed8; }
+
+  // Técnica
+  &.semaforo-bueno      { background: rgba(74,222,128,0.15);  color: #15803d; }
+  &.semaforo-inadecuado { background: rgba(248,113,113,0.15); color: #b91c1c; }
+
+  // Física
+  &.semaforo-excelente       { background: rgba(74,222,128,0.15);  color: #15803d; }
+  &.semaforo-promedio        { background: rgba(251,191,36,0.15);  color: #b45309; }
+  &.semaforo-debajo_promedio { background: rgba(248,113,113,0.15); color: #b91c1c; }
+
+  // Sin dato
+  &.semaforo-sin-dato { background: #f0f0f0; color: #9ca3af; }
+}
+
+@media (max-width: 900px) {
+  .eval-summary-grid { grid-template-columns: 1fr; }
+}

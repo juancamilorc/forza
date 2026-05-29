@@ -145,8 +145,28 @@ export class AthleteDetail implements OnInit {
     return `${hour % 12 || 12}:${m} ${ampm}`;
   }
 
-  getPhysicalClassLabel(c: string)  { return this.assessmentsService.getPhysicalClassLabel(c); }
-  getTechnicalClassLabel(c: string) { return this.assessmentsService.getTechnicalClassLabel(c); }
+  getPhysicalClassLabel(c: string)     { return this.assessmentsService.getPhysicalClassLabel(c); }
+  getTechnicalClassLabel(c: string)    { return this.assessmentsService.getTechnicalClassLabel(c); }
+  getNutritionalClassLabel(c: string)  { return this.assessmentsService.getNutritionalClassLabel(c); }
+
+  // ── Semáforo helpers (FOR-45) ─────────────────────────────────
+  semaforoCss(type: 'nutri' | 'tech' | 'phys', c: string | null | undefined): string {
+    if (!c) return 'semaforo-sin-dato';
+    return `semaforo-${c}`;
+  }
+
+  semaforoLabel(type: 'nutri' | 'tech' | 'phys', c: string | null | undefined): string {
+    if (!c) return 'Sin dato';
+    if (type === 'nutri') return this.assessmentsService.getNutritionalClassLabel(c);
+    if (type === 'tech')  return this.assessmentsService.getTechnicalClassLabel(c);
+    return this.assessmentsService.getPhysicalClassLabel(c);
+  }
+
+  formatDateShort(date: string): string {
+    return new Date(date + 'T00:00:00').toLocaleDateString('es-CO', {
+      day: 'numeric', month: 'short', year: 'numeric',
+    });
+  }
 
   canEdit(): boolean {
     return ['super_admin', 'admin'].includes(this.role);
