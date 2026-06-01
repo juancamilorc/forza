@@ -5,7 +5,7 @@ import { rolesGuard } from './core/guards/roles.guard';
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'inicio',
     pathMatch: 'full',
   },
   {
@@ -19,148 +19,149 @@ export const appRoutes: Route[] = [
       import('./shared/components/shell/shell').then(m => m.Shell),
     canActivate: [authGuard],
     children: [
+      // ── Rutas en español ───────────────────────────────────────
       {
-        path: 'dashboard',
+        path: 'inicio',
         loadComponent: () =>
           import('./features/dashboard/dashboard').then(m => m.Dashboard),
       },
       {
-        path: 'athletes',
+        path: 'deportistas',
         loadComponent: () =>
           import('./features/athletes/athletes-list/athletes-list')
             .then(m => m.AthletesList),
       },
       {
-        path: 'athletes/new',
+        path: 'deportistas/nuevo',
         loadComponent: () =>
           import('./features/athletes/athlete-form/athlete-form')
             .then(m => m.AthleteForm),
       },
       {
-        path: 'athletes/:id/edit',
+        path: 'deportistas/:id/editar',
         loadComponent: () =>
           import('./features/athletes/athlete-form/athlete-form')
             .then(m => m.AthleteForm),
       },
       {
-        path: 'athletes/:id',
+        path: 'deportistas/:id',
         loadComponent: () =>
           import('./features/athletes/athlete-detail/athlete-detail')
             .then(m => m.AthleteDetail),
       },
       {
-        path: 'plans',
+        path: 'planes',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/plans/plans-list/plans-list')
             .then(m => m.PlansList),
       },
       {
-        path: 'plans/new',
+        path: 'planes/nuevo',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/plans/plan-form/plan-form')
             .then(m => m.PlanForm),
       },
       {
-        path: 'plans/:id/edit',
+        path: 'planes/:id/editar',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/plans/plan-form/plan-form')
             .then(m => m.PlanForm),
       },
       {
-        path: 'sessions',
+        path: 'sesiones',
         loadComponent: () =>
           import('./features/sessions/sessions-list/sessions-list')
             .then(m => m.SessionsList),
       },
       {
-        path: 'sessions/new',
+        path: 'sesiones/nueva',
         loadComponent: () =>
           import('./features/sessions/session-form/session-form')
             .then(m => m.SessionForm),
       },
       {
-        path: 'schedule',
+        path: 'agenda',
         loadComponent: () =>
           import('./features/schedule/schedule-list/schedule-list')
             .then(m => m.ScheduleList),
       },
       {
-        path: 'schedule/new',
+        path: 'agenda/nueva',
         loadComponent: () =>
           import('./features/schedule/appointment-form/appointment-form')
             .then(m => m.AppointmentForm),
       },
       {
-        path: 'schedule/:id/edit',
+        path: 'agenda/:id/editar',
         loadComponent: () =>
           import('./features/schedule/appointment-form/appointment-form')
             .then(m => m.AppointmentForm),
       },
       {
-        path: 'payments',
+        path: 'pagos',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/payments/payments-list/payments-list')
             .then(m => m.PaymentsList),
       },
       {
-        path: 'payments/new',
+        path: 'pagos/nuevo',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/payments/payment-form/payment-form')
             .then(m => m.PaymentForm),
       },
       {
-        path: 'payments/:id/edit',
+        path: 'pagos/:id/editar',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/payments/payment-form/payment-form')
             .then(m => m.PaymentForm),
       },
       {
-        path: 'assessments',
+        path: 'evaluaciones',
         loadComponent: () =>
           import('./features/assessments/assessments-list/assessments-list')
             .then(m => m.AssessmentsList),
       },
       {
-        path: 'assessments/nutritional/new',
+        path: 'evaluaciones/nutricional/nueva',
         canActivate: [rolesGuard('super_admin', 'nutritionist')],
         loadComponent: () =>
           import('./features/assessments/nutritional-form/nutritional-form')
             .then(m => m.NutritionalForm),
       },
       {
-        path: 'assessments/technical/new',
+        path: 'evaluaciones/tecnica/nueva',
         canActivate: [rolesGuard('super_admin', 'trainer')],
         loadComponent: () =>
           import('./features/assessments/technical-form/technical-form')
             .then(m => m.TechnicalForm),
       },
       {
-        path: 'assessments/physical/new',
+        path: 'evaluaciones/fisica/nueva',
         canActivate: [rolesGuard('super_admin', 'trainer')],
         loadComponent: () =>
           import('./features/assessments/physical-form/physical-form')
             .then(m => m.PhysicalForm),
       },
       {
-        path: 'assessments/nutritional/:id',
+        path: 'evaluaciones/nutricional/:id',
         loadComponent: () =>
           import('./features/assessments/nutritional-detail/nutritional-detail')
             .then(m => m.NutritionalDetail),
       },
       {
-        path: 'assessments/technical/:id',
+        path: 'evaluaciones/tecnica/:id',
         loadComponent: () =>
           import('./features/assessments/technical-detail/technical-detail')
             .then(m => m.TechnicalDetail),
       },
       {
-        path: 'assessments/physical/:id',
+        path: 'evaluaciones/fisica/:id',
         loadComponent: () =>
           import('./features/assessments/physical-detail/physical-detail')
             .then(m => m.PhysicalDetail),
@@ -173,35 +174,44 @@ export const appRoutes: Route[] = [
             .then(m => m.VideosList),
       },
       {
-        path: 'admin',
-        redirectTo: 'admin/users',
+        path: 'administracion',
+        redirectTo: 'administracion/usuarios',
         pathMatch: 'full',
       },
       {
-        path: 'admin/users',
+        path: 'administracion/usuarios',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/admin/users-list/users-list')
             .then(m => m.UsersList),
       },
       {
-        path: 'admin/users/new',
+        path: 'administracion/usuarios/nuevo',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/admin/user-form/user-form')
             .then(m => m.UserForm),
       },
       {
-        path: 'admin/users/:id/edit',
+        path: 'administracion/usuarios/:id/editar',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
           import('./features/admin/user-form/user-form')
             .then(m => m.UserForm),
       },
+      // ── Redirects de rutas anteriores (compatibilidad) ─────────
+      { path: 'dashboard',   redirectTo: 'inicio',         pathMatch: 'full' },
+      { path: 'athletes',    redirectTo: 'deportistas',     pathMatch: 'full' },
+      { path: 'plans',       redirectTo: 'planes',          pathMatch: 'full' },
+      { path: 'sessions',    redirectTo: 'sesiones',        pathMatch: 'full' },
+      { path: 'schedule',    redirectTo: 'agenda',          pathMatch: 'full' },
+      { path: 'assessments', redirectTo: 'evaluaciones',    pathMatch: 'full' },
+      { path: 'payments',    redirectTo: 'pagos',           pathMatch: 'full' },
+      { path: 'admin',       redirectTo: 'administracion',  pathMatch: 'full' },
     ],
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'inicio',
   },
 ];

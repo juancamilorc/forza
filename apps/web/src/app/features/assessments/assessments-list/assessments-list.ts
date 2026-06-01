@@ -126,7 +126,8 @@ export class AssessmentsList implements OnInit {
   clearAthleteFilter() { this.filterAthleteId.set(null); }
 
   goToDetail(row: AssessmentRow) {
-    this.router.navigate(['/assessments', row.type, row.id]);
+    const typeSlug: Record<string, string> = { nutritional: 'nutricional', technical: 'tecnica', physical: 'fisica' };
+    this.router.navigate(['/evaluaciones', typeSlug[row.type] ?? row.type, row.id]);
   }
 
   typeLabel(type: AssessmentType): string {

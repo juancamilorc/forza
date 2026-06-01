@@ -153,13 +153,13 @@ export class NutritionalForm implements OnInit {
     this.athleteId.set(id);
 
     if (!id) {
-      this.router.navigate(['/athletes']);
+      this.router.navigate(['/deportistas']);
       return;
     }
 
     this.athletes.getOne(id).subscribe({
       next: (a) => { this.athlete.set(a); this.loading.set(false); },
-      error: () => this.router.navigate(['/athletes']),
+      error: () => this.router.navigate(['/deportistas']),
     });
   }
 
@@ -181,7 +181,7 @@ export class NutritionalForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/athletes', this.athleteId()]);
+    this.router.navigate(['/deportistas', this.athleteId()]);
   }
 
   submit() {
@@ -221,7 +221,7 @@ export class NutritionalForm implements OnInit {
     this.service.createNutritional(payload).subscribe({
       next: () => {
         this.toast.show('Evaluación nutricional guardada', 'success');
-        this.router.navigate(['/athletes', this.athleteId()]);
+        this.router.navigate(['/deportistas', this.athleteId()]);
       },
       error: () => {
         this.saving.set(false);

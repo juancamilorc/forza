@@ -65,7 +65,7 @@ export class SessionsList implements OnInit {
   }
 
   goToNew() {
-    this.router.navigate(['/sessions/new']);
+    this.router.navigate(['/sesiones/nueva']);
   }
 
   getStatusLabel(status: string): string {

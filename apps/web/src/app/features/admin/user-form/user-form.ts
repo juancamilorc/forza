@@ -44,7 +44,7 @@ export class UserForm implements OnInit {
           });
           this.loading.set(false);
         },
-        error: () => this.router.navigate(['/admin/users']),
+        error: () => this.router.navigate(['/administracion/usuarios']),
       });
     }
   }
@@ -81,7 +81,7 @@ export class UserForm implements OnInit {
       this.service.update(id, data).subscribe({
         next: () => {
           this.toast.success('Usuario actualizado correctamente');
-          setTimeout(() => this.router.navigate(['/admin/users']), 500);
+          setTimeout(() => this.router.navigate(['/administracion/usuarios']), 500);
         },
         error: () => {
           this.error.set('Error al guardar. Intenta de nuevo.');
@@ -100,7 +100,7 @@ export class UserForm implements OnInit {
       this.service.create(data).subscribe({
         next: () => {
           this.toast.success('Usuario creado correctamente');
-          setTimeout(() => this.router.navigate(['/admin/users']), 500);
+          setTimeout(() => this.router.navigate(['/administracion/usuarios']), 500);
         },
         error: (err) => {
           const msg: string = err?.error?.message ?? '';
@@ -116,6 +116,6 @@ export class UserForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/admin/users']);
+    this.router.navigate(['/administracion/usuarios']);
   }
 }

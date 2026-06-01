@@ -103,11 +103,11 @@ export class PhysicalForm implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.queryParamMap.get('athlete_id') ?? '';
     this.athleteId.set(id);
-    if (!id) { this.router.navigate(['/athletes']); return; }
+    if (!id) { this.router.navigate(['/deportistas']); return; }
 
     this.athletes.getOne(id).subscribe({
       next: (a) => { this.athlete.set(a); this.loading.set(false); },
-      error: () => this.router.navigate(['/athletes']),
+      error: () => this.router.navigate(['/deportistas']),
     });
   }
 
@@ -129,7 +129,7 @@ export class PhysicalForm implements OnInit {
     this.form.update(f => ({ ...f, [field]: f[field] === value ? '' : value }));
   }
 
-  goBack() { this.router.navigate(['/athletes', this.athleteId()]); }
+  goBack() { this.router.navigate(['/deportistas', this.athleteId()]); }
 
   submit() {
     const f = this.form();
@@ -178,7 +178,7 @@ export class PhysicalForm implements OnInit {
     this.service.createPhysical(payload).subscribe({
       next: () => {
         this.toast.show('Evaluación física guardada', 'success');
-        this.router.navigate(['/athletes', this.athleteId()]);
+        this.router.navigate(['/deportistas', this.athleteId()]);
       },
       error: () => {
         this.saving.set(false);

@@ -71,7 +71,7 @@ export class AppointmentForm implements OnInit {
           });
           this.loading.set(false);
         },
-        error: () => this.router.navigate(['/schedule']),
+        error: () => this.router.navigate(['/agenda']),
       });
     }
   }
@@ -114,7 +114,7 @@ export class AppointmentForm implements OnInit {
       next: (saved) => {
         this.toast.success(this.isEdit() ? 'Cita actualizada correctamente' : 'Cita registrada correctamente');
         this.saving.set(false);
-        setTimeout(() => this.router.navigate(['/schedule']), 500);
+        setTimeout(() => this.router.navigate(['/agenda']), 500);
       },
       error: (err) => {
         this.error.set(err?.error?.message ?? 'Error al guardar. Intenta de nuevo.');
@@ -127,5 +127,5 @@ export class AppointmentForm implements OnInit {
     return this.form().type === 'regular';
   }
 
-  goBack() { this.router.navigate(['/schedule']); }
+  goBack() { this.router.navigate(['/agenda']); }
 }

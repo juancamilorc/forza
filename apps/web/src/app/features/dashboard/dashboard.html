@@ -59,25 +59,25 @@
   <div class="quick-actions-section">
     <h2 class="section-title">Accesos rápidos</h2>
       <div class="quick-actions-grid">
-        <button class="quick-action-btn" (click)="goTo('/athletes/new')">
+        <button class="quick-action-btn" (click)="goTo('/deportistas/nuevo')">
           <span class="material-symbols-outlined">person_add</span>
           <span>Nuevo deportista</span>
         </button>
 
-        <button class="quick-action-btn" (click)="goTo('/sessions/new')">
+        <button class="quick-action-btn" (click)="goTo('/sesiones/nueva')">
           <span class="material-symbols-outlined">add_task</span>
           <span>Registrar sesión</span>
         </button>
  
         @if (role === 'super_admin' || role === 'admin') {
-          <button class="quick-action-btn" (click)="goTo('/payments')">
+          <button class="quick-action-btn" (click)="goTo('/pagos')">
             <span class="material-symbols-outlined">payments</span>
             <span>Registrar pago</span>
           </button>
         }
 
         @if (role === 'nutritionist' || role === 'super_admin') {
-          <button class="quick-action-btn" (click)="goTo('/assessments')">
+          <button class="quick-action-btn" (click)="goTo('/evaluaciones')">
             <span class="material-symbols-outlined">monitor_weight</span>
             <span>Nueva evaluación</span>
           </button>

@@ -80,11 +80,11 @@ export class UsersList implements OnInit {
 
   goToEdit(id: string, event: Event) {
     event.stopPropagation();
-    this.router.navigate(['/admin/users', id, 'edit']);
+    this.router.navigate(['/administracion/usuarios', id, 'editar']);
   }
 
   goToNew() {
-    this.router.navigate(['/admin/users/new']);
+    this.router.navigate(['/administracion/usuarios/nuevo']);
   }
 
   getRoleLabel(role: string): string {

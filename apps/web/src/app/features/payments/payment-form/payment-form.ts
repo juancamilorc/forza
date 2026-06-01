@@ -58,7 +58,7 @@ export class PaymentForm implements OnInit {
           });
           this.loading.set(false);
         },
-        error: () => this.router.navigate(['/payments']),
+        error: () => this.router.navigate(['/pagos']),
       });
     }
   }
@@ -119,7 +119,7 @@ export class PaymentForm implements OnInit {
     request.subscribe({
       next: () => {
         this.toast.success(this.isEdit() ? 'Pago actualizado correctamente' : 'Pago registrado correctamente');
-        setTimeout(() => this.router.navigate(['/payments']), 500);
+        setTimeout(() => this.router.navigate(['/pagos']), 500);
       },
       error: () => {
         this.error.set('Error al guardar. Intenta de nuevo.');
@@ -133,6 +133,6 @@ export class PaymentForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/payments']);
+    this.router.navigate(['/pagos']);
   }
 }

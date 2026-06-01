@@ -1,3 +1,4 @@
+@use 'sass:color';
 $gold:    #c99734;
 $card-bg: #ffffff;
 $text-dark: #1a1a1a;
@@ -68,7 +69,7 @@ $border:    #e5e5e5;
   border-radius: 20px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: darken($gold, 10%);
+  color: color.adjust($gold, $lightness: -10%);
   font-family: inherit;
 
   .material-symbols-outlined { font-size: 16px; }
@@ -82,7 +83,7 @@ $border:    #e5e5e5;
   border: none;
   padding: 0;
   cursor: pointer;
-  color: darken($gold, 10%);
+  color: color.adjust($gold, $lightness: -10%);
   opacity: 0.6;
   transition: opacity 0.15s;
   margin-left: 2px;

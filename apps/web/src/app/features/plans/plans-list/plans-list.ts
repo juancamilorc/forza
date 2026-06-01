@@ -159,14 +159,14 @@ export class PlansList implements OnInit {
   }
 
   // ── Nav ───────────────────────────────────────────────────────
-  goToNew()          { this.router.navigate(['/plans/new']); }
+  goToNew()          { this.router.navigate(['/planes/nuevo']); }
   goToEdit(plan: Plan, event: Event) {
     event.stopPropagation();
-    this.router.navigate(['/plans', plan.id, 'edit']);
+    this.router.navigate(['/planes', plan.id, 'editar']);
   }
   goToAthlete(plan: Plan, event: Event) {
     event.stopPropagation();
-    this.router.navigate(['/athletes', plan.athlete_id]);
+    this.router.navigate(['/deportistas', plan.athlete_id]);
   }
 
   // ── Helpers ───────────────────────────────────────────────────

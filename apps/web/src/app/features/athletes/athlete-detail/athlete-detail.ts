@@ -56,7 +56,7 @@ export class AthleteDetail implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.router.navigate(['/athletes']);
+        this.router.navigate(['/deportistas']);
       },
     });
 
@@ -95,7 +95,7 @@ export class AthleteDetail implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/athletes']);
+    this.router.navigate(['/deportistas']);
   }
 
   getStatusLabel(status: string): string {
@@ -173,35 +173,35 @@ export class AthleteDetail implements OnInit {
   }
 
   goToEdit() {
-    this.router.navigate(['/athletes', this.athlete()!.id, 'edit']);
+    this.router.navigate(['/deportistas', this.athlete()!.id, 'edit']);
   }
 
   goToAssessments(type: string) {
-    this.router.navigate(['/assessments'], {
+    this.router.navigate(['/evaluaciones'], {
       queryParams: { type, athlete_id: this.athlete()!.id },
     });
   }
 
   goToNewPlan() {
-    this.router.navigate(['/plans/new'], {
+    this.router.navigate(['/planes/nuevo'], {
       queryParams: { athlete_id: this.athlete()!.id },
     });
   }
 
   goToNutritionalForm() {
-    this.router.navigate(['/assessments/nutritional/new'], {
+    this.router.navigate(['/evaluaciones/nutricional/nueva'], {
       queryParams: { athlete_id: this.athlete()!.id },
     });
   }
 
   goToTechnicalForm() {
-    this.router.navigate(['/assessments/technical/new'], {
+    this.router.navigate(['/evaluaciones/tecnica/nueva'], {
       queryParams: { athlete_id: this.athlete()!.id },
     });
   }
 
   goToPhysicalForm() {
-    this.router.navigate(['/assessments/physical/new'], {
+    this.router.navigate(['/evaluaciones/fisica/nueva'], {
       queryParams: { athlete_id: this.athlete()!.id },
     });
   }

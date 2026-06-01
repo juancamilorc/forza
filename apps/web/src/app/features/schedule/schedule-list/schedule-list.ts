@@ -97,8 +97,8 @@ export class ScheduleList implements OnInit {
     window.open(this.service.buildCalendarLink(a), '_blank');
   }
 
-  goToNew()            { this.router.navigate(['/schedule/new']); }
-  goToEdit(id: string) { this.router.navigate(['/schedule', id, 'edit']); }
+  goToNew()            { this.router.navigate(['/agenda/nueva']); }
+  goToEdit(id: string) { this.router.navigate(['/agenda', id, 'editar']); }
 
   // ── REPROGRAMAR ─────────────────────────────────────────────
   openReschedule(a: Appointment) {

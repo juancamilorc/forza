@@ -109,11 +109,11 @@ export class PaymentsList implements OnInit {
   }
 
   goToEdit(id: string) {
-    this.router.navigate(['/payments', id, 'edit']);
+    this.router.navigate(['/pagos', id, 'editar']);
   }
 
   goToNew() {
-    this.router.navigate(['/payments/new']);
+    this.router.navigate(['/pagos/nuevo']);
   }
 
   isSuperAdmin() {

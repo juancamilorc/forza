@@ -17,7 +17,7 @@ export class Login {
 
   constructor() {
     if (this.auth.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/inicio']);
     }
   }
 
@@ -36,7 +36,7 @@ export class Login {
 
     this.auth.login(this.email, this.password, this.rememberMe).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/inicio']);
       },
       error: (err) => {
         this.error   = err.status === 401

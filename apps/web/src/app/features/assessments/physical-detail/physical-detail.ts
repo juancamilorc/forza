@@ -37,14 +37,14 @@ export class PhysicalDetail implements OnInit {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.svc.getPhysicalById(id).subscribe({
       next:  (d) => { this.assessment.set(d); this.loading.set(false); },
-      error: ()  => { this.loading.set(false); this.router.navigate(['/assessments']); },
+      error: ()  => { this.loading.set(false); this.router.navigate(['/evaluaciones']); },
     });
   }
 
-  goBack()     { this.router.navigate(['/assessments']); }
+  goBack()     { this.router.navigate(['/evaluaciones']); }
   goToAthlete() {
     const id = this.assessment()?.athlete_id;
-    if (id) this.router.navigate(['/athletes', id]);
+    if (id) this.router.navigate(['/deportistas', id]);
   }
 
   getValue(field: string): number | null {

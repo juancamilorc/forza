@@ -1,3 +1,4 @@
+@use 'sass:color';
 $gold:    #c99734;
 $card-bg: #ffffff;
 $text-dark: #1a1a1a;
@@ -152,7 +153,7 @@ $border:    #e5e5e5;
   .total-row td {
     background: #fffbeb;
     font-weight: 700;
-    color: darken($gold, 10%);
+    color: color.adjust($gold, $lightness: -10%);
     border-top: 1px solid $border;
   }
 }

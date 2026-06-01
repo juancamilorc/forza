@@ -49,7 +49,7 @@ export class AthleteForm implements OnInit {
           });
           this.loading.set(false);
         },
-        error: () => this.router.navigate(['/athletes']),
+        error: () => this.router.navigate(['/deportistas']),
       });
     }
   }
@@ -84,7 +84,7 @@ export class AthleteForm implements OnInit {
         this.toast.success(
           this.isEdit() ? 'Deportista actualizado correctamente' : 'Deportista creado correctamente'
         );
-        setTimeout(() => this.router.navigate(['/athletes', athlete.id]), 500);
+        setTimeout(() => this.router.navigate(['/deportistas', athlete.id]), 500);
       },
 
       error: () => {
@@ -95,6 +95,6 @@ export class AthleteForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/athletes']);
+    this.router.navigate(['/deportistas']);
   }
 }

@@ -46,7 +46,7 @@ export class AthletesList implements OnInit {
   }
 
   goToDetail(id: string) {
-    this.router.navigate(['/athletes', id]);
+    this.router.navigate(['/deportistas', id]);
   }
 
   getStatusLabel(status: string): string {
@@ -63,6 +63,6 @@ export class AthletesList implements OnInit {
   }
 
   goToNew() {
-    this.router.navigate(['/athletes/new']);
+    this.router.navigate(['/deportistas/nuevo']);
   }
 }

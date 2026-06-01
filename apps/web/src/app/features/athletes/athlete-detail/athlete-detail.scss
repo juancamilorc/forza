@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  font-family: 'Cairo', sans-serif;
 }
 
 // ── HEADER ───────────────────────────────────────────────────
@@ -18,7 +19,6 @@
   background: none;
   border: none;
   color: #535353;
-  font-family: 'Cairo', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -39,7 +39,6 @@
   color: #0d0d0d;
   border: none;
   border-radius: 8px;
-  font-family: 'Cairo', sans-serif;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -66,7 +65,6 @@
   border-radius: 50%;
   background-color: #c99734;
   color: #0d0d0d;
-  font-family: 'Cairo', sans-serif;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -92,7 +90,6 @@
   font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
-  font-family: 'Cairo', sans-serif;
   margin: 0;
 }
 
@@ -109,7 +106,6 @@
   gap: 4px;
   font-size: 13px;
   color: #535353;
-  font-family: 'Cairo', sans-serif;
 
   .material-symbols-outlined { font-size: 16px; }
 }
@@ -131,7 +127,6 @@
     font-size: 16px;
     font-weight: 700;
     color: #1a1a1a;
-    font-family: 'Cairo', sans-serif;
     margin: 0 0 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid #f0f0f0;
@@ -166,7 +161,6 @@
   border: 1px solid rgba(201, 151, 52, 0.35);
   border-radius: 8px;
   color: #c99734;
-  font-family: 'Cairo', sans-serif;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -191,14 +185,12 @@
   .info-label {
     font-size: 13px;
     color: #535353;
-    font-family: 'Cairo', sans-serif;
     font-weight: 500;
   }
 
   .info-value {
     font-size: 13px;
     color: #1a1a1a;
-    font-family: 'Cairo', sans-serif;
     font-weight: 600;
     text-align: right;
   }
@@ -212,7 +204,6 @@
   letter-spacing: 0.08em;
   padding: 4px 10px;
   border-radius: 20px;
-  font-family: 'Cairo', sans-serif;
 
   &.status-active   { background: rgba(74,222,128,0.15);  color: #15803d; }
   &.status-inactive { background: rgba(248,113,113,0.15); color: #b91c1c; }
@@ -229,7 +220,7 @@
   display: flex; align-items: center; gap: 8px;
   background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.25);
   border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
-  font-family: 'Cairo', sans-serif; font-size: 13px;
+  font-size: 13px;
   font-weight: 600; color: #1d4ed8;
   .material-symbols-outlined { font-size: 16px; }
 }
@@ -239,7 +230,7 @@
 .plan-badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px;
   font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.06em; font-family: 'Cairo', sans-serif;
+  letter-spacing: 0.06em;
   &.plan-active { background: rgba(74,222,128,0.15); color: #15803d; }
   &.plan-frozen { background: rgba(96,165,250,0.15); color: #1d4ed8; }
 }
@@ -256,13 +247,13 @@
 
   th {
     padding: 10px 14px; text-align: left;
-    font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.08em; color: #535353;
   }
 
   td {
     padding: 12px 14px; border-bottom: 1px solid #f0f0f0;
-    font-family: 'Cairo', sans-serif; font-size: 13px; color: #1a1a1a;
+    font-size: 13px; color: #1a1a1a;
     vertical-align: middle;
   }
 
@@ -277,7 +268,7 @@
 .session-badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px;
   font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.06em; font-family: 'Cairo', sans-serif; white-space: nowrap;
+  letter-spacing: 0.06em; white-space: nowrap;
   &.session-completed { background: rgba(74,222,128,0.15);  color: #15803d; }
   &.session-pending   { background: rgba(251,191,36,0.15);  color: #b45309; }
   &.session-cancelled { background: rgba(248,113,113,0.15); color: #b91c1c; }
@@ -285,7 +276,7 @@
 
 .confirm-badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 600; font-family: 'Cairo', sans-serif; white-space: nowrap;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
   &.confirm-pending            { background: rgba(156,163,175,0.15); color: #4b5563; }
   &.confirm-partial            { background: rgba(251,191,36,0.15);  color: #b45309; }
   &.confirm-trainer_confirmed  { background: rgba(96,165,250,0.15);  color: #1d4ed8; }
@@ -337,20 +328,11 @@
   &.phys  { background: rgba(96,165,250,0.12); color: #1d4ed8; }
 }
 
-.assessment-type  { font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 0; }
-.assessment-count { font-family: 'Cairo', sans-serif; font-size: 11px; color: #9ca3af; margin: 0; }
-.assessment-date  { font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; color: #535353; }
-.assessment-empty { font-family: 'Cairo', sans-serif; font-size: 13px; color: #9ca3af; margin: 0; text-align: center; padding: 8px 0; }
+.assessment-type  { font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 0; }
+.assessment-count { font-size: 11px; color: #9ca3af; margin: 0; }
+.assessment-date  { font-size: 12px; font-weight: 600; color: #535353; }
+.assessment-empty { font-size: 13px; color: #9ca3af; margin: 0; text-align: center; padding: 8px 0; }
 
-.assessment-metrics { display: flex; flex-direction: column; gap: 6px; }
-
-.metric-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  .metric-label { font-family: 'Cairo', sans-serif; font-size: 12px; color: #535353; }
-  .metric-value { font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 700; color: #1a1a1a; }
-}
 
 // ── COMING SOON ──────────────────────────────────────────────
 .coming-soon {
@@ -360,7 +342,6 @@
   gap: 8px;
   padding: 32px;
   color: #9ca3af;
-  font-family: 'Cairo', sans-serif;
   font-size: 13px;
 
   .material-symbols-outlined {
@@ -377,7 +358,6 @@
   gap: 12px;
   padding: 48px;
   color: #535353;
-  font-family: 'Cairo', sans-serif;
 
   .material-symbols-outlined {
     font-size: 40px;
@@ -408,7 +388,6 @@
 }
 
 .semaforo-label {
-  font-family: 'Cairo', sans-serif;
   font-size: 12px;
   color: #535353;
   flex: 1;
@@ -416,7 +395,6 @@
 }
 
 .semaforo-value {
-  font-family: 'Cairo', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: #1a1a1a;
@@ -427,7 +405,6 @@
   display: inline-block;
   padding: 2px 8px;
   border-radius: 10px;
-  font-family: 'Cairo', sans-serif;
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
@@ -451,6 +428,3 @@
   &.semaforo-sin-dato { background: #f0f0f0; color: #9ca3af; }
 }
 
-@media (max-width: 900px) {
-  .eval-summary-grid { grid-template-columns: 1fr; }
-}

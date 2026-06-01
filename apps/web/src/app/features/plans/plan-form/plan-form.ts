@@ -104,6 +104,6 @@ export class PlanForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/plans']);
+    this.router.navigate(['/planes']);
   }
 }

@@ -115,7 +115,7 @@ export class SessionForm implements OnInit {
     this.service.create(data).subscribe({
       next: () => {
         this.toast.success('Sesión registrada correctamente');
-        setTimeout(() => this.router.navigate(['/sessions']), 500);
+        setTimeout(() => this.router.navigate(['/sesiones']), 500);
       },
       error: () => {
         this.error.set('Error al guardar. Intenta de nuevo.');
@@ -125,6 +125,6 @@ export class SessionForm implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/sessions']);
+    this.router.navigate(['/sesiones']);
   }
 }
