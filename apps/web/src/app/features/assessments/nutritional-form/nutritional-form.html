@@ -211,13 +211,13 @@
             <span class="result-label">IMLG</span>
             <span class="result-value">{{ results()!.imlg }}</span>
           </div>
-          @if (results()!.complexion != null) {
+          @if (results()!.complexion !== null) {
             <div class="result-item">
               <span class="result-label">Complexión ósea</span>
               <span class="result-value">{{ results()!.complexion }}</span>
             </div>
           }
-          @if (results()!.peso_ideal != null) {
+          @if (results()!.peso_ideal !== null) {
             <div class="result-item highlight">
               <span class="result-label">Peso ideal</span>
               <span class="result-value">{{ results()!.peso_ideal }} kg</span>

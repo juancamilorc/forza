@@ -246,7 +246,7 @@
               <div class="semaforo-list">
                 <div class="semaforo-row">
                   <span class="semaforo-label">% Grasa</span>
-                  @if (nutritionalList()[0].porcentaje_grasa != null) {
+                  @if (nutritionalList()[0].porcentaje_grasa !== null) {
                     <span class="semaforo-value">{{ nutritionalList()[0].porcentaje_grasa?.toFixed(1) }}%</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_grasa) }}">
@@ -255,7 +255,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">IAKS</span>
-                  @if (nutritionalList()[0].iaks != null) {
+                  @if (nutritionalList()[0].iaks !== null) {
                     <span class="semaforo-value">{{ nutritionalList()[0].iaks?.toFixed(1) }}</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_iaks) }}">
@@ -264,7 +264,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">Pliegues</span>
-                  @if (nutritionalList()[0].sumatoria_pliegues_mm != null) {
+                  @if (nutritionalList()[0].sumatoria_pliegues_mm !== null) {
                     <span class="semaforo-value">{{ nutritionalList()[0].sumatoria_pliegues_mm }} mm</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('nutri', nutritionalList()[0].clasificacion_pliegues) }}">
@@ -292,7 +292,7 @@
               <div class="semaforo-list">
                 <div class="semaforo-row">
                   <span class="semaforo-label">Control</span>
-                  @if (technicalList()[0].control_efectividad_total_pct != null) {
+                  @if (technicalList()[0].control_efectividad_total_pct !== null) {
                     <span class="semaforo-value">{{ technicalList()[0].control_efectividad_total_pct }}%</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].control_clasificacion) }}">
@@ -301,7 +301,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">Pase</span>
-                  @if (technicalList()[0].pase_efectividad_pct != null) {
+                  @if (technicalList()[0].pase_efectividad_pct !== null) {
                     <span class="semaforo-value">{{ technicalList()[0].pase_efectividad_pct }}%</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].pase_clasificacion) }}">
@@ -310,7 +310,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">Definición</span>
-                  @if (technicalList()[0].definicion_efectividad_total_pct != null) {
+                  @if (technicalList()[0].definicion_efectividad_total_pct !== null) {
                     <span class="semaforo-value">{{ technicalList()[0].definicion_efectividad_total_pct }}%</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('tech', technicalList()[0].definicion_clasificacion) }}">
@@ -344,7 +344,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">Salto vertical</span>
-                  @if (physicalList()[0].salto_vertical_cm != null) {
+                  @if (physicalList()[0].salto_vertical_cm !== null) {
                     <span class="semaforo-value">{{ physicalList()[0].salto_vertical_cm }} cm</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('phys', physicalList()[0].salto_vertical_clasificacion) }}">
@@ -353,7 +353,7 @@
                 </div>
                 <div class="semaforo-row">
                   <span class="semaforo-label">Salto horizontal</span>
-                  @if (physicalList()[0].salto_horizontal_cm != null) {
+                  @if (physicalList()[0].salto_horizontal_cm !== null) {
                     <span class="semaforo-value">{{ physicalList()[0].salto_horizontal_cm }} cm</span>
                   }
                   <span class="semaforo-chip {{ semaforoCss('phys', physicalList()[0].salto_horizontal_clasificacion) }}">

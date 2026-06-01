@@ -75,7 +75,7 @@
     <div class="info-card">
       <h2 class="card-title">Saltos</h2>
       <div class="saltos-grid">
-        @if (assessment()!.salto_vertical_cm != null) {
+        @if (assessment()!.salto_vertical_cm !== null) {
           <div class="salto-box">
             <span class="salto-type">Salto vertical</span>
             <span class="salto-value">{{ fmt(assessment()!.salto_vertical_cm, 1) }} <small>cm</small></span>
@@ -89,7 +89,7 @@
             }
           </div>
         }
-        @if (assessment()!.salto_horizontal_cm != null) {
+        @if (assessment()!.salto_horizontal_cm !== null) {
           <div class="salto-box">
             <span class="salto-type">Salto horizontal</span>
             <span class="salto-value">{{ fmt(assessment()!.salto_horizontal_cm, 1) }} <small>cm</small></span>
@@ -107,32 +107,32 @@
     </div>
 
     <!-- Sprint -->
-    @if (assessment()!.sprint_5m != null || assessment()!.sprint_10m != null || assessment()!.sprint_20m != null) {
+    @if (assessment()!.sprint_5m !== null || assessment()!.sprint_10m !== null || assessment()!.sprint_20m !== null) {
       <div class="info-card">
         <h2 class="card-title">Sprint progresivo</h2>
         <div class="sprint-row">
-          @if (assessment()!.sprint_5m != null) {
+          @if (assessment()!.sprint_5m !== null) {
             <div class="sprint-box">
               <span class="sprint-dist">5 m</span>
               <span class="sprint-time">{{ fmt(assessment()!.sprint_5m) }}</span>
               <span class="sprint-unit">seg</span>
             </div>
           }
-          @if (assessment()!.sprint_10m != null) {
+          @if (assessment()!.sprint_10m !== null) {
             <div class="sprint-box">
               <span class="sprint-dist">10 m</span>
               <span class="sprint-time">{{ fmt(assessment()!.sprint_10m) }}</span>
               <span class="sprint-unit">seg</span>
             </div>
           }
-          @if (assessment()!.sprint_15m != null) {
+          @if (assessment()!.sprint_15m !== null) {
             <div class="sprint-box">
               <span class="sprint-dist">15 m</span>
               <span class="sprint-time">{{ fmt(assessment()!.sprint_15m) }}</span>
               <span class="sprint-unit">seg</span>
             </div>
           }
-          @if (assessment()!.sprint_20m != null) {
+          @if (assessment()!.sprint_20m !== null) {
             <div class="sprint-box highlight">
               <span class="sprint-dist">20 m</span>
               <span class="sprint-time">{{ fmt(assessment()!.sprint_20m) }}</span>

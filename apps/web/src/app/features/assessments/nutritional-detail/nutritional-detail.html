@@ -41,49 +41,49 @@
       <div class="info-card">
         <h2 class="card-title">Medidas corporales</h2>
         <div class="info-rows">
-          @if (assessment()!.peso_kg != null) {
+          @if (assessment()!.peso_kg !== null) {
             <div class="info-row">
               <span class="info-label">Peso</span>
               <span class="info-value">{{ fmt(assessment()!.peso_kg) }} kg</span>
             </div>
           }
-          @if (assessment()!.talla_cm != null) {
+          @if (assessment()!.talla_cm !== null) {
             <div class="info-row">
               <span class="info-label">Talla</span>
               <span class="info-value">{{ fmt(assessment()!.talla_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.perimetro_muneca_cm != null) {
+          @if (assessment()!.perimetro_muneca_cm !== null) {
             <div class="info-row">
               <span class="info-label">Perímetro muñeca</span>
               <span class="info-value">{{ fmt(assessment()!.perimetro_muneca_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.perimetro_brazo_cm != null) {
+          @if (assessment()!.perimetro_brazo_cm !== null) {
             <div class="info-row">
               <span class="info-label">Perímetro brazo</span>
               <span class="info-value">{{ fmt(assessment()!.perimetro_brazo_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.perimetro_brazo_tenso_cm != null) {
+          @if (assessment()!.perimetro_brazo_tenso_cm !== null) {
             <div class="info-row">
               <span class="info-label">Brazo tenso</span>
               <span class="info-value">{{ fmt(assessment()!.perimetro_brazo_tenso_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.perimetro_pantorrilla_cm != null) {
+          @if (assessment()!.perimetro_pantorrilla_cm !== null) {
             <div class="info-row">
               <span class="info-label">Perímetro pantorrilla</span>
               <span class="info-value">{{ fmt(assessment()!.perimetro_pantorrilla_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.diametro_humero_cm != null) {
+          @if (assessment()!.diametro_humero_cm !== null) {
             <div class="info-row">
               <span class="info-label">Diámetro húmero</span>
               <span class="info-value">{{ fmt(assessment()!.diametro_humero_cm, 1) }} cm</span>
             </div>
           }
-          @if (assessment()!.diametro_femur_cm != null) {
+          @if (assessment()!.diametro_femur_cm !== null) {
             <div class="info-row">
               <span class="info-label">Diámetro fémur</span>
               <span class="info-value">{{ fmt(assessment()!.diametro_femur_cm, 1) }} cm</span>
@@ -97,43 +97,43 @@
         <div class="info-card">
           <h2 class="card-title">Pliegues cutáneos</h2>
           <div class="info-rows">
-            @if (assessment()!.pliegue_tricipital_mm != null) {
+            @if (assessment()!.pliegue_tricipital_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Tricipital</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_tricipital_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.pliegue_subescapular_mm != null) {
+            @if (assessment()!.pliegue_subescapular_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Subescapular</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_subescapular_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.pliegue_supraespinal_mm != null) {
+            @if (assessment()!.pliegue_supraespinal_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Supraespinal</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_supraespinal_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.pliegue_abdominal_mm != null) {
+            @if (assessment()!.pliegue_abdominal_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Abdominal</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_abdominal_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.pliegue_muslo_mm != null) {
+            @if (assessment()!.pliegue_muslo_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Muslo</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_muslo_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.pliegue_pantorrilla_mm != null) {
+            @if (assessment()!.pliegue_pantorrilla_mm !== null) {
               <div class="info-row">
                 <span class="info-label">Pantorrilla</span>
                 <span class="info-value">{{ fmt(assessment()!.pliegue_pantorrilla_mm, 1) }} mm</span>
               </div>
             }
-            @if (assessment()!.sumatoria_pliegues_mm != null) {
+            @if (assessment()!.sumatoria_pliegues_mm !== null) {
               <div class="info-row highlight">
                 <span class="info-label">Sumatoria</span>
                 <span class="info-value">{{ fmt(assessment()!.sumatoria_pliegues_mm, 1) }} mm</span>
@@ -148,63 +148,63 @@
     <div class="info-card">
       <h2 class="card-title">Resultados calculados</h2>
       <div class="metrics-grid">
-        @if (assessment()!.imc != null) {
+        @if (assessment()!.imc !== null) {
           <div class="metric-box">
             <span class="metric-label">IMC</span>
             <span class="metric-value">{{ fmt(assessment()!.imc) }}</span>
             <span class="metric-unit">kg/m²</span>
           </div>
         }
-        @if (assessment()!.porcentaje_grasa != null) {
+        @if (assessment()!.porcentaje_grasa !== null) {
           <div class="metric-box">
             <span class="metric-label">% Grasa</span>
             <span class="metric-value">{{ fmt(assessment()!.porcentaje_grasa) }}</span>
             <span class="metric-unit">%</span>
           </div>
         }
-        @if (assessment()!.peso_graso_kg != null) {
+        @if (assessment()!.peso_graso_kg !== null) {
           <div class="metric-box">
             <span class="metric-label">Peso graso</span>
             <span class="metric-value">{{ fmt(assessment()!.peso_graso_kg) }}</span>
             <span class="metric-unit">kg</span>
           </div>
         }
-        @if (assessment()!.masa_libre_grasa_kg != null) {
+        @if (assessment()!.masa_libre_grasa_kg !== null) {
           <div class="metric-box">
             <span class="metric-label">MLG</span>
             <span class="metric-value">{{ fmt(assessment()!.masa_libre_grasa_kg) }}</span>
             <span class="metric-unit">kg</span>
           </div>
         }
-        @if (assessment()!.iaks != null) {
+        @if (assessment()!.iaks !== null) {
           <div class="metric-box">
             <span class="metric-label">IAKS</span>
             <span class="metric-value">{{ fmt(assessment()!.iaks, 3) }}</span>
             <span class="metric-unit"></span>
           </div>
         }
-        @if (assessment()!.imlg != null) {
+        @if (assessment()!.imlg !== null) {
           <div class="metric-box">
             <span class="metric-label">IMLG</span>
             <span class="metric-value">{{ fmt(assessment()!.imlg) }}</span>
             <span class="metric-unit">kg/m²</span>
           </div>
         }
-        @if (assessment()!.complexion_osea != null) {
+        @if (assessment()!.complexion_osea !== null) {
           <div class="metric-box">
             <span class="metric-label">Complexión ósea</span>
             <span class="metric-value">{{ fmt(assessment()!.complexion_osea) }}</span>
             <span class="metric-unit"></span>
           </div>
         }
-        @if (assessment()!.peso_ideal_kg != null) {
+        @if (assessment()!.peso_ideal_kg !== null) {
           <div class="metric-box">
             <span class="metric-label">Peso ideal</span>
             <span class="metric-value">{{ fmt(assessment()!.peso_ideal_kg) }}</span>
             <span class="metric-unit">kg</span>
           </div>
         }
-        @if (assessment()!.porcentaje_grasa_deseado != null) {
+        @if (assessment()!.porcentaje_grasa_deseado !== null) {
           <div class="metric-box">
             <span class="metric-label">% Grasa deseado</span>
             <span class="metric-value">{{ fmt(assessment()!.porcentaje_grasa_deseado) }}</span>

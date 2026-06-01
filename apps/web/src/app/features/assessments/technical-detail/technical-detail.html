@@ -169,19 +169,19 @@
             <div>
               <p class="sub-title">Conducción velocidad</p>
               <div class="info-rows">
-                @if (assessment()!.conduccion_5m != null) {
+                @if (assessment()!.conduccion_5m !== null) {
                   <div class="info-row">
                     <span class="info-label">5 m</span>
                     <span class="info-value">{{ fmt(assessment()!.conduccion_5m) }} s</span>
                   </div>
                 }
-                @if (assessment()!.conduccion_10m != null) {
+                @if (assessment()!.conduccion_10m !== null) {
                   <div class="info-row">
                     <span class="info-label">10 m</span>
                     <span class="info-value">{{ fmt(assessment()!.conduccion_10m) }} s</span>
                   </div>
                 }
-                @if (assessment()!.conduccion_20m != null) {
+                @if (assessment()!.conduccion_20m !== null) {
                   <div class="info-row">
                     <span class="info-label">20 m</span>
                     <span class="info-value">{{ fmt(assessment()!.conduccion_20m) }} s</span>
@@ -190,17 +190,17 @@
               </div>
             </div>
           }
-          @if (assessment()!.cambios_direccion_derecha != null || assessment()!.cambios_direccion_izquierda != null) {
+          @if (assessment()!.cambios_direccion_derecha !== null || assessment()!.cambios_direccion_izquierda !== null) {
             <div>
               <p class="sub-title">Cambios de dirección</p>
               <div class="info-rows">
-                @if (assessment()!.cambios_direccion_derecha != null) {
+                @if (assessment()!.cambios_direccion_derecha !== null) {
                   <div class="info-row">
                     <span class="info-label">Derecha</span>
                     <span class="info-value">{{ fmt(assessment()!.cambios_direccion_derecha) }} s</span>
                   </div>
                 }
-                @if (assessment()!.cambios_direccion_izquierda != null) {
+                @if (assessment()!.cambios_direccion_izquierda !== null) {
                   <div class="info-row">
                     <span class="info-label">Izquierda</span>
                     <span class="info-value">{{ fmt(assessment()!.cambios_direccion_izquierda) }} s</span>
