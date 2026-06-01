@@ -108,6 +108,33 @@ html, body {
   color: #1a1a1a;
 }
 
+// ── PRINT ─────────────────────────────────────────────────────────────
+.print-only { display: none !important; }
+
+@media print {
+  // Ocultar chrome del shell
+  .sidebar, .sidebar-overlay, .topbar { display: none !important; }
+  app-toast { display: none !important; }
+
+  // Quitar offset del sidebar
+  .main-wrapper { margin-left: 0 !important; }
+  .main-content { padding: 20px !important; background: #fff !important; }
+
+  body, html { background: #fff !important; }
+
+  // Clases de visibilidad
+  .no-print  { display: none !important; }
+  .print-only { display: block !important; }
+
+  // Evitar cortes dentro de cards
+  .info-card,
+  .section-grid > div,
+  .result-card { break-inside: avoid; page-break-inside: avoid; }
+
+  // Colores para impresión
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
 // ── UTILIDADES FORZA ─────────────────────────────────────────────
 .text-gold    { color: var(--forza-gold) !important; }
 .bg-gold      { background-color: var(--forza-gold) !important; }

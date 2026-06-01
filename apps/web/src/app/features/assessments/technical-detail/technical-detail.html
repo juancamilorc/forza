@@ -1,10 +1,28 @@
 <div class="detail-page">
 
-  <div class="page-header">
+  <div class="page-header no-print">
     <button class="btn-back" (click)="goBack()">
       <span class="material-symbols-outlined">arrow_back</span>
       Evaluaciones
     </button>
+    <button class="btn-print" (click)="printPage()">
+      <span class="material-symbols-outlined">print</span>
+      Imprimir
+    </button>
+  </div>
+
+  <div class="print-only print-header">
+    <img src="logo-forza-amarillo.png" alt="FORZA" class="print-logo" />
+    <div class="print-meta">
+      <span class="print-type">Evaluación Técnica</span>
+      @if (assessment()) {
+        <span>{{ assessment()!.athletes?.first_name }} {{ assessment()!.athletes?.last_name }}</span>
+        <span>{{ assessment()!.evaluation_date | date:'dd/MM/yyyy' }}</span>
+        @if (assessment()!.evaluator?.full_name) {
+          <span>Evaluador: {{ assessment()!.evaluator!.full_name }}</span>
+        }
+      }
+    </div>
   </div>
 
   @if (loading()) {
@@ -26,6 +44,13 @@
         @if (assessment()!.period_label) {
           <span class="dot">·</span>
           <span>{{ assessment()!.period_label }}</span>
+        }
+        @if (assessment()!.evaluator?.full_name) {
+          <span class="dot">·</span>
+          <span class="meta-evaluator">
+            <span class="material-symbols-outlined">person</span>
+            {{ assessment()!.evaluator!.full_name }}
+          </span>
         }
       </div>
     </div>

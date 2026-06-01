@@ -52,6 +52,7 @@ export interface PhysicalAssessment {
 // ── Full detail interfaces ─────────────────────────────────────────────
 export interface NutritionalAssessmentFull extends NutritionalAssessment {
   evaluator_id:                 string;
+  evaluator?:                   { id: string; full_name: string } | null;
   position:                     string | null;
   perimetro_muneca_cm:          number | null;
   pliegue_tricipital_mm:        number | null;
@@ -91,6 +92,7 @@ export interface NutritionalAssessmentFull extends NutritionalAssessment {
 
 export interface TechnicalAssessmentFull extends TechnicalAssessment {
   evaluator_id:                      string;
+  evaluator?:                        { id: string; full_name: string } | null;
   conduccion_5m:                     number | null;
   conduccion_10m:                    number | null;
   conduccion_20m:                    number | null;
@@ -123,6 +125,7 @@ export interface TechnicalAssessmentFull extends TechnicalAssessment {
 
 export interface PhysicalAssessmentFull extends PhysicalAssessment {
   evaluator_id:                   string;
+  evaluator?:                     { id: string; full_name: string } | null;
   movilidad_pies:                 number | null;
   movilidad_pies_analisis:        string | null;
   movilidad_rodillas:             number | null;

@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AssessmentsService, NutritionalAssessmentFull } from '../../../core/services/assessments.service';
@@ -10,9 +11,10 @@ import { AssessmentsService, NutritionalAssessmentFull } from '../../../core/ser
   styleUrl: './nutritional-detail.scss',
 })
 export class NutritionalDetail implements OnInit {
-  private route  = inject(ActivatedRoute);
-  private router = inject(Router);
-  private svc    = inject(AssessmentsService);
+  private route      = inject(ActivatedRoute);
+  private router     = inject(Router);
+  private svc        = inject(AssessmentsService);
+  private platformId = inject(PLATFORM_ID);
 
   assessment = signal<NutritionalAssessmentFull | null>(null);
   loading    = signal(true);
@@ -25,7 +27,8 @@ export class NutritionalDetail implements OnInit {
     });
   }
 
-  goBack() { this.router.navigate(['/evaluaciones']); }
+  goBack()     { this.router.navigate(['/evaluaciones']); }
+  printPage()  { if (isPlatformBrowser(this.platformId)) window.print(); }
 
   goToAthlete() {
     const id = this.assessment()?.athlete_id;

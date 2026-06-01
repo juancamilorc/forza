@@ -11,7 +11,51 @@ $border:    #e5e5e5;
   gap: 20px;
 }
 
-.page-header { margin-bottom: 4px; }
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: $gold;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0d0d0d;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+
+  &:hover { background: #e8b84a; }
+  .material-symbols-outlined { font-size: 18px; }
+}
+
+.print-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid $gold;
+  margin-bottom: 4px;
+}
+
+.print-logo { height: 40px; width: auto; }
+
+.print-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .print-type { font-size: 1.1rem; font-weight: 700; color: $text-dark; }
+  span        { font-size: 0.85rem; color: $text-mid; }
+}
 
 .btn-back {
   display: inline-flex;
@@ -76,6 +120,13 @@ $border:    #e5e5e5;
   color: $text-mid;
 
   .dot { color: #ccc; }
+
+  .meta-evaluator {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    .material-symbols-outlined { font-size: 14px; }
+  }
 }
 
 // ── Cards ──────────────────────────────────────────────────────────────

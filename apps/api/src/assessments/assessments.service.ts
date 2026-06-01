@@ -221,7 +221,7 @@ export class AssessmentsService {
   async findOneNutritional(id: string) {
     const { data, error } = await this.supabase.db
       .from('nutritional_assessments')
-      .select('*, athletes(id, first_name, last_name, birth_date, gender)')
+      .select('*, athletes(id, first_name, last_name, birth_date, gender), evaluator:users!evaluator_id(id, full_name)')
       .eq('id', id)
       .single();
 
@@ -301,7 +301,7 @@ export class AssessmentsService {
   async findOneTechnical(id: string) {
     const { data, error } = await this.supabase.db
       .from('technical_assessments')
-      .select('*, athletes(id, first_name, last_name)')
+      .select('*, athletes(id, first_name, last_name), evaluator:users!evaluator_id(id, full_name)')
       .eq('id', id)
       .single();
 
@@ -358,7 +358,7 @@ export class AssessmentsService {
   async findOnePhysical(id: string) {
     const { data, error } = await this.supabase.db
       .from('physical_assessments')
-      .select('*, athletes(id, first_name, last_name, birth_date, gender)')
+      .select('*, athletes(id, first_name, last_name, birth_date, gender), evaluator:users!evaluator_id(id, full_name)')
       .eq('id', id)
       .single();
 
