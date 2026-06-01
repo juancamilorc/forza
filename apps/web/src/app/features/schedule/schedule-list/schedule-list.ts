@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { ScheduleService, Appointment, TrainerOption } from '../../../core/services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -23,9 +24,104 @@ export class ScheduleList implements OnInit {
   statusFilter  = signal('');
   trainerFilter = signal('');
 
+  private platformId = inject(PLATFORM_ID);
+
   role         = this.auth.getRole() ?? '';
   isAdmin      = this.role === 'super_admin' || this.role === 'admin';
   isSuperAdmin = this.role === 'super_admin';
+
+  // ── Vista ────────────────────────────────────────────────────
+  viewMode    = signal<'list' | 'calendar'>('list');
+  selectedDay = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      const day = this.selectedDay();
+      if (day && isPlatformBrowser(this.platformId)) {
+        setTimeout(() => {
+          document.querySelector('.day-panel')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 60);
+      }
+    });
+  }
+
+  // ── Calendario ───────────────────────────────────────────────
+  private _today = new Date();
+  calYear  = signal(this._today.getFullYear());
+  calMonth = signal(this._today.getMonth()); // 0-indexed
+
+  calMonthLabel = computed(() => {
+    return new Date(this.calYear(), this.calMonth(), 1)
+      .toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+  });
+
+  calDays = computed(() => {
+    const year  = this.calYear();
+    const month = this.calMonth();
+    const appts = this.filtered();
+
+    const firstDay = new Date(year, month, 1);
+    // Lunes=0 … Domingo=6
+    let startOffset = firstDay.getDay() - 1;
+    if (startOffset < 0) startOffset = 6;
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const totalCells  = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+    const todayStr = this.toDateStr(this._today);
+    const cells: { date: string; day: number; inMonth: boolean; isToday: boolean; appointments: typeof appts }[] = [];
+
+    for (let i = 0; i < totalCells; i++) {
+      const d    = new Date(year, month, 1 - startOffset + i);
+      const date = this.toDateStr(d);
+      cells.push({
+        date,
+        day:     d.getDate(),
+        inMonth: d.getMonth() === month,
+        isToday: date === todayStr,
+        appointments: appts.filter(a => a.scheduled_date === date)
+          .sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time)),
+      });
+    }
+    return cells;
+  });
+
+  dayAppointments = computed(() => {
+    const day = this.selectedDay();
+    if (!day) return [];
+    return this.filtered()
+      .filter(a => a.scheduled_date === day)
+      .sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
+  });
+
+  private toDateStr(d: Date): string {
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
+  prevMonth() {
+    if (this.calMonth() === 0) { this.calYear.update(y => y - 1); this.calMonth.set(11); }
+    else { this.calMonth.update(m => m - 1); }
+    this.selectedDay.set(null);
+  }
+
+  nextMonth() {
+    if (this.calMonth() === 11) { this.calYear.update(y => y + 1); this.calMonth.set(0); }
+    else { this.calMonth.update(m => m + 1); }
+    this.selectedDay.set(null);
+  }
+
+  goToToday() {
+    this.calYear.set(this._today.getFullYear());
+    this.calMonth.set(this._today.getMonth());
+    this.selectedDay.set(this.toDateStr(this._today));
+  }
+
+  selectDay(date: string) {
+    this.selectedDay.set(this.selectedDay() === date ? null : date);
+  }
 
   // Modal reprogramar
   rescheduleTarget = signal<Appointment | null>(null);

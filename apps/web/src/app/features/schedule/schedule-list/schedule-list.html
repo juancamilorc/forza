@@ -12,6 +12,18 @@
     </button>
   </div>
 
+  <!-- Toggle vista -->
+  <div class="view-toggle">
+    <button class="toggle-btn" [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')">
+      <span class="material-symbols-outlined">view_list</span>
+      Lista
+    </button>
+    <button class="toggle-btn" [class.active]="viewMode() === 'calendar'" (click)="viewMode.set('calendar')">
+      <span class="material-symbols-outlined">calendar_month</span>
+      Calendario
+    </button>
+  </div>
+
   <!-- Filtros -->
   <div class="filters-bar">
     <div class="status-filters">
@@ -43,8 +55,121 @@
     </div>
   }
 
+  <!-- ── CALENDARIO ─────────────────────────────────────────── -->
+  @if (!loading() && viewMode() === 'calendar') {
+    <div class="calendar-wrap">
+
+      <!-- Nav mes -->
+      <div class="cal-nav">
+        <button class="cal-nav-btn" (click)="prevMonth()">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <span class="cal-month-label">{{ calMonthLabel() }}</span>
+        <button class="cal-nav-btn" (click)="nextMonth()">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="cal-today-btn" (click)="goToToday()">Hoy</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="cal-grid">
+        <!-- Cabecera días -->
+        @for (d of ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']; track d) {
+          <div class="cal-day-header">{{ d }}</div>
+        }
+
+        <!-- Celdas -->
+        @for (cell of calDays(); track cell.date) {
+          <div class="cal-cell"
+               [class.other-month]="!cell.inMonth"
+               [class.today]="cell.isToday"
+               [class.selected]="selectedDay() === cell.date"
+               [class.has-events]="cell.appointments.length > 0"
+               (click)="selectDay(cell.date)"
+               (keyup.enter)="selectDay(cell.date)"
+               tabindex="0"
+               role="button">
+            <div class="cal-day-top">
+              <span class="cal-day-num">{{ cell.day }}</span>
+              @if (cell.appointments.length > 0) {
+                <span class="cal-count-badge">{{ cell.appointments.length }}</span>
+              }
+            </div>
+            <div class="cal-events">
+              @for (a of cell.appointments.slice(0, 3); track a.id) {
+                <div class="cal-event-chip status-{{ a.status }}">
+                  {{ formatTime(a.scheduled_time) }}
+                  @if (a.athletes) { · {{ a.athletes.first_name }} }
+                </div>
+              }
+              @if (cell.appointments.length > 3) {
+                <div class="cal-event-more">+{{ cell.appointments.length - 3 }} más</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Panel día seleccionado -->
+      @if (selectedDay() && dayAppointments().length > 0) {
+        <div class="day-panel">
+          <div class="day-panel-header">
+            <span class="day-panel-title">{{ formatDate(selectedDay()!) }}</span>
+            <button class="day-panel-close" (click)="selectedDay.set(null)">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          @for (a of dayAppointments(); track a.id) {
+            <div class="day-panel-item">
+              <div class="day-panel-time">{{ formatTime(a.scheduled_time) }}</div>
+              <div class="day-panel-info">
+                <span class="day-panel-athlete">
+                  @if (a.athletes) { {{ a.athletes.first_name }} {{ a.athletes.last_name }} }
+                  @else { Sin deportista }
+                </span>
+                <span class="type-badge type-{{ a.type }}">{{ getTypeLabel(a.type) }}</span>
+                <span class="status-badge status-{{ a.status }}">{{ getStatusLabel(a.status) }}</span>
+              </div>
+              <div class="day-panel-actions">
+                @if (a.status === 'scheduled') {
+                  <button class="icon-btn gold" title="Google Calendar" (click)="openCalendarLink(a)">
+                    <span class="material-symbols-outlined">calendar_add_on</span>
+                  </button>
+                }
+                @if (canReschedule(a)) {
+                  <button class="icon-btn warn" title="Reprogramar" (click)="openReschedule(a)">
+                    <span class="material-symbols-outlined">event_repeat</span>
+                  </button>
+                }
+                @if (a.status === 'scheduled') {
+                  <button class="icon-btn danger" title="Cancelar" (click)="openCancel(a)">
+                    <span class="material-symbols-outlined">event_busy</span>
+                  </button>
+                }
+                <button class="icon-btn" title="Editar" (click)="goToEdit(a.id)">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (selectedDay() && dayAppointments().length === 0) {
+        <div class="day-panel day-panel-empty">
+          <span class="material-symbols-outlined">event_available</span>
+          <p>Sin citas para {{ formatDate(selectedDay()!) }}</p>
+          <button class="btn-primary-sm" (click)="goToNew()">
+            <span class="material-symbols-outlined">add</span>Nueva cita
+          </button>
+        </div>
+      }
+
+    </div>
+  }
+
   <!-- Tabla -->
-  @if (!loading()) {
+  @if (!loading() && viewMode() === 'list') {
     <div class="table-card">
       <table class="schedule-table">
         <thead>
@@ -127,7 +252,7 @@
     </div>
   }
 
-</div>
+</div><!-- /.schedule-list -->
 
 <!-- Modal reprogramar -->
 @if (rescheduleTarget()) {
