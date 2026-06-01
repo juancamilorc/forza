@@ -1,6 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import {
   AssessmentsService,
@@ -24,7 +23,7 @@ export interface AssessmentRow {
 
 @Component({
   selector: 'app-assessments-list',
-  imports: [DatePipe],
+  imports: [],
   templateUrl: './assessments-list.html',
   styleUrl: './assessments-list.scss',
 })
