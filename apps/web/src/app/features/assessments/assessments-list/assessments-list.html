@@ -21,13 +21,12 @@
         </button>
       </div>
     } @else {
-      <input
-        class="search-input"
-        type="text"
-        placeholder="Buscar deportista..."
-        [value]="searchText()"
-        (input)="setSearch($any($event.target).value)"
-      />
+      <select class="athlete-select" (change)="onAthleteSelect($any($event.target).value)">
+        <option value="">Ver por deportista...</option>
+        @for (a of athletes(); track a.id) {
+          <option [value]="a.id">{{ a.name }}</option>
+        }
+      </select>
     }
   </div>
 
@@ -39,8 +38,199 @@
     </div>
   }
 
-  <!-- Lista -->
-  @if (!loading()) {
+  <!-- ── VISTA AGRUPADA (con filtro de deportista) ──────────────────── -->
+  @if (!loading() && isGrouped()) {
+
+    <!-- Panel comparación -->
+    @if (compareA() && compareB()) {
+      <div class="compare-panel">
+        <div class="compare-panel-header">
+          <span class="compare-panel-title">
+            <span class="material-symbols-outlined">compare_arrows</span>
+            Comparación — {{ typeLabel(comparisonType()!) }}
+          </span>
+          <button class="compare-close" (click)="clearComparison()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="compare-body">
+          <!-- Cabeceras de fecha -->
+          <div class="compare-dates">
+            <div class="compare-date-col older-col">
+              <span class="compare-date-label">Anterior</span>
+              <span class="compare-date-val">{{ comparisonHeaders().older }}</span>
+            </div>
+            <div class="compare-date-spacer"></div>
+            <div class="compare-date-col newer-col">
+              <span class="compare-date-label">Reciente</span>
+              <span class="compare-date-val">{{ comparisonHeaders().newer }}</span>
+            </div>
+          </div>
+
+          <!-- Filas de métricas -->
+          @for (f of comparisonFields(); track f.label) {
+            <div class="compare-row">
+              <div class="compare-side older-side">{{ fmtVal(f.a, f.unit) }}</div>
+              <div class="compare-middle">
+                <span class="compare-metric-label">{{ f.label }}</span>
+                @if (f.a != null && f.b != null) {
+                  <span class="compare-arrow {{ deltaClass(f) }}">
+                    {{ deltaArrow(f) }}
+                    <span class="compare-delta-val">
+                      @if ((f.b - f.a) !== 0) {
+                        {{ (f.b - f.a) > 0 ? '+' : '' }}{{ (f.b - f.a).toFixed(1) }}{{ f.unit ? ' ' + f.unit : '' }}
+                      } @else {
+                        sin cambio
+                      }
+                    </span>
+                  </span>
+                }
+              </div>
+              <div class="compare-side newer-side">{{ fmtVal(f.b, f.unit) }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (compareA() && !compareB()) {
+      <div class="compare-hint">
+        <span class="material-symbols-outlined">info</span>
+        Selecciona otra evaluación del mismo tipo para comparar
+      </div>
+    }
+
+    <!-- Sección Nutricional -->
+    @if (filterType() === 'all' || filterType() === 'nutritional') {
+      <div class="group-section">
+        <div class="group-header">
+          <span class="group-icon nutri material-symbols-outlined">nutrition</span>
+          <span class="group-title">Nutricional</span>
+          <span class="group-count">{{ groupedNutri().length }}</span>
+        </div>
+        @if (groupedNutri().length === 0) {
+          <p class="group-empty">Sin evaluaciones nutricionales</p>
+        } @else {
+          <div class="group-cards">
+            @for (row of groupedNutri(); track row.id) {
+              <div class="eval-card"
+                   [class.selected]="isSelectedForCompare(row.id)"
+                   (click)="goToDetail(row)"
+                   (keyup.enter)="goToDetail(row)"
+                   tabindex="0"
+                   role="button">
+                <div class="eval-card-top">
+                  <span class="eval-date">{{ formatDate(row.evaluation_date) }}</span>
+                  @if (row.period_label) {
+                    <span class="eval-period">{{ row.period_label }}</span>
+                  }
+                  <button class="btn-compare"
+                          [class.active]="isSelectedForCompare(row.id)"
+                          title="{{ isSelectedForCompare(row.id) ? 'Deseleccionar' : 'Seleccionar para comparar' }}"
+                          (click)="$event.stopPropagation(); toggleCompare(row)">
+                    <span class="material-symbols-outlined">compare_arrows</span>
+                  </button>
+                </div>
+                <div class="eval-metrics">
+                  <span class="eval-metric">{{ row.metric1 }}</span>
+                  <span class="eval-metric">{{ row.metric2 }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Sección Técnica -->
+    @if (filterType() === 'all' || filterType() === 'technical') {
+      <div class="group-section">
+        <div class="group-header">
+          <span class="group-icon tech material-symbols-outlined">sports_soccer</span>
+          <span class="group-title">Técnica</span>
+          <span class="group-count">{{ groupedTech().length }}</span>
+        </div>
+        @if (groupedTech().length === 0) {
+          <p class="group-empty">Sin evaluaciones técnicas</p>
+        } @else {
+          <div class="group-cards">
+            @for (row of groupedTech(); track row.id) {
+              <div class="eval-card"
+                   [class.selected]="isSelectedForCompare(row.id)"
+                   (click)="goToDetail(row)"
+                   (keyup.enter)="goToDetail(row)"
+                   tabindex="0"
+                   role="button">
+                <div class="eval-card-top">
+                  <span class="eval-date">{{ formatDate(row.evaluation_date) }}</span>
+                  @if (row.period_label) {
+                    <span class="eval-period">{{ row.period_label }}</span>
+                  }
+                  <button class="btn-compare"
+                          [class.active]="isSelectedForCompare(row.id)"
+                          title="{{ isSelectedForCompare(row.id) ? 'Deseleccionar' : 'Seleccionar para comparar' }}"
+                          (click)="$event.stopPropagation(); toggleCompare(row)">
+                    <span class="material-symbols-outlined">compare_arrows</span>
+                  </button>
+                </div>
+                <div class="eval-metrics">
+                  <span class="eval-metric">{{ row.metric1 }}</span>
+                  <span class="eval-metric">{{ row.metric2 }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Sección Física -->
+    @if (filterType() === 'all' || filterType() === 'physical') {
+      <div class="group-section">
+        <div class="group-header">
+          <span class="group-icon phys material-symbols-outlined">directions_run</span>
+          <span class="group-title">Física</span>
+          <span class="group-count">{{ groupedPhys().length }}</span>
+        </div>
+        @if (groupedPhys().length === 0) {
+          <p class="group-empty">Sin evaluaciones físicas</p>
+        } @else {
+          <div class="group-cards">
+            @for (row of groupedPhys(); track row.id) {
+              <div class="eval-card"
+                   [class.selected]="isSelectedForCompare(row.id)"
+                   (click)="goToDetail(row)"
+                   (keyup.enter)="goToDetail(row)"
+                   tabindex="0"
+                   role="button">
+                <div class="eval-card-top">
+                  <span class="eval-date">{{ formatDate(row.evaluation_date) }}</span>
+                  @if (row.period_label) {
+                    <span class="eval-period">{{ row.period_label }}</span>
+                  }
+                  <button class="btn-compare"
+                          [class.active]="isSelectedForCompare(row.id)"
+                          title="{{ isSelectedForCompare(row.id) ? 'Deseleccionar' : 'Seleccionar para comparar' }}"
+                          (click)="$event.stopPropagation(); toggleCompare(row)">
+                    <span class="material-symbols-outlined">compare_arrows</span>
+                  </button>
+                </div>
+                <div class="eval-metrics">
+                  <span class="eval-metric">{{ row.metric1 }}</span>
+                  <span class="eval-metric">{{ row.metric2 }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  }
+
+  <!-- ── VISTA LISTA (sin filtro de deportista) ──────────────────────── -->
+  @if (!loading() && !isGrouped()) {
     @if (filteredRows().length > 0) {
       <div class="list-card">
         <table class="list-table">
