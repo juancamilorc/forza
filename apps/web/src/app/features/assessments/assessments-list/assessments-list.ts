@@ -30,6 +30,9 @@ interface CompareField {
   higherIsBetter: boolean;
 }
 
+interface EvoPoint  { date: string; shortDate: string; value: number; }
+interface EvoSeries { label: string; unit: string; higherIsBetter: boolean; points: EvoPoint[]; }
+
 @Component({
   selector: 'app-assessments-list',
   imports: [],
@@ -49,6 +52,9 @@ export class AssessmentsList implements OnInit {
   // Comparación
   compareA = signal<string | null>(null);
   compareB = signal<string | null>(null);
+
+  // Evolución
+  evoMode = signal(false);
 
   private allRows = signal<AssessmentRow[]>([]);
 
@@ -82,6 +88,104 @@ export class AssessmentsList implements OnInit {
   groupedPhys = computed(() =>
     this.filteredRows().filter(r => r.type === 'physical')
   );
+
+  // ── Evolución (gráficos) ──────────────────────────────────────
+  private toEvoPoints(rows: AssessmentRow[], fn: (r: NutritionalAssessment | TechnicalAssessment | PhysicalAssessment) => number | null): EvoPoint[] {
+    return rows
+      .map(r => ({ date: r.evaluation_date, value: fn(r.raw) }))
+      .filter((p): p is { date: string; value: number } => p.value != null)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map(p => ({
+        date: p.date,
+        shortDate: new Date(p.date + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }),
+        value: p.value,
+      }));
+  }
+
+  evoNutri = computed<EvoSeries[]>(() => {
+    const rows = this.groupedNutri();
+    if (rows.length < 2) return [];
+    return [
+      { label: '% Grasa',    unit: '%',  higherIsBetter: false, points: this.toEvoPoints(rows, r => (r as NutritionalAssessment).porcentaje_grasa) },
+      { label: 'IAKS',       unit: '',   higherIsBetter: true,  points: this.toEvoPoints(rows, r => (r as NutritionalAssessment).iaks) },
+      { label: 'IMC',        unit: '',   higherIsBetter: false, points: this.toEvoPoints(rows, r => (r as NutritionalAssessment).imc) },
+      { label: 'Peso',       unit: 'kg', higherIsBetter: false, points: this.toEvoPoints(rows, r => (r as NutritionalAssessment).peso_kg) },
+    ].filter(s => s.points.length >= 2);
+  });
+
+  evoTech = computed<EvoSeries[]>(() => {
+    const rows = this.groupedTech();
+    if (rows.length < 2) return [];
+    return [
+      { label: 'Control',    unit: '%', higherIsBetter: true, points: this.toEvoPoints(rows, r => (r as TechnicalAssessment).control_efectividad_total_pct) },
+      { label: 'Pase',       unit: '%', higherIsBetter: true, points: this.toEvoPoints(rows, r => (r as TechnicalAssessment).pase_efectividad_pct) },
+      { label: 'Definición', unit: '%', higherIsBetter: true, points: this.toEvoPoints(rows, r => (r as TechnicalAssessment).definicion_efectividad_total_pct) },
+    ].filter(s => s.points.length >= 2);
+  });
+
+  evoPhys = computed<EvoSeries[]>(() => {
+    const rows = this.groupedPhys();
+    if (rows.length < 2) return [];
+    return [
+      { label: 'Salto vertical',   unit: 'cm', higherIsBetter: true,  points: this.toEvoPoints(rows, r => (r as PhysicalAssessment).salto_vertical_cm) },
+      { label: 'Salto horizontal', unit: 'cm', higherIsBetter: true,  points: this.toEvoPoints(rows, r => (r as PhysicalAssessment).salto_horizontal_cm) },
+      { label: 'Sprint 20m',       unit: 's',  higherIsBetter: false, points: this.toEvoPoints(rows, r => (r as PhysicalAssessment).sprint_20m) },
+    ].filter(s => s.points.length >= 2);
+  });
+
+  hasEvoData = computed(() =>
+    this.evoNutri().length > 0 || this.evoTech().length > 0 || this.evoPhys().length > 0
+  );
+
+  // ── SVG helpers ───────────────────────────────────────────────
+  readonly chartW = 260;
+  readonly chartH = 90;
+  readonly chartPadX = 24;
+  readonly chartPadY = 18;
+
+  svgX(i: number, total: number): number {
+    if (total === 1) return this.chartW / 2;
+    return this.chartPadX + (i / (total - 1)) * (this.chartW - this.chartPadX * 2);
+  }
+
+  svgY(value: number, min: number, max: number): number {
+    const h = this.chartH - this.chartPadY * 2;
+    if (max === min) return this.chartPadY + h / 2;
+    return this.chartPadY + (1 - (value - min) / (max - min)) * h;
+  }
+
+  svgPath(series: EvoSeries): string {
+    const pts = series.points;
+    const vals = pts.map(p => p.value);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    return pts.map((p, i) =>
+      (i === 0 ? 'M' : 'L') + this.svgX(i, pts.length).toFixed(1) + ' ' + this.svgY(p.value, min, max).toFixed(1)
+    ).join(' ');
+  }
+
+  svgPoints(series: EvoSeries): { x: number; y: number; value: number; shortDate: string; isLast: boolean }[] {
+    const pts  = series.points;
+    const vals = pts.map(p => p.value);
+    const min  = Math.min(...vals);
+    const max  = Math.max(...vals);
+    return pts.map((p, i) => ({
+      x: this.svgX(i, pts.length),
+      y: this.svgY(p.value, min, max),
+      value: p.value,
+      shortDate: p.shortDate,
+      isLast: i === pts.length - 1,
+    }));
+  }
+
+  trendClass(series: EvoSeries): string {
+    const pts = series.points;
+    if (pts.length < 2) return '';
+    const diff = pts[pts.length - 1].value - pts[0].value;
+    if (Math.abs(diff) < 0.01) return '';
+    const improved = series.higherIsBetter ? diff > 0 : diff < 0;
+    return improved ? 'trend-up' : 'trend-down';
+  }
 
   // Panel de comparación
   comparisonType = computed<AssessmentType | null>(() => {
@@ -286,12 +390,17 @@ export class AssessmentsList implements OnInit {
     this.filterAthleteId.set(athleteId);
     this.searchText.set('');
     this.clearComparison();
+    this.evoMode.set(false);
   }
 
   clearAthleteFilter() {
     this.filterAthleteId.set(null);
     this.clearComparison();
+    this.evoMode.set(false);
   }
+
+  enterEvoMode()  { this.evoMode.set(true);  this.clearComparison(); }
+  exitEvoMode()   { this.evoMode.set(false); }
 
   // ── Navegación ────────────────────────────────────────────────
   goToDetail(row: AssessmentRow) {

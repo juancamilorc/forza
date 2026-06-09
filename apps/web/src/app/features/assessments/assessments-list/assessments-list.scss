@@ -481,3 +481,198 @@ $border:    #e5e5e5;
   color: color.adjust($gold, $lightness: -10%);
   .material-symbols-outlined { font-size: 16px; }
 }
+
+// ── EVOLUCIÓN / GRÁFICOS ─────────────────────────────────────────────────
+.evo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid $border;
+  border-radius: 12px;
+}
+
+.evo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text-mid;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  .material-symbols-outlined { font-size: 16px; color: $gold; }
+}
+
+.evo-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.chart-card {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.chart-trend {
+  font-size: 14px;
+  font-weight: 700;
+  &.trend-up   { color: #15803d; }
+  &.trend-down { color: #b91c1c; }
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-line {
+  stroke: $gold;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: $gold;
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.dot-last {
+  fill: $gold;
+  stroke: rgba(201,151,52,0.3);
+  stroke-width: 4;
+}
+
+.chart-val-text {
+  font-size: 9px;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+  fill: $text-dark;
+}
+
+.chart-date-text {
+  font-size: 8px;
+  font-family: 'Cairo', sans-serif;
+  fill: $text-mid;
+}
+
+// ── VISTA EVOLUCIÓN COMPLETA ─────────────────────────────────────────────
+.btn-evo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: rgba($gold, 0.1);
+  border: 1px solid rgba($gold, 0.35);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: color.adjust($gold, $lightness: -10%);
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+
+  .material-symbols-outlined { font-size: 17px; }
+  &:hover { background: rgba($gold, 0.18); }
+}
+
+.evo-view {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.evo-view-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.btn-evo-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-mid;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  .material-symbols-outlined { font-size: 17px; }
+  &:hover { background: #f5f5f5; color: $text-dark; }
+}
+
+.evo-view-athlete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-dark;
+
+  .material-symbols-outlined { font-size: 18px; color: $gold; }
+}
+
+.evo-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.evo-block-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.evo-block-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.evo-charts-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.chart-card-full {
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

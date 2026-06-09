@@ -39,7 +39,15 @@
   }
 
   <!-- ── VISTA AGRUPADA (con filtro de deportista) ──────────────────── -->
-  @if (!loading() && isGrouped()) {
+  @if (!loading() && isGrouped() && !evoMode()) {
+
+    <!-- Botón evolución -->
+    @if (hasEvoData()) {
+      <button class="btn-evo" (click)="enterEvoMode()">
+        <span class="material-symbols-outlined">show_chart</span>
+        Ver evolución
+      </button>
+    }
 
     <!-- Panel comparación -->
     @if (compareA() && compareB()) {
@@ -227,6 +235,121 @@
       </div>
     }
 
+  }
+
+  <!-- ── VISTA EVOLUCIÓN ───────────────────────────────────────────────── -->
+  @if (!loading() && isGrouped() && evoMode()) {
+    <div class="evo-view">
+
+      <!-- Header -->
+      <div class="evo-view-header">
+        <button class="btn-evo-back" (click)="exitEvoMode()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Volver a evaluaciones
+        </button>
+        <span class="evo-view-athlete">
+          <span class="material-symbols-outlined">person</span>
+          {{ filterAthleteName() }}
+        </span>
+      </div>
+
+      <!-- Sección nutricional -->
+      @if (evoNutri().length > 0) {
+        <div class="evo-block">
+          <div class="evo-block-header">
+            <span class="group-icon nutri material-symbols-outlined">nutrition</span>
+            <span class="evo-block-title">Nutricional</span>
+          </div>
+          <div class="evo-charts-full">
+            @for (s of evoNutri(); track s.label) {
+              <div class="chart-card-full">
+                <div class="chart-title">
+                  <span>{{ s.label }}</span>
+                  <span class="chart-trend {{ trendClass(s) }}">
+                    @if (trendClass(s) === 'trend-up')  { ↑ }
+                    @if (trendClass(s) === 'trend-down') { ↓ }
+                  </span>
+                </div>
+                <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
+                  <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
+                  @for (p of svgPoints(s); track p.shortDate) {
+                    <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
+                            [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
+                    <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
+                    <text [attr.x]="p.x" [attr.y]="chartH - 2" class="chart-date-text" text-anchor="middle">{{ p.shortDate }}</text>
+                  }
+                </svg>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Sección técnica -->
+      @if (evoTech().length > 0) {
+        <div class="evo-block">
+          <div class="evo-block-header">
+            <span class="group-icon tech material-symbols-outlined">sports_soccer</span>
+            <span class="evo-block-title">Técnica</span>
+          </div>
+          <div class="evo-charts-full">
+            @for (s of evoTech(); track s.label) {
+              <div class="chart-card-full">
+                <div class="chart-title">
+                  <span>{{ s.label }}</span>
+                  <span class="chart-trend {{ trendClass(s) }}">
+                    @if (trendClass(s) === 'trend-up')  { ↑ }
+                    @if (trendClass(s) === 'trend-down') { ↓ }
+                  </span>
+                </div>
+                <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
+                  <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
+                  @for (p of svgPoints(s); track p.shortDate) {
+                    <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
+                            [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
+                    <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
+                    <text [attr.x]="p.x" [attr.y]="chartH - 2" class="chart-date-text" text-anchor="middle">{{ p.shortDate }}</text>
+                  }
+                </svg>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Sección física -->
+      @if (evoPhys().length > 0) {
+        <div class="evo-block">
+          <div class="evo-block-header">
+            <span class="group-icon phys material-symbols-outlined">directions_run</span>
+            <span class="evo-block-title">Física</span>
+          </div>
+          <div class="evo-charts-full">
+            @for (s of evoPhys(); track s.label) {
+              <div class="chart-card-full">
+                <div class="chart-title">
+                  <span>{{ s.label }}</span>
+                  <span class="chart-trend {{ trendClass(s) }}">
+                    @if (trendClass(s) === 'trend-up')  { ↑ }
+                    @if (trendClass(s) === 'trend-down') { ↓ }
+                  </span>
+                </div>
+                <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
+                  <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
+                  @for (p of svgPoints(s); track p.shortDate) {
+                    <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
+                            [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
+                    <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
+                    <text [attr.x]="p.x" [attr.y]="chartH - 2" class="chart-date-text" text-anchor="middle">{{ p.shortDate }}</text>
+                  }
+                </svg>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
   }
 
   <!-- ── VISTA LISTA (sin filtro de deportista) ──────────────────────── -->
