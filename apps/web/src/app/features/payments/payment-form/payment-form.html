@@ -56,7 +56,26 @@
           />
         </div>
 
-        <!-- Monto pagado -->
+        <!-- Cuotas (solo visible si monto ≥ $450.000 y es creación) -->
+        @if (showCuotas() && !isEdit()) {
+          <div class="form-group full-width">
+            <label class="cuotas-toggle-label">
+              <input
+                type="checkbox"
+                class="cuotas-checkbox"
+                [checked]="cuotasMode()"
+                (change)="cuotasMode.set($any($event.target).checked)"
+              />
+              <span class="cuotas-toggle-text">Pagar en 2 cuotas iguales</span>
+              @if (cuotasMode()) {
+                <span class="cuotas-preview">— cada cuota: {{ formatCOP(cuotaAmount()) }}</span>
+              }
+            </label>
+          </div>
+        }
+
+        <!-- Monto pagado (oculto cuando cuotas activo — se paga cuota a cuota) -->
+        @if (!cuotasMode()) {
         <div class="form-group">
           <label class="form-label" for="amount_paid">Monto pagado (COP)</label>
           <input
@@ -69,6 +88,7 @@
             (input)="updateField('amount_paid', $any($event.target).value)"
           />
         </div>
+        }
 
         <!-- Método de pago -->
         <div class="form-group">

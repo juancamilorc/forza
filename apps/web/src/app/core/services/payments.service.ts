@@ -14,6 +14,8 @@ export interface Payment {
   payment_date: string | null;
   due_date:     string | null;
   notes:        string | null;
+  cuota_numero: number | null;
+  cuotas_total: number;
   created_at:   string;
   athletes?:    { id: string; first_name: string; last_name: string };
   plans?:       { id: string; plan_type: string } | null;

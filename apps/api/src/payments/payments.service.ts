@@ -45,25 +45,49 @@ export class PaymentsService {
   }
 
   // ── CREATE ───────────────────────────────────────────────────
-  async create(dto: CreatePaymentDto) {
-    // Calcular status automáticamente según amount_paid
-    const amount_paid = dto.amount_paid ?? 0;
-    let status = dto.status;
+  private static readonly CUOTA_THRESHOLD = 450_000;
 
-    if (!status) {
-      if (amount_paid === 0)           status = 'pendiente' as any;
-      else if (amount_paid < dto.amount) status = 'parcial' as any;
-      else                               status = 'pagado' as any;
+  async create(dto: CreatePaymentDto) {
+    const { cuotas, ...paymentData } = dto;
+
+    if (cuotas === 2) {
+      if (paymentData.amount < PaymentsService.CUOTA_THRESHOLD) {
+        throw new BadRequestException(
+          `Solo se pueden crear cuotas para montos de $450.000 o más`,
+        );
+      }
+      const cuotaAmount = paymentData.amount / 2;
+      const [c1, c2] = await Promise.all([
+        this.insertPayment({ ...paymentData, amount: cuotaAmount, cuota_numero: 1, cuotas_total: 2 }),
+        this.insertPayment({ ...paymentData, amount: cuotaAmount, cuota_numero: 2, cuotas_total: 2 }),
+      ]);
+      return [c1, c2];
     }
 
-    const { data, error } = await this.supabase.db
+    return this.insertPayment({ ...paymentData, cuotas_total: 1 });
+  }
+
+  private async insertPayment(
+    data: Omit<CreatePaymentDto, 'cuotas'> & { cuotas_total: number },
+  ) {
+    const { cuotas: _ignored, ...insertData } = data as any;
+    const amount_paid = insertData.amount_paid ?? 0;
+    let status = insertData.status;
+
+    if (!status) {
+      if (amount_paid === 0)                  status = 'pendiente';
+      else if (amount_paid < insertData.amount) status = 'parcial';
+      else                                      status = 'pagado';
+    }
+
+    const { data: result, error } = await this.supabase.db
       .from('payments')
-      .insert({ ...dto, amount_paid, status })
+      .insert({ ...insertData, amount_paid, status })
       .select()
       .single();
 
     if (error) throw new BadRequestException(error.message);
-    return data;
+    return result;
   }
 
   // ── UPDATE ───────────────────────────────────────────────────

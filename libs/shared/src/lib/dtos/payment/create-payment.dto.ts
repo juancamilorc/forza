@@ -6,6 +6,7 @@ import {
   IsString,
   IsEnum,
   Min,
+  Max,
 } from 'class-validator';
 
 export enum PaymentMethod {
@@ -65,4 +66,19 @@ export class CreatePaymentDto {
   @IsString()
   @IsOptional()
   registered_by?: string;
+
+  // Transient — not stored; tells the service to create 2 equal installments
+  @IsNumber()
+  @IsOptional()
+  @Min(1)
+  @Max(2)
+  cuotas?: number;
+
+  @IsNumber()
+  @IsOptional()
+  cuota_numero?: number;
+
+  @IsNumber()
+  @IsOptional()
+  cuotas_total?: number;
 }

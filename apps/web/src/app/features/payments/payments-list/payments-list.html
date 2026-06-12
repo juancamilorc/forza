@@ -64,7 +64,12 @@
                   {{ payment.athletes?.first_name }} {{ payment.athletes?.last_name }}
                 </span>
               </td>
-              <td class="text-mid">{{ payment.plans?.plan_type ?? '—' }}</td>
+              <td class="text-mid">
+                {{ payment.plans?.plan_type ?? '—' }}
+                @if ((payment.cuotas_total ?? 1) > 1) {
+                  <span class="cuota-badge">Cuota {{ payment.cuota_numero }}/{{ payment.cuotas_total }}</span>
+                }
+              </td>
               <td class="amount">{{ formatCOP(payment.amount) }}</td>
               <td class="amount">{{ formatCOP(payment.amount_paid) }}</td>
               <td class="amount" [class.saldo-pendiente]="getSaldo(payment) > 0">

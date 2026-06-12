@@ -75,6 +75,17 @@
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
+.cuotas-toggle-label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; background: rgba(201,151,52,0.06); border: 1px solid rgba(201,151,52,0.25);
+  border-radius: 8px; cursor: pointer; width: 100%; box-sizing: border-box;
+  font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: #1a1a1a;
+
+  .cuotas-checkbox { width: 16px; height: 16px; accent-color: #c99734; cursor: pointer; flex-shrink: 0; }
+  .cuotas-toggle-text { flex: 1; }
+  .cuotas-preview { font-size: 13px; font-weight: 700; color: #c99734; white-space: nowrap; }
+}
+
 .btn-secondary {
   padding: 10px 24px; background: transparent; border: 1px solid #e5e5e5; border-radius: 8px;
   font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: #535353;
