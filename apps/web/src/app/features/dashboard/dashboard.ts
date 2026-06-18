@@ -25,7 +25,7 @@ export class Dashboard implements OnInit {
   });
 
   ngOnInit() {
-    this.dashboard.getStats().subscribe({
+    this.dashboard.getStats(this.role).subscribe({
       next: (data) => this.stats.set(data),
       error: (err)  => console.error('Error cargando stats:', err),
     });
