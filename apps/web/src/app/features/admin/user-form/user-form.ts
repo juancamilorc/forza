@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { AdminUsersService } from '../../../core/services/admin-users.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -12,6 +13,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class UserForm implements OnInit {
   private route   = inject(ActivatedRoute);
   private router  = inject(Router);
+  private location = inject(Location);
   private service = inject(AdminUsersService);
   private toast   = inject(ToastService);
 
@@ -115,7 +117,5 @@ export class UserForm implements OnInit {
     }
   }
 
-  goBack() {
-    this.router.navigate(['/administracion/usuarios']);
-  }
+  goBack() { this.location.back(); }
 }

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { ScheduleService, TrainerOption } from '../../../core/services/schedule.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,6 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class AppointmentForm implements OnInit {
   private route    = inject(ActivatedRoute);
   private router   = inject(Router);
+  private location = inject(Location);
   private service  = inject(ScheduleService);
   private athletes = inject(AthletesService);
   private auth     = inject(AuthService);
@@ -127,5 +129,5 @@ export class AppointmentForm implements OnInit {
     return this.form().type === 'regular';
   }
 
-  goBack() { this.router.navigate(['/agenda']); }
+  goBack() { this.location.back(); }
 }

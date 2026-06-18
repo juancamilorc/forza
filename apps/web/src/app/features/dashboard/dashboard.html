@@ -55,6 +55,42 @@
 
   </div>
 
+  <!-- Alertas pagos vencidos — solo admin/super_admin -->
+  @if ((role === 'super_admin' || role === 'admin') && stats().overduePayments.length > 0) {
+    <div class="overdue-section">
+      <div class="overdue-header">
+        <span class="material-symbols-outlined overdue-icon">warning</span>
+        <h2 class="overdue-title">Pagos vencidos</h2>
+        <span class="overdue-count">{{ stats().overduePayments.length }}</span>
+      </div>
+      <div class="overdue-list">
+        @for (p of stats().overduePayments; track p.id) {
+          <div class="overdue-item" role="button" tabindex="0"
+               (click)="goTo('/deportistas/' + p.athlete_id)"
+               (keyup.enter)="goTo('/deportistas/' + p.athlete_id)">
+            <div class="overdue-athlete">
+              <span class="material-symbols-outlined">person</span>
+              <span>
+                {{ p.athletes?.first_name }} {{ p.athletes?.last_name }}
+                @if (p.plans?.plan_type) {
+                  <span class="overdue-plan">{{ p.plans.plan_type }}</span>
+                }
+              </span>
+            </div>
+            <div class="overdue-meta">
+              <span class="overdue-amount">{{ formatCOP(p.amount - p.amount_paid) }} pendiente</span>
+              <span class="overdue-days">Venció hace {{ daysOverdue(p.due_date) }} días</span>
+            </div>
+          </div>
+        }
+      </div>
+      <button class="overdue-link" (click)="goTo('/pagos')">
+        Ver todos los pagos
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  }
+
   <!-- Accesos rápidos -->
   <div class="quick-actions-section">
     <h2 class="section-title">Accesos rápidos</h2>

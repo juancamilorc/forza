@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -13,6 +14,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class AthleteForm implements OnInit {
   private route   = inject(ActivatedRoute);
   private router  = inject(Router);
+  private location = inject(Location);
   private service = inject(AthletesService);
   private toast = inject(ToastService);
 
@@ -94,7 +96,5 @@ export class AthleteForm implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['/deportistas']);
-  }
+  goBack() { this.location.back(); }
 }

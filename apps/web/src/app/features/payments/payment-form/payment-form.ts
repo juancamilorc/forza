@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
@@ -14,6 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class PaymentForm implements OnInit {
   private route    = inject(ActivatedRoute);
   private router   = inject(Router);
+  private location = inject(Location);
   private service  = inject(PaymentsService);
   private athletes = inject(AthletesService);
   private toast    = inject(ToastService);
@@ -185,7 +187,5 @@ export class PaymentForm implements OnInit {
     return value.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
   }
 
-  goBack() {
-    this.router.navigate(['/pagos']);
-  }
+  goBack() { this.location.back(); }
 }

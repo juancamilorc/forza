@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { AssessmentsService } from '../../../core/services/assessments.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -74,6 +75,7 @@ const DEFAULT: TechForm = {
 export class TechnicalForm implements OnInit {
   private route    = inject(ActivatedRoute);
   private router   = inject(Router);
+  private location = inject(Location);
   private service  = inject(AssessmentsService);
   private athletes = inject(AthletesService);
   private auth     = inject(AuthService);
@@ -137,7 +139,7 @@ export class TechnicalForm implements OnInit {
     this.form.update(f => ({ ...f, [field]: f[field] === value ? '' : value }));
   }
 
-  goBack() { this.router.navigate(['/deportistas', this.athleteId()]); }
+  goBack() { this.location.back(); }
 
   submit() {
     const f = this.form();

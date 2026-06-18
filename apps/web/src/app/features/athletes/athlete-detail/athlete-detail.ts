@@ -5,7 +5,7 @@ import { PlansService, Plan } from '../../../core/services/plans.service';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { AssessmentsService, NutritionalAssessment, TechnicalAssessment, PhysicalAssessment } from '../../../core/services/assessments.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe , Location } from '@angular/common';
 
 @Component({
   selector: 'app-athlete-detail',
@@ -16,6 +16,7 @@ import { DatePipe } from '@angular/common';
 export class AthleteDetail implements OnInit {
   private route               = inject(ActivatedRoute);
   private router              = inject(Router);
+  private location = inject(Location);
   private service             = inject(AthletesService);
   private plansService        = inject(PlansService);
   private sessionsService     = inject(SessionsService);
@@ -94,9 +95,7 @@ export class AthleteDetail implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['/deportistas']);
-  }
+  goBack() { this.location.back(); }
 
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {

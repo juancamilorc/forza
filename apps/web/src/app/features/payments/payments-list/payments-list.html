@@ -66,7 +66,7 @@
               </td>
               <td class="text-mid">
                 {{ payment.plans?.plan_type ?? '—' }}
-                @if ((payment.cuotas_total ?? 1) > 1) {
+                @if (payment.cuotas_total > 1) {
                   <span class="cuota-badge">Cuota {{ payment.cuota_numero }}/{{ payment.cuotas_total }}</span>
                 }
               </td>

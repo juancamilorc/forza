@@ -17,11 +17,18 @@ export class Dashboard implements OnInit {
   user = this.auth.getCurrentUser();
   role = this.auth.getRole() ?? '';
 
-  stats = signal({
-    athletes:    0,
-    sessions:    0,
-    assessments: 0,
-    payments:    0,
+  stats = signal<{
+    athletes:        number;
+    sessions:        number;
+    assessments:     number;
+    payments:        number;
+    overduePayments: any[];
+  }>({
+    athletes:        0,
+    sessions:        0,
+    assessments:     0,
+    payments:        0,
+    overduePayments: [],
   });
 
   ngOnInit() {
@@ -40,5 +47,14 @@ export class Dashboard implements OnInit {
 
   goTo(route: string) {
     this.router.navigate([route]);
+  }
+
+  daysOverdue(dueDate: string): number {
+    const diff = new Date().getTime() - new Date(dueDate).getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  formatCOP(value: number): string {
+    return value.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
   }
 }

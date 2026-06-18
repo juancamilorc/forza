@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { PlansService, PLAN_TYPES } from '../../../core/services/plans.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -14,6 +15,7 @@ export class PlanForm implements OnInit {
   private svc      = inject(PlansService);
   private athletes = inject(AthletesService);
   private router   = inject(Router);
+  private location = inject(Location);
   private route    = inject(ActivatedRoute);
   private toast    = inject(ToastService);
 
@@ -103,7 +105,5 @@ export class PlanForm implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['/planes']);
-  }
+  goBack() { this.location.back(); }
 }

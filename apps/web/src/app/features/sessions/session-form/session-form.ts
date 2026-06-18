@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SessionsService } from '../../../core/services/sessions.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
@@ -19,6 +20,7 @@ export class SessionForm implements OnInit {
   private route    = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private router   = inject(Router);
+  private location = inject(Location);
   private service  = inject(SessionsService);
   private athletes = inject(AthletesService);
   private auth     = inject(AuthService);
@@ -124,7 +126,5 @@ export class SessionForm implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['/sesiones']);
-  }
+  goBack() { this.location.back(); }
 }

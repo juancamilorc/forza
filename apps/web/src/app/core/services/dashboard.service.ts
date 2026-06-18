@@ -17,17 +17,25 @@ export class DashboardService {
         ? this.http.get<any[]>(`${environment.apiUrl}/payments`)
         : of([]),
     }).pipe(
-      map(({ athletes, sessions, payments }) => ({
-        athletes:    athletes.filter(a => a.status === 'active').length,
-        sessions:    sessions.filter(s => {
-                       const date = new Date(s.session_date);
-                       const now  = new Date();
-                       return date.getMonth() === now.getMonth() &&
-                              date.getFullYear() === now.getFullYear();
-                     }).length,
-        assessments: 0,
-        payments:    payments.filter(p => p.status === 'pendiente' || p.status === 'parcial').length,
-      }))
+      map(({ athletes, sessions, payments }) => {
+        const today = new Date().toISOString().split('T')[0];
+        const overduePayments = payments
+          .filter((p: any) => p.due_date && p.due_date < today && p.status !== 'pagado')
+          .sort((a: any, b: any) => a.due_date.localeCompare(b.due_date));
+
+        return {
+          athletes:        athletes.filter(a => a.status === 'active').length,
+          sessions:        sessions.filter(s => {
+                             const date = new Date(s.session_date);
+                             const now  = new Date();
+                             return date.getMonth() === now.getMonth() &&
+                                    date.getFullYear() === now.getFullYear();
+                           }).length,
+          assessments:     0,
+          payments:        payments.filter((p: any) => p.status === 'pendiente' || p.status === 'parcial').length,
+          overduePayments,
+        };
+      })
     );
   }
 }
