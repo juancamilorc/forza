@@ -14,15 +14,23 @@
       }
   </div>
 
-  <!-- Búsqueda -->
-  <div class="search-bar">
-    <span class="material-symbols-outlined search-icon">search</span>
-    <input
-      type="text"
-      placeholder="Buscar deportista..."
-      class="search-input"
-      (input)="onSearch($event)"
-    />
+  <!-- Búsqueda y filtros -->
+  <div class="filters-bar">
+    <div class="search-bar">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Buscar deportista..."
+        class="search-input"
+        (input)="onSearch($event)"
+      />
+    </div>
+    <div class="status-filters">
+      <button class="filter-chip" [class.active]="statusFilter() === ''"         (click)="onStatusFilter('')">Todos</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'active'"   (click)="onStatusFilter('active')">Activos</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'inactive'" (click)="onStatusFilter('inactive')">Inactivos</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'trial'"    (click)="onStatusFilter('trial')">Prueba</button>
+    </div>
   </div>
 
   <!-- Loading -->

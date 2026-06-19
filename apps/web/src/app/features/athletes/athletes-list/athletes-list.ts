@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,19 +14,26 @@ export class AthletesList implements OnInit {
   private auth            = inject(AuthService);
   private router          = inject(Router);
 
-  athletes  = signal<Athlete[]>([]);
-  filtered  = signal<Athlete[]>([]);
-  loading   = signal(true);
-  search    = signal('');
-  role      = this.auth.getRole() ?? '';
+  athletes     = signal<Athlete[]>([]);
+  loading      = signal(true);
+  search       = signal('');
+  statusFilter = signal('');
+
+  filtered = computed(() => {
+    const term   = this.search();
+    const status = this.statusFilter();
+    return this.athletes().filter(a => {
+      const matchesSearch = !term || this.normalize(`${a.first_name} ${a.last_name}`).includes(term);
+      const matchesStatus = !status || a.status === status;
+      return matchesSearch && matchesStatus;
+    });
+  });
+
+  role = this.auth.getRole() ?? '';
 
   ngOnInit() {
     this.athletesService.getAll().subscribe({
-      next: (data) => {
-        this.athletes.set(data);
-        this.filtered.set(data);
-        this.loading.set(false);
-      },
+      next: (data) => { this.athletes.set(data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }
@@ -36,13 +43,11 @@ export class AthletesList implements OnInit {
   }
 
   onSearch(event: Event) {
-    const term = this.normalize((event.target as HTMLInputElement).value);
-    this.search.set(term);
-    this.filtered.set(
-      this.athletes().filter(a =>
-        this.normalize(`${a.first_name} ${a.last_name}`).includes(term)
-      )
-    );
+    this.search.set(this.normalize((event.target as HTMLInputElement).value));
+  }
+
+  onStatusFilter(status: string) {
+    this.statusFilter.set(status);
   }
 
   goToDetail(id: string) {
