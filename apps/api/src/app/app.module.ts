@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { AuthModule } from '../auth/auth.module';
 import { AthletesModule } from '../athletes/athletes.module';
@@ -11,13 +10,8 @@ import { AssessmentsModule } from '../assessments/assessments.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { VideosModule } from '../videos/videos.module';
 
-
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      ignoreEnvFile: true,
-    }),
     SupabaseModule,
     AuthModule,
     AthletesModule,
@@ -27,7 +21,7 @@ import { VideosModule } from '../videos/videos.module';
     AdminModule,
     AssessmentsModule,
     PaymentsModule,
-    VideosModule
+    VideosModule,
   ],
 })
 export class AppModule {}
