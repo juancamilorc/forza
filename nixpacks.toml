@@ -1,0 +1,5 @@
+[variables]
+NIXPACKS_BUILD_CMD = "npx nx build api --skip-nx-cache"
+
+[start]
+cmd = "node dist/apps/api/main.js"
