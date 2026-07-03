@@ -172,7 +172,7 @@ export class AthleteDetail implements OnInit {
   }
 
   goToEdit() {
-    this.router.navigate(['/deportistas', this.athlete()!.id, 'edit']);
+    this.router.navigate(['/deportistas', this.athlete()!.id, 'editar']);
   }
 
   goToAssessments(type: string) {

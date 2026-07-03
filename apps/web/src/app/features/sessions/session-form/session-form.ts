@@ -119,8 +119,9 @@ export class SessionForm implements OnInit {
         this.toast.success('Sesión registrada correctamente');
         setTimeout(() => this.router.navigate(['/sesiones']), 500);
       },
-      error: () => {
-        this.error.set('Error al guardar. Intenta de nuevo.');
+      error: (err) => {
+        const msg = err?.error?.message ?? err?.message ?? 'Error al guardar. Intenta de nuevo.';
+        this.error.set(Array.isArray(msg) ? msg.join(', ') : msg);
         this.saving.set(false);
       },
     });
