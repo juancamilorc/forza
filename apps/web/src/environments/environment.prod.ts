@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-api-en-railway.com/api',
+  apiUrl: 'https://forza-production-cac6.up.railway.app/api',
 };
