@@ -1,6 +1,6 @@
 # CLAUDE.md — FORZA Platform
 > Master context file for Claude Code. Read this before ANY task.
-> Last updated: May 2026 | Version: 1.0
+> Last updated: Jul 2026 | Version: 1.1
 
 ---
 
@@ -408,3 +408,48 @@ Trainer: trainer@forza.com / [see .env]
 - Payment receipt by email
 - Freeze plan by guardian (injury/medical)
 - Session extra billing flow
+
+---
+
+## 17. GIT FLOW
+
+### Ramas permanentes
+- `main` → producción (Vercel + Railway). **NUNCA commits directos.**
+- `develop` → staging/integración. Base para todo el trabajo.
+
+### Ramas de trabajo
+```
+feature/FOR-XX-descripcion-corta   ← nuevas funcionalidades
+bugfix/BUG-XX-descripcion-corta    ← bugs normales
+hotfix/descripcion-corta           ← bugs críticos en producción (parten de main)
+```
+
+### Flujo de trabajo
+```bash
+# 1. Siempre partir de develop
+git checkout develop && git pull
+
+# 2. Crear rama
+git checkout -b feature/FOR-57-rediseno-agenda
+
+# 3. Commits atómicos con prefijo convencional
+
+# 4. Cuando termines → PR de tu rama → develop
+# 5. Para salir a producción → PR develop → main
+```
+
+### Convención de commits
+```
+feat:      nueva funcionalidad
+fix:       corrección de bug
+chore:     cambios de config, dependencias
+refactor:  refactorización sin cambio funcional
+docs:      documentación
+```
+
+Ejemplos:
+```
+feat(FOR-57): agregar vista calendario en agenda
+fix(BUG-01): corregir error al crear sesión en producción
+chore: actualizar variables de entorno Railway
+```
