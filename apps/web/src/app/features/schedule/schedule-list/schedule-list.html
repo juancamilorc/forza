@@ -109,7 +109,7 @@
             </div>
             <div class="cal-events">
               @for (e of cell.events.slice(0, 3); track e.id) {
-                <div class="cal-event-chip" [class]="getStatusClass(e)" [class.is-meeting]="e.eventType === 'meeting'">
+                <div class="cal-event-chip {{ getStatusClass(e) }}" [class.is-meeting]="e.eventType === 'meeting'">
                   {{ formatTime(e.time) }}
                   @if (e.athleteName) { · {{ e.athleteName.split(' ')[0] }} }
                   @else if (e.eventType === 'meeting') { · Reunión }
@@ -154,7 +154,7 @@
                     <span class="material-symbols-outlined">location_on</span>{{ e.location }}
                   </span>
                 }
-                <span class="status-badge" [class]="getStatusClass(e)">{{ getStatusLabel(e) }}</span>
+                <span class="status-badge {{ getStatusClass(e) }}">{{ getStatusLabel(e) }}</span>
               </div>
               <div class="day-panel-actions">
                 @if (canConfirm(e)) {
@@ -236,7 +236,7 @@
                 <td class="text-mid">{{ e.trainerName ?? '—' }}</td>
               }
               <td>
-                <span class="status-badge" [class]="getStatusClass(e)">{{ getStatusLabel(e) }}</span>
+                <span class="status-badge {{ getStatusClass(e) }}">{{ getStatusLabel(e) }}</span>
               </td>
               <td class="actions-cell">
                 @if (canConfirm(e)) {
