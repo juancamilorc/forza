@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ScheduleService, TrainerOption } from '../../../core/services/schedule.service';
-import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -17,26 +16,21 @@ export class AppointmentForm implements OnInit {
   private router   = inject(Router);
   private location = inject(Location);
   private service  = inject(ScheduleService);
-  private athletes = inject(AthletesService);
   private auth     = inject(AuthService);
   private toast    = inject(ToastService);
 
-  isEdit       = signal(false);
-  loading      = signal(false);
-  saving       = signal(false);
-  error        = signal('');
-  calendarLink = signal('');
+  isEdit   = signal(false);
+  loading  = signal(false);
+  saving   = signal(false);
+  error    = signal('');
 
-  role         = this.auth.getRole() ?? '';
-  isAdmin      = this.role === 'super_admin' || this.role === 'admin';
+  role      = this.auth.getRole() ?? '';
+  isAdmin   = this.role === 'super_admin' || this.role === 'admin';
 
-  athletesList = signal<Athlete[]>([]);
   trainersList = signal<TrainerOption[]>([]);
 
   form = signal({
     trainer_id:     '',
-    athlete_id:     '',
-    type:           'regular',
     status:         'scheduled',
     scheduled_date: '',
     scheduled_time: '',
@@ -45,10 +39,6 @@ export class AppointmentForm implements OnInit {
   });
 
   ngOnInit() {
-    this.athletes.getAll().subscribe({
-      next: (data) => this.athletesList.set(data.filter(a => a.status === 'active')),
-    });
-
     if (this.isAdmin) {
       this.service.getTrainers().subscribe({
         next: (t) => this.trainersList.set(t),
@@ -63,8 +53,6 @@ export class AppointmentForm implements OnInit {
         next: (a) => {
           this.form.set({
             trainer_id:     a.trainer_id,
-            athlete_id:     a.athlete_id ?? '',
-            type:           a.type,
             status:         a.status,
             scheduled_date: a.scheduled_date,
             scheduled_time: a.scheduled_time.slice(0, 5),
@@ -89,21 +77,16 @@ export class AppointmentForm implements OnInit {
       this.error.set('La fecha y hora son obligatorias');
       return;
     }
-    if (this.isAdmin && !f.trainer_id) {
-      this.error.set('Selecciona un entrenador');
-      return;
-    }
 
     this.saving.set(true);
     this.error.set('');
 
     const data: any = {
-      athlete_id:     f.athlete_id     || null,
-      type:           f.type,
+      type:           'regular',
       scheduled_date: f.scheduled_date,
       scheduled_time: f.scheduled_time,
-      location:       f.location       || null,
-      notes:          f.notes          || null,
+      location:       f.location || null,
+      notes:          f.notes    || null,
     };
 
     if (this.isAdmin) data.trainer_id = f.trainer_id;
@@ -114,7 +97,7 @@ export class AppointmentForm implements OnInit {
 
     request.subscribe({
       next: (saved) => {
-        this.toast.success(this.isEdit() ? 'Cita actualizada correctamente' : 'Cita registrada correctamente');
+        this.toast.success(this.isEdit() ? 'Reunión actualizada correctamente' : 'Reunión registrada correctamente');
         this.saving.set(false);
         setTimeout(() => this.router.navigate(['/agenda']), 500);
       },
@@ -123,10 +106,6 @@ export class AppointmentForm implements OnInit {
         this.saving.set(false);
       },
     });
-  }
-
-  showReferencia(): boolean {
-    return this.form().type === 'regular';
   }
 
   goBack() { this.location.back(); }

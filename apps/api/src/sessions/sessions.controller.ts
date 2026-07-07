@@ -24,7 +24,7 @@ export class SessionsController {
   constructor(private readonly sessions: SessionsService) {}
 
   // GET /api/sessions
-  @Roles('super_admin', 'admin', 'trainer')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Get()
   async findAll(
     @CurrentUser() user: any,
@@ -40,14 +40,14 @@ export class SessionsController {
   }
 
   // GET /api/sessions/:id
-  @Roles('super_admin', 'admin', 'trainer')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.sessions.findOne(id);
   }
 
   // POST /api/sessions
-  @Roles('super_admin', 'admin', 'trainer')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Post()
   create(@Body() dto: CreateSessionDto) {
     return this.sessions.create(dto);

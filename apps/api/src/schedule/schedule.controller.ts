@@ -24,7 +24,7 @@ export class ScheduleController {
   constructor(private readonly schedule: ScheduleService) {}
 
   // GET /api/schedule?trainer_id=uuid&date=2026-04-25
-  @Roles('super_admin', 'admin', 'trainer')
+  @Roles('super_admin', 'admin', 'trainer', 'nutritionist')
   @Get()
   async findAll(
     @CurrentUser() user: any,

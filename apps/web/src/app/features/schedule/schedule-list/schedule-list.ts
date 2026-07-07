@@ -1,9 +1,27 @@
 import { Component, inject, OnInit, signal, computed, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { ScheduleService, Appointment, TrainerOption } from '../../../core/services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+
+interface CalEvent {
+  id:                   string;
+  eventType:            'session' | 'meeting';
+  date:                 string;
+  time:                 string;
+  trainer_id:           string | null;
+  athleteName:          string | null;
+  trainerName:          string | null;
+  status:               string;
+  location:             string | null;
+  confirmed_by_trainer?: boolean;
+  confirmation_status?:  string;
+  reschedule_count?:     number;
+}
 
 @Component({
   selector: 'app-schedule-list',
@@ -12,26 +30,30 @@ import { ToastService } from '../../../core/services/toast.service';
   styleUrl:    './schedule-list.scss',
 })
 export class ScheduleList implements OnInit {
-  private service = inject(ScheduleService);
-  private auth    = inject(AuthService);
-  private router  = inject(Router);
-  private toast   = inject(ToastService);
+  private sessionsService = inject(SessionsService);
+  private scheduleService = inject(ScheduleService);
+  private auth            = inject(AuthService);
+  private router          = inject(Router);
+  private toast           = inject(ToastService);
 
-  appointments  = signal<Appointment[]>([]);
-  filtered      = signal<Appointment[]>([]);
+  events        = signal<CalEvent[]>([]);
+  filtered      = signal<CalEvent[]>([]);
   trainers      = signal<TrainerOption[]>([]);
   loading       = signal(true);
+  confirmingId  = signal<string | null>(null);
   statusFilter  = signal('');
   trainerFilter = signal('');
+  typeFilter    = signal('');
 
   private platformId = inject(PLATFORM_ID);
 
-  role         = this.auth.getRole() ?? '';
-  isAdmin      = this.role === 'super_admin' || this.role === 'admin';
-  isSuperAdmin = this.role === 'super_admin';
+  role           = this.auth.getRole() ?? '';
+  isAdmin        = ['super_admin', 'admin'].includes(this.role);
+  isSuperAdmin   = this.role === 'super_admin';
+  isNutritionist = this.role === 'nutritionist';
+  canCreate      = !this.isNutritionist;
 
-  // ── Vista ────────────────────────────────────────────────────
-  viewMode    = signal<'list' | 'calendar'>('list');
+  viewMode    = signal<'list' | 'calendar'>('calendar');
   selectedDay = signal<string | null>(null);
 
   constructor() {
@@ -46,53 +68,49 @@ export class ScheduleList implements OnInit {
     });
   }
 
-  // ── Calendario ───────────────────────────────────────────────
+  // ── Calendario ────────────────────────────────────────────
   private _today = new Date();
   calYear  = signal(this._today.getFullYear());
-  calMonth = signal(this._today.getMonth()); // 0-indexed
+  calMonth = signal(this._today.getMonth());
 
-  calMonthLabel = computed(() => {
-    return new Date(this.calYear(), this.calMonth(), 1)
-      .toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
-  });
+  calMonthLabel = computed(() =>
+    new Date(this.calYear(), this.calMonth(), 1)
+      .toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })
+  );
 
   calDays = computed(() => {
     const year  = this.calYear();
     const month = this.calMonth();
-    const appts = this.filtered();
+    const evts  = this.filtered();
 
     const firstDay = new Date(year, month, 1);
-    // Lunes=0 … Domingo=6
     let startOffset = firstDay.getDay() - 1;
     if (startOffset < 0) startOffset = 6;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const totalCells  = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+    const todayStr    = this.toDateStr(this._today);
 
-    const todayStr = this.toDateStr(this._today);
-    const cells: { date: string; day: number; inMonth: boolean; isToday: boolean; appointments: typeof appts }[] = [];
-
-    for (let i = 0; i < totalCells; i++) {
+    return Array.from({ length: totalCells }, (_, i) => {
       const d    = new Date(year, month, 1 - startOffset + i);
       const date = this.toDateStr(d);
-      cells.push({
+      return {
         date,
         day:     d.getDate(),
         inMonth: d.getMonth() === month,
         isToday: date === todayStr,
-        appointments: appts.filter(a => a.scheduled_date === date)
-          .sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time)),
-      });
-    }
-    return cells;
+        events:  evts.filter(e => e.date === date)
+          .sort((a, b) => a.time.localeCompare(b.time)),
+      };
+    });
   });
 
-  dayAppointments = computed(() => {
+  dayEvents = computed(() => {
     const day = this.selectedDay();
     if (!day) return [];
     return this.filtered()
-      .filter(a => a.scheduled_date === day)
-      .sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
+      .filter(e => e.date === day)
+      .sort((a, b) => a.time.localeCompare(b.time));
   });
 
   private toDateStr(d: Date): string {
@@ -123,23 +141,16 @@ export class ScheduleList implements OnInit {
     this.selectedDay.set(this.selectedDay() === date ? null : date);
   }
 
-  // Modal reprogramar
-  rescheduleTarget = signal<Appointment | null>(null);
+  // ── Modales ───────────────────────────────────────────────
+  rescheduleTarget = signal<CalEvent | null>(null);
   rescheduleDate   = signal('');
   rescheduleTime   = signal('');
   rescheduling     = signal(false);
 
-  // Modal cancelar
-  cancelTarget = signal<Appointment | null>(null);
-  cancelling   = signal(false);
-
-  // Modal eliminar
-  deleteTarget = signal<Appointment | null>(null);
-  deleting     = signal(false);
-
+  // ── Carga ─────────────────────────────────────────────────
   ngOnInit() {
     if (this.isAdmin) {
-      this.service.getTrainers().subscribe({
+      this.scheduleService.getTrainers().subscribe({
         next: (t) => this.trainers.set(t),
       });
     }
@@ -148,9 +159,18 @@ export class ScheduleList implements OnInit {
 
   load() {
     this.loading.set(true);
-    this.service.getAll().subscribe({
-      next: (data) => {
-        this.appointments.set(data);
+    forkJoin([
+      this.sessionsService.getAll().pipe(catchError(() => of([] as Session[]))),
+      this.scheduleService.getAll().pipe(catchError(() => of([] as Appointment[]))),
+    ]).subscribe({
+      next: ([sessions, meetings]) => {
+        const evts = [
+          ...this.normalizeSessions(sessions),
+          ...this.normalizeMeetings(meetings),
+        ].sort((a, b) =>
+          a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time)
+        );
+        this.events.set(evts);
         this.applyFilters();
         this.loading.set(false);
       },
@@ -158,138 +178,140 @@ export class ScheduleList implements OnInit {
     });
   }
 
-  onStatusFilter(status: string) {
-    this.statusFilter.set(status);
-    this.applyFilters();
+  private normalizeSessions(sessions: Session[]): CalEvent[] {
+    return sessions.map(s => ({
+      id:                   s.id,
+      eventType:            'session' as const,
+      date:                 s.session_date,
+      time:                 s.session_time,
+      trainer_id:           s.trainer_id ?? null,
+      athleteName:          s.athletes ? `${s.athletes.first_name} ${s.athletes.last_name}` : null,
+      trainerName:          s.trainers?.users?.full_name ?? null,
+      status:               s.status,
+      location:             s.location,
+      confirmed_by_trainer: s.confirmed_by_trainer,
+      confirmation_status:  s.confirmation_status,
+    }));
   }
 
-  onTrainerFilter(trainerId: string) {
-    this.trainerFilter.set(trainerId);
-    this.applyFilters();
+  private normalizeMeetings(appts: Appointment[]): CalEvent[] {
+    return appts.map(a => ({
+      id:              a.id,
+      eventType:       'meeting' as const,
+      date:            a.scheduled_date,
+      time:            a.scheduled_time,
+      trainer_id:      a.trainer_id ?? null,
+      athleteName:     null,
+      trainerName:     a.trainers?.users?.full_name ?? null,
+      status:          a.status,
+      location:        a.location,
+      reschedule_count: a.reschedule_count,
+    }));
   }
+
+  // ── Filtros ───────────────────────────────────────────────
+  onStatusFilter(s: string)  { this.statusFilter.set(s);  this.applyFilters(); }
+  onTrainerFilter(t: string) { this.trainerFilter.set(t); this.applyFilters(); }
+  onTypeFilter(t: string)    { this.typeFilter.set(t);    this.applyFilters(); }
 
   applyFilters() {
-    let result = this.appointments();
+    let result = this.events();
     const status  = this.statusFilter();
     const trainer = this.trainerFilter();
-    if (status)  result = result.filter(a => a.status === status);
-    if (trainer) result = result.filter(a => a.trainer_id === trainer);
+    const type    = this.typeFilter();
+
+    if (type)    result = result.filter(e => e.eventType === type);
+    if (trainer) result = result.filter(e => e.trainer_id === trainer);
+
+    if (status === 'upcoming')   result = result.filter(e => e.status === 'pending' || e.status === 'scheduled');
+    else if (status === 'completed') result = result.filter(e => e.status === 'completed');
+    else if (status === 'cancelled') result = result.filter(e => e.status === 'cancelled');
+
     this.filtered.set(result);
   }
 
-  getTrainerName(trainerId: string): string {
-    const t = this.trainers().find(t => t.id === trainerId);
-    return t?.users?.full_name ?? '—';
+  // ── Confirmar sesión ──────────────────────────────────────
+  canConfirm(e: CalEvent): boolean {
+    return e.eventType === 'session' &&
+           e.status === 'pending' &&
+           !e.confirmed_by_trainer &&
+           ['super_admin', 'admin', 'trainer'].includes(this.role);
   }
 
-  copyCalendarLink(a: Appointment) {
-    const link = this.service.buildCalendarLink(a);
-    navigator.clipboard.writeText(link).then(() => {
-      this.toast.success('Link de Google Calendar copiado');
+  confirmSession(id: string) {
+    this.confirmingId.set(id);
+    this.sessionsService.confirmTrainer(id).subscribe({
+      next: () => {
+        this.toast.success('Sesión confirmada');
+        this.confirmingId.set(null);
+        this.load();
+      },
+      error: () => {
+        this.toast.error('Error al confirmar la sesión');
+        this.confirmingId.set(null);
+      },
     });
   }
 
-  openCalendarLink(a: Appointment) {
-    window.open(this.service.buildCalendarLink(a), '_blank');
+  // ── Reprogramar reunión ───────────────────────────────────
+  canReschedule(e: CalEvent): boolean {
+    return e.eventType === 'meeting' &&
+           e.status === 'scheduled' &&
+           (e.reschedule_count ?? 0) < 2 &&
+           !this.isNutritionist;
   }
 
-  goToNew()            { this.router.navigate(['/agenda/nueva']); }
-  goToEdit(id: string) { this.router.navigate(['/agenda', id, 'editar']); }
-
-  // ── REPROGRAMAR ─────────────────────────────────────────────
-  openReschedule(a: Appointment) {
-    this.rescheduleTarget.set(a);
-    this.rescheduleDate.set(a.scheduled_date);
-    this.rescheduleTime.set(a.scheduled_time.slice(0, 5));
+  openReschedule(e: CalEvent) {
+    this.rescheduleTarget.set(e);
+    this.rescheduleDate.set(e.date);
+    this.rescheduleTime.set(e.time.slice(0, 5));
   }
+
   closeReschedule() { this.rescheduleTarget.set(null); }
 
   confirmReschedule() {
     const target = this.rescheduleTarget();
     if (!target) return;
     this.rescheduling.set(true);
-    this.service.reschedule(target.id, this.rescheduleDate(), this.rescheduleTime()).subscribe({
-      next: (updated) => {
-        this.appointments.update(list =>
-          list.map(a => a.id === updated.id ? { ...a, ...updated } : a)
-        );
-        this.applyFilters();
-        this.toast.success('Cita reprogramada correctamente');
+    this.scheduleService.reschedule(target.id, this.rescheduleDate(), this.rescheduleTime()).subscribe({
+      next: () => {
+        this.toast.success('Reunión reprogramada');
         this.rescheduling.set(false);
         this.closeReschedule();
+        this.load();
       },
       error: (err) => {
-        const msg = err?.error?.message ?? 'Error al reprogramar la cita';
-        this.toast.error(msg);
+        this.toast.error(err?.error?.message ?? 'Error al reprogramar');
         this.rescheduling.set(false);
       },
     });
   }
 
-  canReschedule(a: Appointment): boolean {
-    return a.status === 'scheduled' && (a.reschedule_count ?? 0) < 2;
-  }
+  // ── Navegación ────────────────────────────────────────────
+  goToNew()            { this.router.navigate(['/agenda/nueva']); }
+  goToEdit(id: string) { this.router.navigate(['/agenda', id, 'editar']); }
 
-  // ── CANCELAR ────────────────────────────────────────────────
-  openCancel(a: Appointment)  { this.cancelTarget.set(a); }
-  closeCancel()               { this.cancelTarget.set(null); }
-
-  confirmCancel() {
-    const target = this.cancelTarget();
-    if (!target) return;
-    this.cancelling.set(true);
-    this.service.cancel(target.id).subscribe({
-      next: (updated) => {
-        this.appointments.update(list =>
-          list.map(a => a.id === updated.id ? { ...a, ...updated } : a)
-        );
-        this.applyFilters();
-        this.toast.success('Cita cancelada');
-        this.cancelling.set(false);
-        this.closeCancel();
-      },
-      error: () => {
-        this.toast.error('Error al cancelar la cita');
-        this.cancelling.set(false);
-      },
-    });
-  }
-
-  // ── ELIMINAR ────────────────────────────────────────────────
-  openDelete(a: Appointment) { this.deleteTarget.set(a); }
-  closeDelete()              { this.deleteTarget.set(null); }
-
-  confirmDelete() {
-    const target = this.deleteTarget();
-    if (!target) return;
-    this.deleting.set(true);
-    this.service.delete(target.id).subscribe({
-      next: () => {
-        this.appointments.update(list => list.filter(a => a.id !== target.id));
-        this.applyFilters();
-        this.toast.success('Cita eliminada correctamente');
-        this.deleting.set(false);
-        this.closeDelete();
-      },
-      error: () => {
-        this.toast.error('Error al eliminar la cita');
-        this.deleting.set(false);
-      },
-    });
-  }
-
-  getStatusLabel(status: string): string {
+  // ── Helpers ───────────────────────────────────────────────
+  getStatusLabel(e: CalEvent): string {
+    if (e.eventType === 'session') {
+      const labels: Record<string, string> = {
+        pending:   'Pendiente',
+        completed: 'Completada',
+        cancelled: 'Cancelada',
+      };
+      return labels[e.status] ?? e.status;
+    }
     const labels: Record<string, string> = {
       scheduled: 'Programada',
       completed: 'Completada',
       cancelled: 'Cancelada',
       no_show:   'No asistió',
     };
-    return labels[status] ?? status;
+    return labels[e.status] ?? e.status;
   }
 
-  getTypeLabel(type: string): string {
-    return type === 'trial' ? 'Prueba' : 'Regular';
+  getStatusClass(e: CalEvent): string {
+    return e.status === 'pending' ? 'status-pending' : `status-${e.status}`;
   }
 
   formatDate(date: string): string {
@@ -305,4 +327,7 @@ export class ScheduleList implements OnInit {
     const h12  = hour % 12 || 12;
     return `${h12}:${m} ${ampm}`;
   }
+
+  get sessionCount()  { return this.filtered().filter(e => e.eventType === 'session').length; }
+  get meetingCount()  { return this.filtered().filter(e => e.eventType === 'meeting').length; }
 }
