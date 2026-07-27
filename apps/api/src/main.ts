@@ -7,14 +7,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const allowedOrigins = [
-    'http://localhost:4200',
-    process.env.FRONTEND_URL,
-    process.env.FRONTEND_STAGING_URL,
-  ].filter(Boolean) as string[];
-
   app.enableCors({
-    origin: allowedOrigins,
     origin: [
       'http://localhost:4200',
       'https://forza-momentum.vercel.app',
