@@ -71,16 +71,15 @@
 
         <!-- Género -->
         <div class="form-group">
-          <label class="form-label" for="gender">Género</label>
+          <label class="form-label" for="gender">Género <span class="required">*</span></label>
           <select
             id="gender"
             class="form-input"
-            [value]="form().gender"
             (change)="updateField('gender', $any($event.target).value)"
           >
-            <option value="">Seleccionar...</option>
-            <option value="M">Masculino</option>
-            <option value="F">Femenino</option>
+            <option value="" [selected]="form().gender === ''">Seleccionar...</option>
+            <option value="M" [selected]="form().gender === 'M'">Masculino</option>
+            <option value="F" [selected]="form().gender === 'F'">Femenino</option>
           </select>
         </div>
 
@@ -90,12 +89,11 @@
           <select
             id="status"
             class="form-input"
-            [value]="form().status"
             (change)="updateField('status', $any($event.target).value)"
           >
-            <option value="trial">Prueba</option>
-            <option value="active">Activo</option>
-            <option value="inactive">Inactivo</option>
+            <option value="trial"    [selected]="form().status === 'trial'">Prueba</option>
+            <option value="active"   [selected]="form().status === 'active'">Activo</option>
+            <option value="inactive" [selected]="form().status === 'inactive'">Inactivo</option>
           </select>
         </div>
 
