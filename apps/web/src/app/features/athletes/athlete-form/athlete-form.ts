@@ -61,8 +61,8 @@ export class AthleteForm implements OnInit {
   }
 
   onSubmit() {
-    if (!this.form().first_name || !this.form().last_name || !this.form().birth_date) {
-      this.error.set('Nombre, apellido y fecha de nacimiento son obligatorios');
+    if (!this.form().first_name || !this.form().last_name || !this.form().birth_date || !this.form().gender) {
+      this.error.set('Nombre, apellido, fecha de nacimiento y género son obligatorios');
       return;
     }
 

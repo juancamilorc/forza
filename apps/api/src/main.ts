@@ -15,6 +15,11 @@ async function bootstrap() {
 
   app.enableCors({
     origin: allowedOrigins,
+    origin: [
+      'http://localhost:4200',
+      'https://forza-momentum.vercel.app',
+      'https://forza-git-develop-jcrc.vercel.app',
+    ],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

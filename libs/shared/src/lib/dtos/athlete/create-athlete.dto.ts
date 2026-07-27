@@ -13,6 +13,11 @@ export enum AthleteStatus {
   TRIAL    = 'trial',
 }
 
+export enum AthleteGender {
+  M = 'M',
+  F = 'F',
+}
+
 export class CreateAthleteDto {
   @IsString()
   @IsNotEmpty()
@@ -37,7 +42,7 @@ export class CreateAthleteDto {
   @IsOptional()
   notes?: string;
 
-  @IsString()
-  @IsOptional()
-  gender?: string;
+  @IsEnum(AthleteGender)
+  @IsNotEmpty()
+  gender!: string;
 }
