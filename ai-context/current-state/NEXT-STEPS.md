@@ -8,26 +8,36 @@
 
 | Servicio | URL | Estado |
 |----------|-----|--------|
-| Frontend | https://forza-momentum.vercel.app | ✅ Live |
-| Backend  | https://forza-production-cac6.up.railway.app/api | ✅ Live |
+| Frontend | https://forza-momentum.vercel.app | ✅ Live (despliega desde `main`) |
+| Backend  | https://forza-production-cac6.up.railway.app/api | ✅ Live (despliega desde `develop`*) |
 | DB       | Supabase nhegevwfgunvberilthm | ✅ Live |
 
----
-
-## 🐛 BUGS PENDIENTES
-
-### BUG-gender — Género obligatorio + fix null en DB
-- Gender pasó a ser obligatorio en formulario y DTO
-- 5 deportistas con `gender = null` actualizados manualmente en Supabase
-- Mergeado a `develop` ✅ | Mergeado a `main` ✅
+**Nota:** Railway está configurado en `develop` temporalmente. Migración a Render pendiente.
 
 ---
 
-## 📋 PENDIENTE — Cycle 12 (activo — arrancar hoy)
+## 🔥 EN PROGRESO
 
-### FOR-59 — Asignar entrenador al crear deportista ⭐ High
 ### FOR-60 — Vincular plan + clases al crear deportista ⭐ High
-- Depende de FOR-59
+- Depende de FOR-59 ✅
+- Formulario de deportista incluye campos de plan
+- Auto-crear plan al crear deportista
+
+---
+
+## ✅ COMPLETADOS — Cycle 12
+
+### FOR-59 — Asignar entrenador al crear deportista
+- Select de entrenadores en formulario (solo admin)
+- Backend filtra trainers activos
+- Detalle de deportista muestra entrenador asignado
+- Fix: `@IsString()` en DTOs para UUIDs de seed
+- Mergeado a `develop` ✅ | En producción ✅
+
+---
+
+## 📋 PENDIENTE — Cycle 12
+
 ### FOR-61 — Pago inicial al crear deportista ⭐ High
 - Depende de FOR-60
 ### FOR-63 — Limitar sesiones según clases del plan ⭐ High
@@ -72,6 +82,10 @@ npx nx serve web   # terminal 2 → localhost:4200
 # Credenciales de prueba
 admin@forza.com / Forza2024!
 trainer@forza.com / [ver .env]
+
+# Staging
+Frontend: https://forza-git-develop-jcrc.vercel.app
+Backend:  https://forza-production-cac6.up.railway.app/api (mismo que prod)
 
 # Producción
 Frontend: https://forza-momentum.vercel.app
