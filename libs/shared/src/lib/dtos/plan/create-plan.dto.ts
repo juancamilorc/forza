@@ -1,5 +1,5 @@
 import {
-  IsUUID,
+  IsString,
   IsNotEmpty,
   IsEnum,
   IsInt,
