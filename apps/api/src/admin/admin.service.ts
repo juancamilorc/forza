@@ -115,7 +115,8 @@ export class AdminService {
   async getTrainers() {
     const { data, error } = await this.supabase.db
       .from('trainers')
-      .select('id, user_id, users(full_name, email)')
+      .select('id, user_id, users!inner(full_name, email, is_active)')
+      .eq('users.is_active', true)
       .order('created_at', { ascending: true });
 
     if (error) throw new BadRequestException(error.message);

@@ -97,6 +97,25 @@
           </select>
         </div>
 
+        <!-- Entrenador -->
+        @if (isAdmin) {
+          <div class="form-group">
+            <label class="form-label" for="trainer_id">Entrenador <span class="required">*</span></label>
+            <select
+              id="trainer_id"
+              class="form-input"
+              (change)="updateField('trainer_id', $any($event.target).value)"
+            >
+              <option value="" [selected]="form().trainer_id === ''">Seleccionar entrenador...</option>
+              @for (t of trainersList(); track t.id) {
+                <option [value]="t.id" [selected]="form().trainer_id === t.id">
+                  {{ t.users.full_name }}
+                </option>
+              }
+            </select>
+          </div>
+        }
+
         <!-- Notas -->
         <div class="form-group full-width">
           <label class="form-label" for="notes">Notas</label>

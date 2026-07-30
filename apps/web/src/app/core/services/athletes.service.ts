@@ -15,6 +15,13 @@ export interface Athlete {
   gender:     string | null;
   created_at: string;
   updated_at: string;
+  trainers?:  {
+    id: string;
+    users: {
+      full_name: string;
+      email: string;
+    };
+  };
 }
 
 @Injectable({ providedIn: 'root' })

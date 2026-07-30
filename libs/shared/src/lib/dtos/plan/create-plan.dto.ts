@@ -1,5 +1,5 @@
 import {
-  IsUUID,
+  IsString,
   IsNotEmpty,
   IsEnum,
   IsInt,
@@ -22,7 +22,7 @@ export enum PlanType {
 }
 
 export class CreatePlanDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 

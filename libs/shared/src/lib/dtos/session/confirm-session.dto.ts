@@ -1,7 +1,7 @@
-import { IsUUID, IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class ConfirmSessionDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   confirmation_token!: string;
 
