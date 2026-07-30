@@ -79,7 +79,7 @@
             <span class="info-label">Entrenador</span>
             <span class="info-value">
               @if (athlete()!.trainers?.users?.full_name) {
-                {{ athlete()!.trainers.users.full_name }}
+                {{ athlete()!.trainers?.users?.full_name }}
               } @else {
                 <span class="text-mid">Sin asignar</span>
               }
