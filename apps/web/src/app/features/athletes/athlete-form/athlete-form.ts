@@ -92,11 +92,19 @@ export class AthleteForm implements OnInit {
     this.error.set('');
 
     const id = this.route.snapshot.paramMap.get('id');
-    const data = {
-      ...f,
-      notes:      f.notes      || null,
-      trainer_id: f.trainer_id || null,
+    const data: any = {
+      first_name: f.first_name,
+      last_name:  f.last_name,
+      birth_date: f.birth_date,
+      gender:     f.gender,
+      status:     f.status,
+      notes:      f.notes || null,
     };
+
+    // Solo incluir trainer_id si es admin
+    if (this.isAdmin) {
+      data.trainer_id = f.trainer_id || null;
+    }
 
     const request = id
       ? this.service.update(id, data)
