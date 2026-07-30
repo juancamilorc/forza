@@ -453,3 +453,22 @@ feat(FOR-57): agregar vista calendario en agenda
 fix(BUG-01): corregir error al crear sesión en producción
 chore: actualizar variables de entorno Railway
 ```
+
+### Pull Requests
+
+Formato estándar:
+```markdown
+## Summary
+- Bullet point 1
+- Bullet point 2
+
+## Test plan
+- [ ] Caso de prueba 1
+- [ ] Caso de prueba 2
+```
+
+**Reglas:**
+- Título corto (< 70 caracteres)
+- NUNCA incluir footers tipo "🤖 Generated with Claude Code" — mantener el body limpio
+- Detalles en el Summary, checklist en Test plan
+- Base: `develop` para features/bugfix, `main` para hotfix

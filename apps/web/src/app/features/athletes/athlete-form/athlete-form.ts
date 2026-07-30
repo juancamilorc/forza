@@ -2,7 +2,9 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AthletesService, Athlete } from '../../../core/services/athletes.service';
+import { AthletesService } from '../../../core/services/athletes.service';
+import { TrainersService, Trainer } from '../../../core/services/trainers.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -12,16 +14,23 @@ import { ToastService } from '../../../core/services/toast.service';
   styleUrl: './athlete-form.scss',
 })
 export class AthleteForm implements OnInit {
-  private route   = inject(ActivatedRoute);
-  private router  = inject(Router);
+  private route    = inject(ActivatedRoute);
+  private router   = inject(Router);
   private location = inject(Location);
-  private service = inject(AthletesService);
-  private toast = inject(ToastService);
+  private service  = inject(AthletesService);
+  private trainers = inject(TrainersService);
+  private auth     = inject(AuthService);
+  private toast    = inject(ToastService);
 
   isEdit   = signal(false);
   loading  = signal(false);
   saving   = signal(false);
   error    = signal('');
+
+  role    = this.auth.getRole() ?? '';
+  isAdmin = this.role === 'super_admin' || this.role === 'admin';
+
+  trainersList = signal<Trainer[]>([]);
 
   form = signal({
     first_name: '',
@@ -34,6 +43,12 @@ export class AthleteForm implements OnInit {
   });
 
   ngOnInit() {
+    if (this.isAdmin) {
+      this.trainers.getAll().subscribe({
+        next: (data) => this.trainersList.set(data),
+      });
+    }
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEdit.set(true);
@@ -61,8 +76,15 @@ export class AthleteForm implements OnInit {
   }
 
   onSubmit() {
-    if (!this.form().first_name || !this.form().last_name || !this.form().birth_date || !this.form().gender) {
+    const f = this.form();
+
+    if (!f.first_name || !f.last_name || !f.birth_date || !f.gender) {
       this.error.set('Nombre, apellido, fecha de nacimiento y género son obligatorios');
+      return;
+    }
+
+    if (this.isAdmin && !f.trainer_id) {
+      this.error.set('El entrenador es obligatorio');
       return;
     }
 
@@ -71,10 +93,9 @@ export class AthleteForm implements OnInit {
 
     const id = this.route.snapshot.paramMap.get('id');
     const data = {
-      ...this.form(),
-      gender:     this.form().gender     || null,
-      notes:      this.form().notes      || null,
-      trainer_id: this.form().trainer_id || null,
+      ...f,
+      notes:      f.notes      || null,
+      trainer_id: f.trainer_id || null,
     };
 
     const request = id
@@ -88,9 +109,9 @@ export class AthleteForm implements OnInit {
         );
         setTimeout(() => this.router.navigate(['/deportistas', athlete.id]), 500);
       },
-
-      error: () => {
-        this.toast.error('Error al guardar. Intenta de nuevo.');
+      error: (err) => {
+        const msg = err?.error?.message ?? err?.message ?? 'Error al guardar. Intenta de nuevo.';
+        this.error.set(Array.isArray(msg) ? msg.join(', ') : msg);
         this.saving.set(false);
       },
     });

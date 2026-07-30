@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 export interface Trainer {
-  id:       string;
-  user_id:  string;
-  users:    { full_name: string; email: string; };
+  id:      string;
+  user_id: string;
+  users:   { full_name: string; email: string; is_active: boolean };
 }
 
 @Injectable({ providedIn: 'root' })
