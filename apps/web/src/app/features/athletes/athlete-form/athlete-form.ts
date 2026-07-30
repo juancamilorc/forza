@@ -106,8 +106,6 @@ export class AthleteForm implements OnInit {
       data.trainer_id = f.trainer_id || null;
     }
 
-    console.log('📤 Enviando al backend:', data);
-
     const request = id
       ? this.service.update(id, data)
       : this.service.create(data);

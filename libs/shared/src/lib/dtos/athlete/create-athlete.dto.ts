@@ -30,7 +30,7 @@ export class CreateAthleteDto {
   @IsDateString()
   birth_date!: string;
 
-  @IsUUID()
+  @IsUUID('all')
   @IsOptional()
   trainer_id?: string;
 
