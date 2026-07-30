@@ -22,7 +22,7 @@ export enum PlanType {
 }
 
 export class CreatePlanDto {
-  @IsUUID('all')
+  @IsString()
   @IsNotEmpty()
   athlete_id!: string;
 

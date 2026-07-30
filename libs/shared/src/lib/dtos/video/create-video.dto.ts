@@ -19,7 +19,7 @@ export class CreateVideoDto {
   @IsOptional()
   description?: string;
 
-  @IsUUID('all')
+  @IsString()
   @IsOptional()
   uploaded_by?: string;
 }
