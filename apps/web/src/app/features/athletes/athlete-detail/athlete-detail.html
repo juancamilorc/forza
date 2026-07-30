@@ -75,6 +75,16 @@
               {{ getStatusLabel(athlete()!.status) }}
             </span>
           </div>
+          <div class="info-row">
+            <span class="info-label">Entrenador</span>
+            <span class="info-value">
+              @if (athlete()!.trainers?.users?.full_name) {
+                {{ athlete()!.trainers?.users?.full_name }}
+              } @else {
+                <span class="text-mid">Sin asignar</span>
+              }
+            </span>
+          </div>
           @if (athlete()!.notes) {
             <div class="info-row">
               <span class="info-label">Notas</span>
