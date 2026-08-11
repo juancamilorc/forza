@@ -172,3 +172,37 @@
 }
 
 .spinning { animation: spin 1s linear infinite; }
+
+// Sección de plan
+.form-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #92400e;
+  line-height: 1.5;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+}

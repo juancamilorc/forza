@@ -4,5 +4,5 @@ export const environment = {
   production: !isLocal,
   apiUrl: isLocal
     ? 'http://localhost:3000/api'
-    : 'https://forza-production-cac6.up.railway.app/api',
+    : 'https://forza-api-u7cq.onrender.com/api',
 };
