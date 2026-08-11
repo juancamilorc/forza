@@ -130,6 +130,65 @@
 
       </div>
 
+      <!-- Plan (opcional) -->
+      @if (isAdmin) {
+        <div class="form-section">
+          <h2 class="section-title">Plan (opcional)</h2>
+
+          @if (isEdit() && hasSessions()) {
+            <div class="info-banner">
+              <span class="material-symbols-outlined">info</span>
+              {{ planDisabledMessage }}
+            </div>
+          }
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="plan_type">Tipo de plan</label>
+              <select
+                id="plan_type"
+                class="form-input"
+                [disabled]="isEdit() && hasSessions()"
+                (change)="updateField('plan_type', $any($event.target).value)"
+              >
+                <option value="" [selected]="form().plan_type === ''">Seleccionar...</option>
+                @for (pt of planTypes; track pt.value) {
+                  <option [value]="pt.value" [selected]="form().plan_type === pt.value">
+                    {{ pt.label }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="total_sessions">Número de sesiones</label>
+              <input
+                id="total_sessions"
+                type="number"
+                class="form-input"
+                min="1"
+                placeholder="Ej: 12"
+                [value]="form().total_sessions"
+                [disabled]="isEdit() && hasSessions()"
+                (input)="updateField('total_sessions', $any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="start_date">Fecha de inicio</label>
+              <input
+                id="start_date"
+                type="date"
+                class="form-input"
+                [value]="form().start_date"
+                [disabled]="isEdit() && hasSessions()"
+                (input)="updateField('start_date', $any($event.target).value)"
+              />
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Botones -->
       <div class="form-actions">
         <button class="btn-secondary" (click)="goBack()">
