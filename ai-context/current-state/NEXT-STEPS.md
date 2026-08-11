@@ -89,7 +89,7 @@ Backend:  https://forza-production-cac6.up.railway.app/api (mismo que prod)
 
 # Producción
 Frontend: https://forza-momentum.vercel.app
-Backend:  https://forza-production-cac6.up.railway.app/api
+Backend:  https://forza-api-u7cq.onrender.com/api
 Supabase: nhegevwfgunvberilthm
 
 # ⚠️ Dev local: exportar variables antes de nx serve api
