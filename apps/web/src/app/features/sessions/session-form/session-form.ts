@@ -79,16 +79,20 @@ export class SessionForm implements OnInit {
   }
 
   onAthleteChange(athleteId: string) {
-    this.form.update(f => ({ ...f, athlete_id: athleteId, plan_id: '' }));
+    this.form.update(f => ({ ...f, athlete_id: athleteId, plan_id: '', trainer_id: '' }));
 
     if (!athleteId) return;
 
     this.athletes.getOne(athleteId).subscribe({
       next: (athlete: any) => {
         const activePlan = athlete.plans?.find((p: any) => p.is_active);
-        if (activePlan) {
-          this.form.update(f => ({ ...f, plan_id: activePlan.id }));
-        }
+        const trainerId = athlete.trainers?.id || '';
+
+        this.form.update(f => ({
+          ...f,
+          plan_id: activePlan?.id || '',
+          trainer_id: trainerId
+        }));
       }
     });
   }
