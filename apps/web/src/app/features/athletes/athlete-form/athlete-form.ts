@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,6 +31,8 @@ export class AthleteForm implements OnInit {
   loading  = signal(false);
   saving   = signal(false);
   error    = signal('');
+
+  @ViewChild('errorBanner') errorBanner?: ElementRef;
 
   role    = this.auth.getRole() ?? '';
   isAdmin = this.role === 'super_admin' || this.role === 'admin';
@@ -125,28 +127,35 @@ export class AthleteForm implements OnInit {
     this.form.update(f => ({ ...f, [field]: value }));
   }
 
+  private setError(message: string) {
+    this.error.set(message);
+    setTimeout(() => {
+      this.errorBanner?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }
+
   onSubmit() {
     const f = this.form();
 
     if (!f.first_name || !f.last_name || !f.birth_date || !f.gender) {
-      this.error.set('Nombre, apellido, fecha de nacimiento y género son obligatorios');
+      this.setError('Nombre, apellido, fecha de nacimiento y género son obligatorios');
       return;
     }
 
     if (this.isAdmin && !f.trainer_id) {
-      this.error.set('El entrenador es obligatorio');
+      this.setError('El entrenador es obligatorio');
       return;
     }
 
     // Validar campos de plan si al menos uno está lleno
     const hasPlanData = f.plan_type || f.total_sessions || f.start_date;
     if (hasPlanData && (!f.plan_type || !f.total_sessions || !f.start_date)) {
-      this.error.set('Si ingresa datos de plan, debe completar tipo, sesiones y fecha de inicio');
+      this.setError('Si ingresa datos de plan, debe completar tipo, sesiones y fecha de inicio');
       return;
     }
 
     this.saving.set(true);
-    this.error.set('');
+    this.setError('');
 
     const id = this.route.snapshot.paramMap.get('id');
     const athleteData: any = {

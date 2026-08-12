@@ -23,7 +23,7 @@
 
       <!-- Error -->
       @if (error()) {
-        <div class="error-banner">
+        <div class="error-banner" #errorBanner>
           <span class="material-symbols-outlined">error</span>
           {{ error() }}
         </div>
