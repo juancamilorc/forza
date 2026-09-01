@@ -4,42 +4,38 @@
 
 ---
 
-## 🚀 PRODUCCIÓN — estado actual (Julio 2026)
+## 🚀 PRODUCCIÓN — estado actual (Agosto 2026)
 
 | Servicio | URL | Estado |
 |----------|-----|--------|
-| Frontend | https://forza-momentum.vercel.app | ✅ Live (despliega desde `main`) |
-| Backend  | https://forza-production-cac6.up.railway.app/api | ✅ Live (despliega desde `develop`*) |
+| Frontend | https://forza-momentum.vercel.app | ✅ Live |
+| Backend  | https://forza-api-u7cq.onrender.com/api | ✅ Live (Render) |
 | DB       | Supabase nhegevwfgunvberilthm | ✅ Live |
 
-**Nota:** Railway está configurado en `develop` temporalmente. Migración a Render pendiente.
+**Última migración:** Backend migrado de Railway a Render (2026-08-11)
 
 ---
 
-## 🔥 EN PROGRESO
+## ⏳ PENDIENTE VALIDACIÓN EN PRODUCCIÓN
 
-### FOR-60 — Vincular plan + clases al crear deportista ⭐ High
-- Depende de FOR-59 ✅
-- Formulario de deportista incluye campos de plan
-- Auto-crear plan al crear deportista
+### FOR-59 — Asignar entrenador al crear deportista ✅
+- Mergeado a `main` ✅
+- Desplegado en producción ✅
+- **Pendiente:** Ejecutar checklist de pruebas en https://forza-momentum.vercel.app
 
----
+### FOR-60 — Vincular plan al crear deportista ✅
+- Mergeado a `main` ✅
+- Desplegado en producción ✅
+- **Pendiente:** Ejecutar checklist de pruebas en https://forza-momentum.vercel.app
 
-## ✅ COMPLETADOS — Cycle 12
-
-### FOR-59 — Asignar entrenador al crear deportista
-- Select de entrenadores en formulario (solo admin)
-- Backend filtra trainers activos
-- Detalle de deportista muestra entrenador asignado
-- Fix: `@IsString()` en DTOs para UUIDs de seed
-- Mergeado a `develop` ✅ | En producción ✅
+**Siguiente paso:** Validar FOR-59 + FOR-60 en producción antes de arrancar FOR-61
 
 ---
 
-## 📋 PENDIENTE — Cycle 12
+## 📋 PENDIENTE — Cycle 12 (siguiente)
 
 ### FOR-61 — Pago inicial al crear deportista ⭐ High
-- Depende de FOR-60
+- Depende de FOR-60 (completado, pendiente validación)
 ### FOR-63 — Limitar sesiones según clases del plan ⭐ High
 - Depende de FOR-60
 ### FOR-64 — Entrenador ve pagos del deportista solo lectura ⭐ High
@@ -71,8 +67,7 @@
 ## 🔧 ENVIRONMENT
 
 ```bash
-# Rama base de trabajo a partir de Jul 2026: develop
-# NUNCA trabajar directo en main
+# Rama base de trabajo: develop
 git checkout develop && git pull
 
 # Desarrollo local
@@ -85,7 +80,7 @@ trainer@forza.com / [ver .env]
 
 # Staging
 Frontend: https://forza-git-develop-jcrc.vercel.app
-Backend:  https://forza-production-cac6.up.railway.app/api (mismo que prod)
+Backend:  https://forza-api-u7cq.onrender.com/api (mismo que prod)
 
 # Producción
 Frontend: https://forza-momentum.vercel.app
