@@ -325,6 +325,46 @@ async function listCycles() {
   }
 }
 
+async function createIssue(title, description, cycleName, priority) {
+  try {
+    const teams = await linear.teams();
+    const team = teams.nodes[0];
+
+    let cycleId = null;
+    if (cycleName) {
+      const cycle = await getCycleByName(cycleName);
+      if (cycle) {
+        cycleId = cycle.id;
+      } else {
+        console.log(`⚠️  Cycle "${cycleName}" no encontrado - creando sin cycle`);
+      }
+    }
+
+    console.log(`🆕 Creando issue: ${title}`);
+    if (cycleName) console.log(`   Cycle: ${cycleName}`);
+    if (priority) console.log(`   Priority: ${priority}`);
+
+    const issueData = {
+      teamId: team.id,
+      title: title,
+      description: description,
+    };
+
+    if (cycleId) issueData.cycleId = cycleId;
+    if (priority) issueData.priority = parseInt(priority); // 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low
+
+    const result = await linear.createIssue(issueData);
+    const issue = await result.issue;
+
+    console.log(`✅ Issue creado: ${issue.identifier}`);
+    console.log(`   URL: ${issue.url}\n`);
+
+    return issue;
+  } catch (error) {
+    console.error('❌ Error creando issue:', error.message);
+  }
+}
+
 // CLI
 const command = process.argv[2];
 const arg1 = process.argv[3];
@@ -391,6 +431,14 @@ const arg3 = process.argv[5];
       }
       await addComment(arg1, arg2);
       break;
+    case 'create-issue':
+      if (!arg1 || !arg2) {
+        console.log('Uso: node scripts/linear-sync.js create-issue "Título" "Descripción" ["Cycle 15"] [2]');
+        console.log('Priority: 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low');
+        process.exit(1);
+      }
+      await createIssue(arg1, arg2, arg3, process.argv[6]);
+      break;
     default:
       console.log('Comandos disponibles:');
       console.log('  node scripts/linear-sync.js list           - Ver issues del cycle actual');
@@ -405,5 +453,6 @@ const arg3 = process.argv[5];
       console.log('  node scripts/linear-sync.js move-to-cycle "Cycle 15" "FOR-66,FOR-69"');
       console.log('  node scripts/linear-sync.js remove-from-cycle "FOR-71,FOR-70"');
       console.log('  node scripts/linear-sync.js comment FOR-XX "Texto del comentario"');
+      console.log('  node scripts/linear-sync.js create-issue "Título" "Descripción" "Cycle 15" 2');
   }
 })();
