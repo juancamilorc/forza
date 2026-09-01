@@ -197,15 +197,147 @@ async function finishIssue(identifier) {
   }
 }
 
+async function createCycle(name, startDate, endDate) {
+  try {
+    const teams = await linear.teams();
+    const team = teams.nodes[0];
+
+    console.log(`🔄 Creando cycle: ${name}`);
+    console.log(`   Fechas: ${startDate} → ${endDate}`);
+
+    const cycle = await linear.createCycle({
+      name,
+      startsAt: new Date(startDate),
+      endsAt: new Date(endDate),
+      teamId: team.id,
+    });
+
+    console.log(`✅ Cycle creado: ${name}`);
+    console.log(`   ID: ${cycle.cycle.id}\n`);
+
+    return cycle.cycle;
+  } catch (error) {
+    console.error('❌ Error creando cycle:', error.message);
+  }
+}
+
+async function getCycleByName(cycleName) {
+  try {
+    const cycles = await linear.cycles();
+    const cycle = cycles.nodes.find(c => c.name === cycleName);
+    return cycle;
+  } catch (error) {
+    console.error('❌ Error buscando cycle:', error.message);
+    return null;
+  }
+}
+
+async function moveIssuesToCycle(cycleName, identifiers) {
+  try {
+    const cycle = await getCycleByName(cycleName);
+
+    if (!cycle) {
+      console.log(`❌ Cycle "${cycleName}" no encontrado`);
+      return;
+    }
+
+    console.log(`📦 Moviendo ${identifiers.length} issues a ${cycleName}...\n`);
+
+    for (const identifier of identifiers) {
+      const issue = await findIssueByIdentifier(identifier);
+
+      if (!issue) {
+        console.log(`❌ ${identifier} no encontrado`);
+        continue;
+      }
+
+      await linear.updateIssue(issue.id, { cycleId: cycle.id });
+      console.log(`✅ ${identifier} → ${cycleName}`);
+    }
+
+    console.log(`\n✅ ${identifiers.length} issues movidos a ${cycleName}`);
+  } catch (error) {
+    console.error('❌ Error moviendo issues:', error.message);
+  }
+}
+
+async function removeIssuesFromCycle(identifiers) {
+  try {
+    console.log(`📤 Removiendo ${identifiers.length} issues de sus cycles...\n`);
+
+    for (const identifier of identifiers) {
+      const issue = await findIssueByIdentifier(identifier);
+
+      if (!issue) {
+        console.log(`❌ ${identifier} no encontrado`);
+        continue;
+      }
+
+      await linear.updateIssue(issue.id, { cycleId: null });
+      console.log(`✅ ${identifier} → sin cycle`);
+    }
+
+    console.log(`\n✅ ${identifiers.length} issues removidos de cycles`);
+  } catch (error) {
+    console.error('❌ Error removiendo issues:', error.message);
+  }
+}
+
+async function addComment(identifier, commentText) {
+  try {
+    const issue = await findIssueByIdentifier(identifier);
+
+    if (!issue) {
+      console.log(`❌ Issue ${identifier} no encontrado`);
+      return;
+    }
+
+    await linear.createComment({
+      issueId: issue.id,
+      body: commentText,
+    });
+
+    console.log(`✅ Comentario agregado a ${identifier}`);
+  } catch (error) {
+    console.error('❌ Error agregando comentario:', error.message);
+  }
+}
+
+async function listCycles() {
+  try {
+    console.log('🔄 Listando todos los cycles...\n');
+
+    const cycles = await linear.cycles();
+
+    for (const cycle of cycles.nodes) {
+      const issues = await linear.issues({
+        filter: { cycle: { id: { eq: cycle.id } } },
+      });
+
+      const activeTag = cycle.isActive ? '🟢 ACTIVO' : '';
+      console.log(`${cycle.name} ${activeTag}`);
+      console.log(`   Fechas: ${new Date(cycle.startsAt).toISOString().split('T')[0]} → ${new Date(cycle.endsAt).toISOString().split('T')[0]}`);
+      console.log(`   Issues: ${issues.nodes.length}`);
+      console.log(`   ID: ${cycle.id}\n`);
+    }
+  } catch (error) {
+    console.error('❌ Error listando cycles:', error.message);
+  }
+}
+
 // CLI
 const command = process.argv[2];
 const arg1 = process.argv[3];
 const arg2 = process.argv[4];
+const arg3 = process.argv[5];
 
 (async () => {
   switch (command) {
     case 'list':
       await getCurrentCycleIssues();
+      break;
+    case 'list-cycles':
+      await listCycles();
       break;
     case 'verify':
       await verifyGitHubIntegration();
@@ -231,12 +363,47 @@ const arg2 = process.argv[4];
       }
       await updateIssueState(arg1, arg2);
       break;
+    case 'create-cycle':
+      if (!arg1 || !arg2 || !arg3) {
+        console.log('Uso: node scripts/linear-sync.js create-cycle "Cycle 15" "2026-09-12" "2026-09-25"');
+        process.exit(1);
+      }
+      await createCycle(arg1, arg2, arg3);
+      break;
+    case 'move-to-cycle':
+      if (!arg1 || !arg2) {
+        console.log('Uso: node scripts/linear-sync.js move-to-cycle "Cycle 15" "FOR-66,FOR-69,FOR-67"');
+        process.exit(1);
+      }
+      await moveIssuesToCycle(arg1, arg2.split(','));
+      break;
+    case 'remove-from-cycle':
+      if (!arg1) {
+        console.log('Uso: node scripts/linear-sync.js remove-from-cycle "FOR-71,FOR-70,FOR-55"');
+        process.exit(1);
+      }
+      await removeIssuesFromCycle(arg1.split(','));
+      break;
+    case 'comment':
+      if (!arg1 || !arg2) {
+        console.log('Uso: node scripts/linear-sync.js comment FOR-57 "Duplicado de FOR-64"');
+        process.exit(1);
+      }
+      await addComment(arg1, arg2);
+      break;
     default:
       console.log('Comandos disponibles:');
       console.log('  node scripts/linear-sync.js list           - Ver issues del cycle actual');
+      console.log('  node scripts/linear-sync.js list-cycles    - Ver todos los cycles');
       console.log('  node scripts/linear-sync.js start FOR-XX   - Crear branch y marcar In Progress');
       console.log('  node scripts/linear-sync.js finish FOR-XX  - Marcar como Done');
       console.log('  node scripts/linear-sync.js update FOR-XX "State" - Actualizar estado');
       console.log('  node scripts/linear-sync.js verify         - Verificar integración GitHub');
+      console.log('');
+      console.log('Gestión de cycles:');
+      console.log('  node scripts/linear-sync.js create-cycle "Name" "YYYY-MM-DD" "YYYY-MM-DD"');
+      console.log('  node scripts/linear-sync.js move-to-cycle "Cycle 15" "FOR-66,FOR-69"');
+      console.log('  node scripts/linear-sync.js remove-from-cycle "FOR-71,FOR-70"');
+      console.log('  node scripts/linear-sync.js comment FOR-XX "Texto del comentario"');
   }
 })();
