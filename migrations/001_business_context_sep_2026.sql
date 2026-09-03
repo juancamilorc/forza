@@ -63,7 +63,8 @@ CREATE INDEX IF NOT EXISTS idx_trial_sessions_converted
 -- RLS para trial_sessions
 ALTER TABLE public.trial_sessions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow service role all"
+DROP POLICY IF EXISTS "Allow service role all" ON public.trial_sessions;
+CREATE POLICY "Allow service role all"
   ON public.trial_sessions FOR ALL
   USING (true);
 
@@ -113,7 +114,8 @@ CREATE INDEX IF NOT EXISTS idx_trainer_blocks_trainer_date
 -- RLS para trainer_blocks
 ALTER TABLE public.trainer_blocks ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow service role all"
+DROP POLICY IF EXISTS "Allow service role all" ON public.trainer_blocks;
+CREATE POLICY "Allow service role all"
   ON public.trainer_blocks FOR ALL
   USING (true);
 
@@ -159,7 +161,8 @@ CREATE INDEX IF NOT EXISTS idx_reschedule_history_created_at
 -- RLS para session_reschedule_history
 ALTER TABLE public.session_reschedule_history ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow service role all"
+DROP POLICY IF EXISTS "Allow service role all" ON public.session_reschedule_history;
+CREATE POLICY "Allow service role all"
   ON public.session_reschedule_history FOR ALL
   USING (true);
 
@@ -210,7 +213,8 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_unread
 -- RLS para notifications
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Allow service role all"
+DROP POLICY IF EXISTS "Allow service role all" ON public.notifications;
+CREATE POLICY "Allow service role all"
   ON public.notifications FOR ALL
   USING (true);
 
