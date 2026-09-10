@@ -40,6 +40,38 @@ IDs fijos (por si hay que referenciarlos): athletes `f0a70000-…-0000000000N`,
 plans `f0910000-…`, payments `f09a0000-…`, sessions `f0530000-…`, guardians `f09d0000-…`
 (N = número de fila).
 
+## Recetas de prueba manual (se crean desde la UI, no van en el seed)
+
+### FOR-61 — crear deportista con pago inicial
+
+Crear en `/deportistas/nuevo` con estos valores exactos:
+
+| Campo | Valor |
+|-------|-------|
+| Nombre | `PRUEBA FOR61` |
+| Apellido | `Vargas` |
+| Género | Femenino |
+| Fecha de nacimiento | `2013-04-15` |
+| Estado | Activo |
+| Entrenador | *(vacío — probar que es opcional)* |
+| Plan → Tipo | Master |
+| Plan → Nº de sesiones | `8` |
+| Plan → Fecha de inicio | `2026-09-01` *(pasada, para que el vencimiento quede vencido)* |
+| ☑ Registrar pago inicial | sí |
+| Monto del plan | `480000` |
+| Monto abonado ahora | `0` |
+| Método | Transferencia |
+| Referencia | `FOR61-MANUAL` |
+
+Esperado:
+- Vencimiento mostrado = **31/08/2026** (inicio − 1 día, solo lectura)
+- Toast "Deportista, plan y pago inicial creados correctamente"
+- Detalle → badge **"Debe $480.000"**
+- `/pagos` → fila con PLAN = master, estado PENDIENTE
+- Dashboard → aparece en "Pagos vencidos"
+
+Al terminar: borrar el deportista `PRUEBA FOR61 Vargas`.
+
 ## Al crear data nueva durante desarrollo
 
 Cuando un ticket necesite un escenario que no está arriba, se agrega el fixture a

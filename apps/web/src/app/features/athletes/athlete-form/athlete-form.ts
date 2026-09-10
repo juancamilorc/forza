@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -79,25 +79,26 @@ export class AthleteForm implements OnInit {
     // Pago inicial (solo al crear) — FOR-61
     payment_amount:      '',
     payment_amount_paid: '',
-    payment_due_date:    '',
     payment_method:      '',
     payment_reference:   '',
   });
 
   // Un día antes del inicio del plan: el pago debe estar listo antes de la
   // primera clase (regla "no hay clases sin pago", validada en FOR-76).
+  // Se calcula, no se pide: si hay que cambiarlo, se edita el pago en /pagos.
   private dayBefore(dateStr: string): string {
     const d = new Date(`${dateStr}T00:00:00Z`);
     d.setUTCDate(d.getUTCDate() - 1);
     return d.toISOString().slice(0, 10);
   }
 
+  paymentDueDate = computed(() => {
+    const start = this.form().start_date;
+    return start ? this.dayBefore(start) : '';
+  });
+
   togglePayment(enabled: boolean) {
     this.paymentEnabled.set(enabled);
-    // Al activar, sugerir "un día antes del inicio del plan" como vencimiento
-    if (enabled && !this.form().payment_due_date && this.form().start_date) {
-      this.form.update(f => ({ ...f, payment_due_date: this.dayBefore(f.start_date) }));
-    }
   }
 
   ngOnInit() {
@@ -260,9 +261,9 @@ export class AthleteForm implements OnInit {
       plan_id:     planId,
       amount:      parseFloat(f.payment_amount),
       amount_paid: parseFloat(f.payment_amount_paid) || 0,
-      // Sin fecha explícita, vence un día antes del inicio del plan (regla
-      // "no hay clases sin pago"): así el saldo pendiente entra al widget de vencidos.
-      due_date:    f.payment_due_date || (f.start_date ? this.dayBefore(f.start_date) : null),
+      // Vence un día antes del inicio del plan (regla "no hay clases sin pago"):
+      // así el saldo pendiente entra al widget de vencidos.
+      due_date:    this.paymentDueDate() || null,
       method:      f.payment_method    || null,
       referencia:  f.payment_reference || null,
     };
