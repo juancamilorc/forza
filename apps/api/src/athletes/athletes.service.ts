@@ -87,6 +87,7 @@ export class AthletesService {
         first_name: dto.first_name,
         last_name:  dto.last_name,
         birth_date: dto.birth_date,
+        gender:     dto.gender,
         trainer_id: dto.trainer_id ?? null,
         status:     dto.status ?? 'trial',
         notes:      dto.notes ?? null,

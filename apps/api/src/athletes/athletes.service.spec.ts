@@ -29,6 +29,7 @@ describe('AthletesService', () => {
     first_name: 'Juan',
     last_name: 'Pérez',
     birth_date: '2000-01-15',
+    gender: 'M',
     status: 'active',
     trainer_id: 'trainer-uuid-1',
     photo_url: null,
@@ -158,6 +159,7 @@ describe('AthletesService', () => {
       first_name: 'María',
       last_name: 'García',
       birth_date: '2000-01-15',
+      gender: 'F',
       trainer_id: 'trainer-uuid-1',
       status: AthleteStatus.ACTIVE,
     };
@@ -172,6 +174,7 @@ describe('AthletesService', () => {
         first_name: 'María',
         last_name: 'García',
         birth_date: '2000-01-15',
+        gender: 'F',
         trainer_id: 'trainer-uuid-1',
         status: 'active',
         notes: null,
@@ -184,6 +187,7 @@ describe('AthletesService', () => {
         first_name: 'Carlos',
         last_name: 'López',
         birth_date: '2000-01-15',
+        gender: 'M',
       };
       mockQuery.single.mockResolvedValue({ data: mockAthleteRow, error: null });
 
@@ -199,6 +203,7 @@ describe('AthletesService', () => {
         first_name: 'Carlos',
         last_name: 'López',
         birth_date: '2000-01-15',
+        gender: 'M',
       };
       mockQuery.single.mockResolvedValue({ data: mockAthleteRow, error: null });
 
