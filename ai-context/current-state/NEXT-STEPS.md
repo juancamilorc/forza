@@ -51,10 +51,11 @@
 | FOR-85 | Bug: gender no se persiste al crear deportista | ✅ Done | Alta |
 | FOR-86 | end_date del plan: no se calcula ni se muestra | ✅ Done | Alta |
 | FOR-73 | Validación incorrecta al editar deportista | ✅ Done (resuelto por FOR-85) | Media |
-| FOR-61 | Registrar pago inicial al crear deportista | Todo | Alta |
-| FOR-62 | Limitar sesiones según clases del plan | Todo | Alta |
+| FOR-61 | Registrar pago inicial al crear deportista | ✅ Done (PR #24) | Alta |
+| FOR-62 | Limitar sesiones según clases del plan | 🔜 en curso | Alta |
 | FOR-63 | Entrenador ve pagos del deportista | Todo | Media |
 | FOR-76 | Validación de pago antes de confirmar/agendar sesión | Todo | Alta |
+| FOR-87 | Validación inline (borde rojo) en formularios | Backlog | Media |
 
 **Sincronizar Linear siempre:** `update FOR-XX "In Progress"` al arrancar, `"In Review"` al
 terminar la rama, `"Done"` cuando el PR entre a develop. (No usar `start`: fuerza prefijo
@@ -69,7 +70,11 @@ Smoke test API + validación manual en staging pasados. Deploy Vercel + Render d
 - [ ] Verificación final en la UI de producción (crear deportista con plan → ver "Fin")
 - [ ] Agregar branch protection en `main` y `develop`
 
-### 🔜 FOR-61 — Pago inicial al crear deportista (Alta)
+### ✅ FOR-61 — Pago inicial al crear deportista — HECHO (PR #24)
+Sección de pago inicial en el form de crear deportista, vencimiento calculado
+(inicio − 1 día), badge "Al día / Debe $X" en el detalle. + seed de datos de prueba.
+
+### 🔜 FOR-62 — Limitar sesiones según clases del plan (Alta)
 
 - Depende de FOR-60 ✅ (ya en develop)
 - **Backend:** al crear deportista, si viene `pago_inicial` (monto), crear registro en
