@@ -11,6 +11,17 @@ import { UpdatePlanDto } from '@forza/shared';
 export class PlansService {
   constructor(private supabase: SupabaseService) {}
 
+  /**
+   * Todos los planes duran lo mismo sin importar el tipo:
+   * end_date = start_date + 1 mes + 1 semana.
+   */
+  private calculateEndDate(startDate: string): string {
+    const d = new Date(`${startDate}T00:00:00Z`);
+    d.setUTCMonth(d.getUTCMonth() + 1);
+    d.setUTCDate(d.getUTCDate() + 7);
+    return d.toISOString().slice(0, 10);
+  }
+
   // ── GET ALL ──────────────────────────────────────────────────
   async findAll(athleteId?: string) {
     let query = this.supabase.db
@@ -68,6 +79,7 @@ export class PlansService {
         plan_type:      dto.plan_type,
         total_sessions: dto.total_sessions,
         start_date:     dto.start_date,
+        end_date:       this.calculateEndDate(dto.start_date),
         is_active:      dto.is_active ?? true,
       })
       .select()
@@ -81,9 +93,15 @@ export class PlansService {
   async update(id: string, dto: UpdatePlanDto) {
     await this.findOne(id);
 
+    const payload: Record<string, unknown> = { ...dto };
+    // Si cambia la fecha de inicio, recalcular la fecha de fin.
+    if (dto.start_date) {
+      payload.end_date = this.calculateEndDate(dto.start_date);
+    }
+
     const { data, error } = await this.supabase.db
       .from('plans')
-      .update({ ...dto })
+      .update(payload)
       .eq('id', id)
       .select()
       .single();
