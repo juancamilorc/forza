@@ -134,6 +134,7 @@ trainer@forza.com / [ver .env]
 ### Sin cycle asignado
 - FOR-64 — Rediseño completo Agenda/Schedule
 - FOR-70 — Banner campos faltantes en detalle deportista
+- FOR-87 — Validación inline: resaltar en rojo los campos faltantes en formularios (feedback FOR-61)
 - FOR-54 — Recordatorios automáticos WhatsApp
 - FOR-55 — Historial congelamientos
 - FOR-46 — UI/UX Premium con Stitch
