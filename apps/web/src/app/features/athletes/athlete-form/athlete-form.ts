@@ -1,16 +1,17 @@
 import { Component, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { AthletesService } from '../../../core/services/athletes.service';
 import { TrainersService, Trainer } from '../../../core/services/trainers.service';
-import { PlansService } from '../../../core/services/plans.service';
+import { PlansService, Plan } from '../../../core/services/plans.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-athlete-form',
-  imports: [FormsModule],
+  imports: [FormsModule, DatePipe],
   templateUrl: './athlete-form.html',
   styleUrl: './athlete-form.scss',
 })
@@ -35,6 +36,10 @@ export class AthleteForm implements OnInit {
   isAdmin = this.role === 'super_admin' || this.role === 'admin';
 
   trainersList = signal<Trainer[]>([]);
+
+  // Plan activo del deportista (solo lectura en modo edición; se gestiona
+  // desde el módulo /planes).
+  activePlan = signal<Plan | null>(null);
 
   planTypes = [
     { value: 'momentum', label: 'Momentum' },
@@ -74,10 +79,14 @@ export class AthleteForm implements OnInit {
       this.isEdit.set(true);
       this.loading.set(true);
 
-      // En edición solo se cargan los datos del deportista. El plan se gestiona
-      // desde el módulo /planes (activar, congelar, cancelar, extender).
-      this.service.getOne(id).subscribe({
-        next: (athlete) => {
+      // En edición se cargan los datos del deportista y su plan activo. El plan
+      // se muestra en solo lectura: se gestiona desde el módulo /planes
+      // (activar, congelar, cancelar, extender).
+      forkJoin({
+        athlete: this.service.getOne(id),
+        plans:   this.plans.getByAthlete(id),
+      }).subscribe({
+        next: ({ athlete, plans }) => {
           this.form.update(f => ({
             ...f,
             first_name: athlete.first_name,
@@ -88,6 +97,7 @@ export class AthleteForm implements OnInit {
             notes:      athlete.notes ?? '',
             trainer_id: athlete.trainer_id ?? '',
           }));
+          this.activePlan.set(plans.find(p => p.is_active) ?? null);
           this.loading.set(false);
         },
         error: () => {
@@ -190,6 +200,10 @@ export class AthleteForm implements OnInit {
       },
     });
   }
+
+  planLabel(type: string): string { return this.plans.getPlanLabel(type); }
+
+  goToPlans() { this.router.navigate(['/planes']); }
 
   goBack() { this.location.back(); }
 }

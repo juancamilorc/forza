@@ -180,6 +180,41 @@
         </div>
       }
 
+      <!-- Plan activo (solo lectura) — en edición los planes se gestionan
+           desde el módulo /planes. -->
+      @if (isAdmin && isEdit()) {
+        <div class="form-section">
+          <h2 class="section-title">Plan activo</h2>
+
+          @if (activePlan(); as plan) {
+            <div class="readonly-grid">
+              <div class="readonly-item">
+                <span class="readonly-label">Tipo</span>
+                <span class="readonly-value">{{ planLabel(plan.plan_type) }}</span>
+              </div>
+              <div class="readonly-item">
+                <span class="readonly-label">Inicio</span>
+                <span class="readonly-value">{{ plan.start_date | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="readonly-item">
+                <span class="readonly-label">Fin</span>
+                <span class="readonly-value">{{ plan.end_date ? (plan.end_date | date:'dd/MM/yyyy') : '—' }}</span>
+              </div>
+              <div class="readonly-item">
+                <span class="readonly-label">Número de sesiones</span>
+                <span class="readonly-value">{{ plan.total_sessions }}</span>
+              </div>
+            </div>
+            <p class="section-hint">
+              El plan no se edita desde aquí.
+              <button type="button" class="link-btn" (click)="goToPlans()">Gestionar en Planes</button>
+            </p>
+          } @else {
+            <p class="section-hint">Este deportista no tiene un plan activo.</p>
+          }
+        </div>
+      }
+
       <!-- Botones -->
       <div class="form-actions">
         <button class="btn-secondary" (click)="goBack()">
