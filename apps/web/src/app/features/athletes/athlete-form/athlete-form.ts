@@ -79,12 +79,17 @@ export class AthleteForm implements OnInit {
     // Pago inicial (solo al crear) — FOR-61
     payment_amount:      '',
     payment_amount_paid: '',
+    payment_due_date:    '',
     payment_method:      '',
     payment_reference:   '',
   });
 
   togglePayment(enabled: boolean) {
     this.paymentEnabled.set(enabled);
+    // Al activar, sugerir la fecha de inicio del plan como vencimiento
+    if (enabled && !this.form().payment_due_date && this.form().start_date) {
+      this.form.update(f => ({ ...f, payment_due_date: f.start_date }));
+    }
   }
 
   ngOnInit() {
@@ -247,6 +252,9 @@ export class AthleteForm implements OnInit {
       plan_id:     planId,
       amount:      parseFloat(f.payment_amount),
       amount_paid: parseFloat(f.payment_amount_paid) || 0,
+      // Sin fecha explícita, vence el día de inicio del plan (regla "no hay
+      // clases sin pago"): así el saldo pendiente entra al widget de vencidos.
+      due_date:    f.payment_due_date || f.start_date || null,
       method:      f.payment_method    || null,
       referencia:  f.payment_reference || null,
     };

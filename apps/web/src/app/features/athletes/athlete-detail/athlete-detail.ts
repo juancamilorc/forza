@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { PlansService, Plan } from '../../../core/services/plans.service';
+import { PaymentsService, Payment } from '../../../core/services/payments.service';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { AssessmentsService, NutritionalAssessment, TechnicalAssessment, PhysicalAssessment } from '../../../core/services/assessments.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,12 +20,15 @@ export class AthleteDetail implements OnInit {
   private location = inject(Location);
   private service             = inject(AthletesService);
   private plansService        = inject(PlansService);
+  private paymentsService     = inject(PaymentsService);
   private sessionsService     = inject(SessionsService);
   private assessmentsService  = inject(AssessmentsService);
   private auth                = inject(AuthService);
 
   athlete          = signal<Athlete | null>(null);
   activePlan       = signal<Plan | null>(null);
+  payments              = signal<Payment[]>([]);
+  loadingPayments       = signal(true);
   sessions              = signal<Session[]>([]);
   nutritionalList       = signal<NutritionalAssessment[]>([]);
   technicalList         = signal<TechnicalAssessment[]>([]);
@@ -46,6 +50,15 @@ export class AthleteDetail implements OnInit {
     if (!plan) return null;
     return Math.max(0, plan.total_sessions - this.completedSessions());
   });
+
+  // Saldo pendiente = suma de (monto - abonado) de los pagos no saldados — FOR-61
+  paymentBalance = computed(() =>
+    this.payments()
+      .filter(p => p.status !== 'pagado')
+      .reduce((acc, p) => acc + Math.max(0, p.amount - p.amount_paid), 0)
+  );
+
+  hasDebt = computed(() => this.paymentBalance() > 0);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -77,6 +90,16 @@ export class AthleteDetail implements OnInit {
       },
       error: () => this.loadingSessions.set(false),
     });
+
+    // Pagos — solo admin (el endpoint no está disponible para trainer)
+    if (this.canEdit()) {
+      this.paymentsService.getAll(id).subscribe({
+        next: (data) => { this.payments.set(data); this.loadingPayments.set(false); },
+        error: () => this.loadingPayments.set(false),
+      });
+    } else {
+      this.loadingPayments.set(false);
+    }
 
     let pending = 3;
     const done = () => { if (--pending === 0) this.loadingAssessments.set(false); };
@@ -164,6 +187,12 @@ export class AthleteDetail implements OnInit {
   formatDateShort(date: string): string {
     return new Date(date + 'T00:00:00').toLocaleDateString('es-CO', {
       day: 'numeric', month: 'short', year: 'numeric',
+    });
+  }
+
+  formatCOP(value: number): string {
+    return value.toLocaleString('es-CO', {
+      style: 'currency', currency: 'COP', minimumFractionDigits: 0,
     });
   }
 

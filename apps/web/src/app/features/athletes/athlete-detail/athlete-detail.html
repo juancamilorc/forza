@@ -149,6 +149,16 @@
                 <span class="plan-badge plan-active">Activo</span>
               }
             </div>
+            @if (canEdit() && !loadingPayments()) {
+              <div class="info-row">
+                <span class="info-label">Pago</span>
+                @if (hasDebt()) {
+                  <span class="plan-badge pay-debt">Debe {{ formatCOP(paymentBalance()) }}</span>
+                } @else {
+                  <span class="plan-badge pay-ok">Al día</span>
+                }
+              </div>
+            }
           </div>
         } @else {
           <div class="coming-soon">
