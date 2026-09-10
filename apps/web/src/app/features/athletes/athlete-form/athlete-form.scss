@@ -238,6 +238,23 @@
   color: #535353;
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 4px;
+  font-size: 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: #c99734;
+    cursor: pointer;
+  }
+}
+
 .link-btn {
   background: none;
   border: none;
