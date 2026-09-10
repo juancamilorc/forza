@@ -1,5 +1,5 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 2 Sep 2026
+> Fuente única de verdad. Actualizado: 9 Sep 2026
 > Verificado con `git log` + Linear API
 
 ---
@@ -7,240 +7,122 @@
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
 ### main (producción)
-- **Commit actual:** `63507a9` - Merge pull request #9 from juancamilorc/develop
-- **Incluye:** FOR-59 (asignar entrenador al crear deportista) ✅
-- **NO incluye:** FOR-60 ni commits posteriores
-- **Deploy:** https://forza-momentum.vercel.app
-- **Backend:** https://forza-api-u7cq.onrender.com/api
+- **Commit actual:** `63507a9` - Merge PR #9 (develop)
+- **Incluye:** FOR-59 ✅
+- **NO incluye:** FOR-60, FOR-71, FOR-73, FOR-74, contexto Sep 2026, FOR-85, FOR-86
+- **Pendiente:** PR `develop → main` para subir todo lo validado (ver "Próximo paso")
+- **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop (staging) — **11 commits adelante de main**
-- **Commit actual:** `2ca8cd8` - feat: contexto de negocio Sep 2026 + 9 tickets nuevos + migraciones SQL
-- **Incluye:**
+### develop (staging) — **12 commits adelante de main**
+- **Commit actual:** `26df992` - Merge PR #22 (bugfix/FOR-85)
+- **Incluye y VALIDADO en staging:**
   - ✅ FOR-59 (asignar entrenador al crear deportista)
   - ✅ FOR-60 (vincular plan al crear deportista)
   - ✅ FOR-71 (scroll automático en banner de error)
-  - ✅ FOR-73 (plan_id nullable en sessions)
+  - ✅ FOR-73 (plan_id nullable en sessions) — nota: el ticket FOR-73 en Linear
+        describe otro bug (validación al editar), resuelto por FOR-85
   - ✅ FOR-74 (pre-llenar entrenador en crear sesión)
+  - ✅ FOR-85 (persistir gender + entrenador opcional + plan solo-lectura al editar)
+  - ✅ FOR-86 (calcular y mostrar end_date del plan)
   - ✅ Migración backend Railway → Render
-  - ✅ Migraciones SQL (4 tablas nuevas)
+  - ✅ Migraciones SQL 001, 002, 003
   - ✅ Linear integration scripts
 - **Deploy staging:** https://forza-git-develop-jcrc.vercel.app
-- **Backend:** https://forza-api-u7cq.onrender.com/api (mismo que prod)
 
-### demo (demostración cliente) — **24 commits atrás de develop**
-- **Commit actual:** `5b8978e` - fix: actualizar URL backend de Railway a Render en rama demo
-- **Incluye:** versión anterior sin FOR-59 ni FOR-60
-- **Deploy:** Vercel (URL de preview de rama demo)
-- **Backend:** https://forza-api-u7cq.onrender.com/api (mismo que prod)
+### demo (demostración cliente) — muy atrás de develop
+- **Commit actual:** `5b8978e` - fix URL backend Railway → Render
+- No bloquea nada; se actualiza solo cuando haya que mostrar al cliente
 
 ---
 
 ## 🗄️ MIGRACIONES SQL
 
-### ✅ Ejecutada: `001_business_context_sep_2026.sql` (1 Sep 2026)
+> ⚠️ Confirmar si la Supabase de producción es la MISMA instancia que staging.
+> Si es compartida (como el backend en Render), las 3 migraciones ya están
+> aplicadas. Si prod tiene BD separada, correr 001 + 002 + 003 antes del deploy a main.
 
-**4 tablas nuevas creadas:**
-1. `trial_sessions` — Clases de prueba ($30k) — FOR-71
-2. `trainer_blocks` — Bloqueos de agenda del entrenador — FOR-78
-3. `session_reschedule_history` — Historial de reprogramaciones (máx 2) — FOR-79
-4. `notifications` — Sistema de notificaciones centralizado — Fase 2
+### ✅ `001_business_context_sep_2026.sql` (1 Sep 2026)
+- 4 tablas nuevas: `trial_sessions`, `trainer_blocks`, `session_reschedule_history`, `notifications`
+- 15 columnas nuevas en `athletes`, `trainers`, `users`, `plans`, `sessions`
 
-**15 columnas nuevas agregadas:**
-- `athletes`: came_from_trial, trial_date, photo_url
-- `trainers`: coverage_area, available_days, available_hours_start, available_hours_end, timezone, photo_url
-- `users`: photo_url
-- `plans`: extended_times, extension_notes, original_end_date
-- `sessions`: reschedule_count, cancellation_reason
+### ✅ `002_backfill_plan_end_date.sql` (9 Sep 2026)
+- Backfill de `plans.end_date` para planes previos a FOR-86
+- Regla uniforme: `end_date = start_date + 1 mes + 1 semana`
+
+### 🔄 `003_backfill_athlete_gender.sql` (9 Sep 2026) — PARCIAL
+- Diagnóstico + plantilla manual para asignar `gender` a deportistas creados con el bug de FOR-85
+- El género NO se puede inferir: hay que rellenar los `UPDATE` a mano (o reeditar en la app)
+- **Acción pendiente:** completar los `UPDATE` para todos los deportistas con `gender IS NULL`
 
 ---
 
-## 📋 LINEAR — CYCLE 14 ACTIVO (hasta 11 Sep 2026)
+## 📋 LINEAR — CYCLE 14 (hasta 11 Sep 2026)
 
-**Estado verificado con Linear API** (`node scripts/linear-sync.js list`)
+**Verificado con `node scripts/linear-sync.js list`**
 
 | Ticket | Descripción | Estado | Prioridad |
 |--------|-------------|--------|-----------|
+| FOR-85 | Bug: gender no se persiste al crear deportista | ✅ Done | Alta |
+| FOR-86 | end_date del plan: no se calcula ni se muestra | ✅ Done | Alta |
+| FOR-73 | Validación incorrecta al editar deportista | ✅ Done (resuelto por FOR-85) | Media |
 | FOR-61 | Registrar pago inicial al crear deportista | Todo | Alta |
 | FOR-62 | Limitar sesiones según clases del plan | Todo | Alta |
 | FOR-63 | Entrenador ve pagos del deportista | Todo | Media |
-| FOR-73 | Validación incorrecta al editar deportista | In Progress | Alta |
-| FOR-76 | Validación de pago antes de confirmar sesión | Todo | Alta |
+| FOR-76 | Validación de pago antes de confirmar/agendar sesión | Todo | Alta |
+
+**Sincronizar Linear siempre:** `update FOR-XX "In Progress"` al arrancar, `"In Review"` al
+terminar la rama, `"Done"` cuando el PR entre a develop. (No usar `start`: fuerza prefijo
+`feature/` y hace `git pull`.)
 
 ---
 
-## ⏭️ PRÓXIMO PASO (3 Sep 2026)
+## ⏭️ PRÓXIMO PASO (9 Sep 2026)
 
-### EJECUTAR CHECKLIST DE VALIDACIÓN EN STAGING
+### 1. Promover develop → main (release)
 
-**URL de pruebas:** https://forza-git-develop-jcrc.vercel.app  
-**Credenciales:** admin@forza.com / Forza2024!
+Todo lo que hay en `develop` está validado en staging. No hace falta repetir los
+checklists de FOR-59/60/85/86; sí conviene un **smoke test corto** en staging de los
+flujos transversales antes del PR:
 
-**IMPORTANTE:** FOR-59 y FOR-60 están en develop pero NO han sido probados en staging.
+- [ ] Login admin y trainer
+- [ ] Deportistas: lista, detalle, crear (con y sin entrenador, con y sin plan), editar
+- [ ] Sesiones: crear + confirmar entrenador
+- [ ] Planes: lista (columna "Fin" visible), freeze/cancel
+- [ ] Pagos: lista + abono
+- [ ] Dashboard con datos reales
 
----
+Luego:
+- [ ] Completar `migrations/003` (gender) para deportistas existentes
+- [ ] Confirmar estado de la BD de producción (ver sección Migraciones)
+- [ ] PR `develop → main` → dispara deploy Vercel (front) + Render (back)
+- [ ] Verificar producción tras el deploy
 
-## 🎯 FOR-59 — Asignar entrenador al crear deportista
+### 2. Comenzar FOR-61 — Pago inicial al crear deportista (Alta)
 
-### Caso 1: Crear deportista CON entrenador
-
-- [ ] Login como admin
-- [ ] Ir a `/deportistas/nuevo`
-- [ ] **Verificar:** Aparece dropdown "Entrenador asignado"
-- [ ] **Verificar:** El dropdown carga la lista de entrenadores (mínimo 1)
-- [ ] Llenar datos obligatorios:
-  - Nombre completo
-  - Género
-  - Fecha de nacimiento
-  - Estado (activo/inactivo/prueba)
-- [ ] Seleccionar un entrenador del dropdown
-- [ ] Click en "Guardar"
-- [ ] **Verificar:** Redirect a `/deportistas/:id`
-- [ ] **Verificar:** En el detalle aparece el nombre del entrenador asignado
-- [ ] **Verificar:** Toast de éxito aparece
-
-### Caso 2: Crear deportista SIN entrenador
-
-- [ ] Ir a `/deportistas/nuevo`
-- [ ] Llenar datos obligatorios
-- [ ] **NO** seleccionar entrenador (dejar vacío)
-- [ ] Click en "Guardar"
-- [ ] **Verificar:** Deportista se crea exitosamente
-- [ ] **Verificar:** En detalle NO aparece entrenador o dice "Sin asignar"
-
-### Caso 3: Editar deportista y cambiar entrenador
-
-- [ ] Ir a `/deportistas`
-- [ ] Click en un deportista que ya tiene entrenador
-- [ ] Click en "Editar"
-- [ ] **Verificar:** El dropdown muestra el entrenador actual pre-seleccionado
-- [ ] Cambiar a otro entrenador
-- [ ] Click en "Guardar"
-- [ ] **Verificar:** En detalle aparece el nuevo entrenador
-- [ ] **Verificar:** El cambio se guardó en la base de datos
-
-### Caso 4: Editar deportista y quitar entrenador
-
-- [ ] Editar un deportista que tiene entrenador
-- [ ] Cambiar dropdown a "Sin asignar" o vacío (si existe esa opción)
-- [ ] Guardar
-- [ ] **Verificar:** El deportista queda sin entrenador
-
----
-
-## 🎯 FOR-60 — Vincular plan al crear deportista
-
-### Caso 1: Crear deportista CON plan inicial
-
-- [ ] Login como admin
-- [ ] Ir a `/deportistas/nuevo`
-- [ ] **Verificar:** Aparece sección "Plan Inicial (opcional)"
-- [ ] **Verificar:** Aparece dropdown de tipo de plan (Momentum, Master, Elite, etc.)
-- [ ] **Verificar:** Aparece campo "Fecha de inicio"
-- [ ] Llenar datos del deportista
-- [ ] Seleccionar tipo de plan: **Momentum**
-- [ ] Ingresar fecha de inicio: **Hoy (3 Sep 2026)**
-- [ ] Click en "Guardar"
-- [ ] **Verificar:** Redirect a detalle del deportista
-- [ ] **Verificar:** En detalle aparece sección "Plan Activo"
-- [ ] **Verificar:** Muestra tipo de plan: Momentum
-- [ ] **Verificar:** Muestra fecha inicio: 3 Sep 2026
-- [ ] **Verificar:** Muestra fecha fin calculada: **1 Oct 2026** (4 semanas para Momentum)
-- [ ] Ir a `/planes`
-- [ ] **Verificar:** El plan creado aparece en la lista vinculado al deportista
-- [ ] **Verificar:** Estado del plan: "activo"
-
-### Caso 2: Crear deportista SIN plan inicial
-
-- [ ] Ir a `/deportistas/nuevo`
-- [ ] Llenar datos del deportista
-- [ ] **NO** llenar la sección de plan (dejar vacío)
-- [ ] Click en "Guardar"
-- [ ] **Verificar:** Deportista se crea exitosamente
-- [ ] **Verificar:** En detalle dice "Sin plan activo" o similar
-- [ ] **Verificar:** NO se creó ningún plan en `/planes`
-
-### Caso 3: Validar cálculo de end_date por tipo de plan
-
-- [ ] Crear deportista con plan **Master** (duración: 8 semanas)
-- [ ] Fecha inicio: 3 Sep 2026
-- [ ] **Verificar end_date:** 29 Oct 2026 (2 meses después)
-- [ ] Crear deportista con plan **Elite** (duración: 12 semanas)
-- [ ] Fecha inicio: 3 Sep 2026
-- [ ] **Verificar end_date:** 26 Nov 2026 (3 meses después)
-
-### Caso 4: Editar deportista que YA tiene plan
-
-- [ ] Ir a deportista con plan activo
-- [ ] Click en "Editar"
-- [ ] **Verificar:** La sección de plan NO aparece o está deshabilitada
-- [ ] **Verificar:** No se puede modificar el plan desde edición de deportista
-- [ ] **Nota:** Los planes se editan desde `/planes/:id`
-
----
-
-## 🔍 Validaciones extras
-
-### Backend (verificar en Network tab)
-
-- [ ] Al crear deportista CON entrenador: payload incluye `trainer_id`
-- [ ] Al crear deportista CON plan: payload incluye `plan` object con `plan_type` y `start_date`
-- [ ] Response 201 Created en ambos casos
-- [ ] No hay errores 500 en consola
-
-### Base de datos (opcional - verificar en Supabase)
-
-- [ ] Tabla `athletes`: columna `trainer_id` tiene UUID del entrenador
-- [ ] Tabla `plans`: nueva fila con `athlete_id` correcto
-- [ ] `end_date` en `plans` se calculó correctamente según tipo de plan
-
----
-
-## 🐛 Casos de error a validar
-
-### FOR-59 errores
-
-- [ ] Si el entrenador no existe: ¿muestra error amigable?
-- [ ] Si el dropdown de entrenadores está vacío: ¿se puede crear el deportista sin entrenador?
-
-### FOR-60 errores
-
-- [ ] Si selecciono plan pero no fecha inicio: ¿muestra error de validación?
-- [ ] Si selecciono fecha inicio pero no tipo de plan: ¿muestra error de validación?
-
----
-
-## ✅ Después de completar las pruebas
-
-**Reportar:**
-1. ✅ Qué funcionó bien
-2. ❌ Qué falló
-3. 🐛 Bugs encontrados con detalles
-
-**Luego → Comenzar FOR-61**
-
-**FOR-61 — Registrar pago inicial al crear deportista**
-- Depende de FOR-60 (código ya está en develop ✅)
-- Backend: validar que plan existe + crear registro en `payments`
-- Frontend: agregar campos de pago al formulario de deportista
+- Depende de FOR-60 ✅ (ya en develop)
+- **Backend:** al crear deportista, si viene `pago_inicial` (monto), crear registro en
+  `payments` asociado al plan vinculado. Monto libre (parcial o total).
+- **Frontend:** sección de pago inicial en el form de crear deportista
+  (checkbox "¿hizo pago inicial?" + monto). Solo al crear.
+- Si no hay pago → deportista queda con estado "debe" visible en perfil y en el widget
+  de pagos vencidos.
 
 ---
 
 ## 🔧 AMBIENTE DE DESARROLLO
 
 ```bash
-# Rama base de trabajo
-git checkout develop
-
-# Desarrollo local
-npx nx serve api   # terminal 1 → localhost:3000
-npx nx serve web   # terminal 2 → localhost:4200
-
-# Credenciales de prueba
-admin@forza.com / Forza2024!
-trainer@forza.com / [ver .env]
+git checkout develop && git pull
 
 # ⚠️ Antes de nx serve api
 export $(cat apps/api/.env | xargs)
+
+npx nx serve api   # terminal 1 → localhost:3000
+npx nx serve web   # terminal 2 → localhost:4200
+
+# Credenciales
+admin@forza.com / Forza2024!
+trainer@forza.com / [ver .env]
 ```
 
 ---
@@ -253,25 +135,25 @@ export $(cat apps/api/.env | xargs)
 | Staging | develop | https://forza-git-develop-jcrc.vercel.app | Render |
 | Demo | demo | Vercel preview | Render |
 
-**Nota:** Backend es compartido entre todos los entornos (Railway → Render migrado).
+**Nota:** Backend compartido entre todos los entornos (Railway → Render migrado).
 
 ---
 
-## 📊 BACKLOG CYCLE 15+ (después de Cycle 14)
+## 📊 BACKLOG CYCLE 15+
 
-### Cycle 15 (12 Sep - 25 Sep 2026)
+### Cycle 15 (11 Sep - 25 Sep 2026)
 - FOR-66 — Intentos configurables 1-4 en evaluaciones
 - FOR-67 — Fórmulas nutricionales por género M/F
 - FOR-68 — Filtros y exportar pagos a Excel
 - FOR-69 — Vista entrenadores con clases y deportistas
 
-### Cycle 16 (26 Sep - 9 Oct 2026)
+### Cycle 16 (25 Sep - 9 Oct 2026)
 - FOR-77 — Disponibilidad entrenador (días + horarios)
 - FOR-78 — Bloqueos de agenda del entrenador
 - FOR-79 — Reprogramación con límite máx 2 veces
 - FOR-80 — Extensión manual de planes
 
-### Cycle 17 (10 Oct - 23 Oct 2026)
+### Cycle 17 (9 Oct - 23 Oct 2026)
 - FOR-81 — Notificaciones: evaluaciones vencidas
 - FOR-82 — Notificaciones: plan próximo a vencer
 - FOR-83 — Subir foto de perfil (deportistas + entrenadores)
