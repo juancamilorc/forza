@@ -1,37 +1,24 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 9 Sep 2026
+> Fuente única de verdad. Actualizado: 9 Sep 2026 (post-release a main)
 > Verificado con `git log` + Linear API
 
 ---
 
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
-### main (producción)
-- **Commit actual:** `63507a9` - Merge PR #9 (develop)
-- **Incluye:** FOR-59 ✅
-- **NO incluye:** FOR-60, FOR-71, FOR-73, FOR-74, contexto Sep 2026, FOR-85, FOR-86
-- **Pendiente:** PR `develop → main` para subir todo lo validado (ver "Próximo paso")
+### main (producción) — commit `489fb0f`
+- **Merge PR #23 (develop → main).** Incluye TODO lo de abajo.
+- FOR-59, FOR-60, FOR-71, FOR-73, FOR-74, contexto Sep 2026, FOR-85, FOR-86
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
+- Smoke prod post-deploy: login OK, `/plans` 24 registros con `end_date` ✅
 
-### develop (staging) — **12 commits adelante de main**
-- **Commit actual:** `26df992` - Merge PR #22 (bugfix/FOR-85)
-- **Incluye y VALIDADO en staging:**
-  - ✅ FOR-59 (asignar entrenador al crear deportista)
-  - ✅ FOR-60 (vincular plan al crear deportista)
-  - ✅ FOR-71 (scroll automático en banner de error)
-  - ✅ FOR-73 (plan_id nullable en sessions) — nota: el ticket FOR-73 en Linear
-        describe otro bug (validación al editar), resuelto por FOR-85
-  - ✅ FOR-74 (pre-llenar entrenador en crear sesión)
-  - ✅ FOR-85 (persistir gender + entrenador opcional + plan solo-lectura al editar)
-  - ✅ FOR-86 (calcular y mostrar end_date del plan)
-  - ✅ Migración backend Railway → Render
-  - ✅ Migraciones SQL 001, 002, 003
-  - ✅ Linear integration scripts
+### develop (staging) — commit `489fb0f` — **nivelado con main**
+- ⚠️ `origin/develop` se borró al mergear PR #23 (auto-delete head branch) y se
+  restauró por push. **Pendiente: branch protection en main y develop** para
+  bloquear borrado/force-push.
 - **Deploy staging:** https://forza-git-develop-jcrc.vercel.app
 
-### demo (demostración cliente) — muy atrás de develop
-- **Commit actual:** `5b8978e` - fix URL backend Railway → Render
-- No bloquea nada; se actualiza solo cuando haya que mostrar al cliente
+### demo — `5b8978e`, muy atrás. No bloquea; se actualiza al mostrar al cliente.
 
 ---
 
@@ -49,10 +36,9 @@
 - Backfill de `plans.end_date` para planes previos a FOR-86
 - Regla uniforme: `end_date = start_date + 1 mes + 1 semana`
 
-### 🔄 `003_backfill_athlete_gender.sql` (9 Sep 2026) — PARCIAL
-- Diagnóstico + plantilla manual para asignar `gender` a deportistas creados con el bug de FOR-85
-- El género NO se puede inferir: hay que rellenar los `UPDATE` a mano (o reeditar en la app)
-- **Acción pendiente:** completar los `UPDATE` para todos los deportistas con `gender IS NULL`
+### ✅ `003_backfill_athlete_gender.sql` (9 Sep 2026) — COMPLETADO
+- Asignación manual de `gender` a deportistas creados con el bug de FOR-85
+- Verificado: 0 de 27 deportistas con `gender IS NULL`
 
 ---
 
@@ -78,26 +64,12 @@ terminar la rama, `"Done"` cuando el PR entre a develop. (No usar `start`: fuerz
 
 ## ⏭️ PRÓXIMO PASO (9 Sep 2026)
 
-### 1. Promover develop → main (release)
+### ✅ Release a main — HECHO (PR #23)
+Smoke test API + validación manual en staging pasados. Deploy Vercel + Render disparado.
+- [ ] Verificación final en la UI de producción (crear deportista con plan → ver "Fin")
+- [ ] Agregar branch protection en `main` y `develop`
 
-Todo lo que hay en `develop` está validado en staging. No hace falta repetir los
-checklists de FOR-59/60/85/86; sí conviene un **smoke test corto** en staging de los
-flujos transversales antes del PR:
-
-- [ ] Login admin y trainer
-- [ ] Deportistas: lista, detalle, crear (con y sin entrenador, con y sin plan), editar
-- [ ] Sesiones: crear + confirmar entrenador
-- [ ] Planes: lista (columna "Fin" visible), freeze/cancel
-- [ ] Pagos: lista + abono
-- [ ] Dashboard con datos reales
-
-Luego:
-- [ ] Completar `migrations/003` (gender) para deportistas existentes
-- [ ] Confirmar estado de la BD de producción (ver sección Migraciones)
-- [ ] PR `develop → main` → dispara deploy Vercel (front) + Render (back)
-- [ ] Verificar producción tras el deploy
-
-### 2. Comenzar FOR-61 — Pago inicial al crear deportista (Alta)
+### 🔜 FOR-61 — Pago inicial al crear deportista (Alta)
 
 - Depende de FOR-60 ✅ (ya en develop)
 - **Backend:** al crear deportista, si viene `pago_inicial` (monto), crear registro en
