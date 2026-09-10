@@ -20,18 +20,23 @@ Toda la interacción con la DB va por `SupabaseService`. Nunca instanciar el cli
 ```
 auth.users          ← Supabase managed (autenticación)
     ↓ FK
-public.users        → role, full_name, is_active
+public.users        → role, full_name, is_active, photo_url
     ↓ FK
-public.trainers     → specialty, bio
+public.trainers     → specialty, bio, coverage_area, available_days, available_hours_start/end, timezone, photo_url
     ↓ FK
-public.athletes     → first_name, last_name, birth_date, gender, status, trainer_id
+public.athletes     → first_name, last_name, birth_date, gender, status, trainer_id, came_from_trial, trial_date, photo_url
     ↓ FK
 public.guardians    → full_name, whatsapp_phone, is_primary
-public.plans        → plan_type, total_sessions, start_date, is_active, is_frozen
+public.plans        → plan_type, total_sessions, start_date, is_active, is_frozen, extended_times, extension_notes, original_end_date
     ↓ FK
-public.sessions     → session_date, session_time, location, status, confirmation_status
+public.sessions     → session_date, session_time, location, status, confirmation_status, reschedule_count, cancellation_reason
 public.payments     → amount, amount_paid, status, method, due_date
 public.appointments → scheduled_date, scheduled_time, location, status (reuniones de equipo)
+
+public.trial_sessions          → child_name, guardian_name, guardian_whatsapp, trial_date, payment_status, converted_to_athlete_id
+public.trainer_blocks          → trainer_id, block_type, blocked_date, start_time, end_time, reason, created_by
+public.session_reschedule_history → session_id, original_date, new_date, reason, rescheduled_by
+public.notifications           → user_id, type, title, message, link, read (FASE 2 — Cycle 15+)
 
 public.nutritional_assessments → FK athletes + users(evaluator_id)
 public.technical_assessments   → FK athletes + users(evaluator_id)
@@ -255,3 +260,194 @@ WHERE p.status IN ('pendiente', 'parcial');
 -- Trainer ID a partir de user ID (patrón muy usado)
 SELECT id FROM trainers WHERE user_id = 'user-uuid';
 ```
+
+---
+
+## Tablas nuevas — Definición completa
+
+### trial_sessions
+
+**Propósito:** Almacena las clases de prueba (trial) — flujo separado de deportistas con plan.
+
+```sql
+CREATE TABLE public.trial_sessions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  child_name text NOT NULL,
+  guardian_name text NOT NULL,
+  guardian_whatsapp text NOT NULL,
+  guardian_email text NOT NULL,
+  trial_date date NOT NULL,
+  trial_time time NOT NULL,
+  location text,
+  payment_status text CHECK (payment_status IN ('pendiente', 'pagado')),
+  amount_paid numeric(10,2) DEFAULT 30000,
+  google_calendar_event_id text, -- ID del evento en Google Calendar
+  converted_to_athlete_id uuid REFERENCES athletes(id), -- NULL si no ha convertido
+  notes text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Indices
+CREATE INDEX idx_trial_sessions_trial_date ON trial_sessions(trial_date);
+CREATE INDEX idx_trial_sessions_payment_status ON trial_sessions(payment_status);
+CREATE INDEX idx_trial_sessions_converted ON trial_sessions(converted_to_athlete_id);
+```
+
+**Regla de negocio:** Solo se da la clase si `payment_status = 'pagado'`.
+
+---
+
+### trainer_blocks
+
+**Propósito:** Bloqueos de agenda del entrenador (día completo o rango de horas).
+
+```sql
+CREATE TABLE public.trainer_blocks (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  trainer_id uuid NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+  block_type text NOT NULL CHECK (block_type IN ('full_day', 'time_range')),
+  blocked_date date NOT NULL,
+  start_time time, -- nullable si block_type = 'full_day'
+  end_time time,   -- nullable si block_type = 'full_day'
+  reason text NOT NULL, -- motivo OBLIGATORIO
+  created_by uuid NOT NULL REFERENCES users(id), -- quién lo creó (admin o el trainer)
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Indices
+CREATE INDEX idx_trainer_blocks_trainer_id ON trainer_blocks(trainer_id);
+CREATE INDEX idx_trainer_blocks_date ON trainer_blocks(blocked_date);
+```
+
+**Validación:** `reason` es obligatorio (NOT NULL).
+
+---
+
+### session_reschedule_history
+
+**Propósito:** Historial de reprogramaciones de sesiones (máximo 2 por sesión).
+
+```sql
+CREATE TABLE public.session_reschedule_history (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id uuid NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  original_date date NOT NULL,
+  original_time time NOT NULL,
+  new_date date NOT NULL,
+  new_time time NOT NULL,
+  reason text NOT NULL, -- motivo de la reprogramación
+  rescheduled_by uuid NOT NULL REFERENCES users(id), -- quién hizo la reprogramación
+  created_at timestamptz DEFAULT now()
+);
+
+-- Indices
+CREATE INDEX idx_reschedule_history_session_id ON session_reschedule_history(session_id);
+```
+
+**Regla de negocio:** Antes de insertar, validar que `sessions.reschedule_count < 2`.
+
+---
+
+### notifications (FASE 2 — Cycle 15+)
+
+**Propósito:** Sistema de notificaciones centralizado (campanita).
+
+```sql
+CREATE TABLE public.notifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type text NOT NULL, -- 'evaluation_due', 'plan_expiring', 'trainer_blocked', 'payment_overdue'
+  title text NOT NULL,
+  message text NOT NULL,
+  link text, -- URL interna para navegar (ej: /deportistas/123)
+  read boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+-- Indices
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_read ON notifications(read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+```
+
+**Uso:** Campanita en topbar → lista de notificaciones sin leer → click en notificación → navega a `link`.
+
+---
+
+## Columnas nuevas en tablas existentes
+
+### athletes
+
+```sql
+ALTER TABLE athletes ADD COLUMN came_from_trial boolean DEFAULT false;
+ALTER TABLE athletes ADD COLUMN trial_date date;
+ALTER TABLE athletes ADD COLUMN photo_url text;
+```
+
+- `came_from_trial`: indica si el deportista proviene de una clase de prueba convertida
+- `trial_date`: fecha de la clase de prueba (para métricas de conversión)
+- `photo_url`: URL de la foto de perfil (Supabase Storage bucket 'avatars')
+
+---
+
+### trainers
+
+```sql
+ALTER TABLE trainers ADD COLUMN coverage_area text;
+ALTER TABLE trainers ADD COLUMN available_days jsonb;
+ALTER TABLE trainers ADD COLUMN available_hours_start time;
+ALTER TABLE trainers ADD COLUMN available_hours_end time;
+ALTER TABLE trainers ADD COLUMN timezone text DEFAULT 'America/Bogota';
+ALTER TABLE trainers ADD COLUMN photo_url text;
+```
+
+- `coverage_area`: zona de cobertura del entrenador (ej: "Sur", "Centro", "Envigado")
+- `available_days`: array JSON de días disponibles (ej: `["lunes", "miercoles", "viernes"]`)
+- `available_hours_start` / `end`: rango de horas en que el entrenador está disponible
+- `timezone`: zona horaria del entrenador
+- `photo_url`: URL de la foto de perfil
+
+**Validación de agendamiento:** Solo permitir crear sesiones en días/horas dentro de `available_days` y el rango `available_hours_start` - `available_hours_end`.
+
+---
+
+### users
+
+```sql
+ALTER TABLE users ADD COLUMN photo_url text;
+```
+
+- `photo_url`: URL de la foto de perfil del usuario (admin, nutritionist)
+
+---
+
+### plans
+
+```sql
+ALTER TABLE plans ADD COLUMN extended_times int DEFAULT 0;
+ALTER TABLE plans ADD COLUMN extension_notes text;
+ALTER TABLE plans ADD COLUMN original_end_date date;
+```
+
+- `extended_times`: contador de cuántas veces se ha extendido el plan
+- `extension_notes`: registro de extensiones (JSON o texto libre — quién, cuándo, por qué)
+- `original_end_date`: fecha de fin original del plan (antes de extensiones)
+
+**Regla de negocio:** El admin puede extender manualmente la duración del plan si quedan clases pendientes. Cada extensión incrementa `extended_times` y agrega una nota a `extension_notes`.
+
+---
+
+### sessions
+
+```sql
+ALTER TABLE sessions ADD COLUMN reschedule_count int DEFAULT 0;
+ALTER TABLE sessions ADD COLUMN cancellation_reason text;
+```
+
+- `reschedule_count`: contador de cuántas veces se ha reprogramado esta sesión (máx 2)
+- `cancellation_reason`: motivo de cancelación (obligatorio si `status = 'cancelled'`)
+
+**Validación:** Antes de reprogramar, verificar que `reschedule_count < 2`.

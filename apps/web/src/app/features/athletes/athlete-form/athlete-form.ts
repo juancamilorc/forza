@@ -1,18 +1,17 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { AthletesService } from '../../../core/services/athletes.service';
 import { TrainersService, Trainer } from '../../../core/services/trainers.service';
-import { PlansService } from '../../../core/services/plans.service';
-import { SessionsService } from '../../../core/services/sessions.service';
+import { PlansService, Plan } from '../../../core/services/plans.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-athlete-form',
-  imports: [FormsModule],
+  imports: [FormsModule, DatePipe],
   templateUrl: './athlete-form.html',
   styleUrl: './athlete-form.scss',
 })
@@ -23,7 +22,6 @@ export class AthleteForm implements OnInit {
   private service   = inject(AthletesService);
   private trainers  = inject(TrainersService);
   private plans     = inject(PlansService);
-  private sessions  = inject(SessionsService);
   private auth      = inject(AuthService);
   private toast     = inject(ToastService);
 
@@ -32,16 +30,16 @@ export class AthleteForm implements OnInit {
   saving   = signal(false);
   error    = signal('');
 
+  @ViewChild('errorBanner') errorBanner?: ElementRef;
+
   role    = this.auth.getRole() ?? '';
   isAdmin = this.role === 'super_admin' || this.role === 'admin';
 
   trainersList = signal<Trainer[]>([]);
 
-  // Plan control
-  activePlan      = signal<any>(null);
-  hasSessions     = signal(false);
-  canEditPlan     = computed(() => !this.isEdit() || (this.isEdit() && this.activePlan() && !this.hasSessions()));
-  planDisabledMessage = 'Este deportista ya tiene sesiones registradas. Para cambiar el plan, cancela el plan actual desde el módulo de planes.';
+  // Plan activo del deportista (solo lectura en modo edición; se gestiona
+  // desde el módulo /planes).
+  activePlan = signal<Plan | null>(null);
 
   planTypes = [
     { value: 'momentum', label: 'Momentum' },
@@ -63,7 +61,7 @@ export class AthleteForm implements OnInit {
     status:     'trial',
     notes:      '',
     trainer_id: '',
-    // Campos de plan (opcionales)
+    // Campos de plan (solo al crear)
     plan_type:       '',
     total_sessions:  '',
     start_date:      '',
@@ -81,13 +79,14 @@ export class AthleteForm implements OnInit {
       this.isEdit.set(true);
       this.loading.set(true);
 
-      // Cargar deportista, plan y sesiones en paralelo
+      // En edición se cargan los datos del deportista y su plan activo. El plan
+      // se muestra en solo lectura: se gestiona desde el módulo /planes
+      // (activar, congelar, cancelar, extender).
       forkJoin({
         athlete: this.service.getOne(id),
-        plans: this.plans.getByAthlete(id),
-        sessions: this.sessions.getAll(id),
+        plans:   this.plans.getByAthlete(id),
       }).subscribe({
-        next: ({ athlete, plans, sessions }) => {
+        next: ({ athlete, plans }) => {
           this.form.update(f => ({
             ...f,
             first_name: athlete.first_name,
@@ -98,19 +97,7 @@ export class AthleteForm implements OnInit {
             notes:      athlete.notes ?? '',
             trainer_id: athlete.trainer_id ?? '',
           }));
-
-          const active = plans.find(p => p.is_active);
-          if (active) {
-            this.activePlan.set(active);
-            this.form.update(f => ({
-              ...f,
-              plan_type:      active.plan_type,
-              total_sessions: active.total_sessions.toString(),
-              start_date:     active.start_date,
-            }));
-          }
-
-          this.hasSessions.set(sessions.length > 0);
+          this.activePlan.set(plans.find(p => p.is_active) ?? null);
           this.loading.set(false);
         },
         error: () => {
@@ -125,28 +112,33 @@ export class AthleteForm implements OnInit {
     this.form.update(f => ({ ...f, [field]: value }));
   }
 
+  private setError(message: string) {
+    this.error.set(message);
+    setTimeout(() => {
+      this.errorBanner?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }
+
   onSubmit() {
     const f = this.form();
 
     if (!f.first_name || !f.last_name || !f.birth_date || !f.gender) {
-      this.error.set('Nombre, apellido, fecha de nacimiento y género son obligatorios');
+      this.setError('Nombre, apellido, fecha de nacimiento y género son obligatorios');
       return;
     }
 
-    if (this.isAdmin && !f.trainer_id) {
-      this.error.set('El entrenador es obligatorio');
-      return;
-    }
+    // El entrenador es opcional: el admin puede crear un deportista sin
+    // entrenador asignado (ej: casos de prueba). Se envía como null si va vacío.
 
-    // Validar campos de plan si al menos uno está lleno
-    const hasPlanData = f.plan_type || f.total_sessions || f.start_date;
+    // Validar campos de plan si al menos uno está lleno (solo al crear)
+    const hasPlanData = !this.isEdit() && (f.plan_type || f.total_sessions || f.start_date);
     if (hasPlanData && (!f.plan_type || !f.total_sessions || !f.start_date)) {
-      this.error.set('Si ingresa datos de plan, debe completar tipo, sesiones y fecha de inicio');
+      this.setError('Si ingresa datos de plan, debe completar tipo, sesiones y fecha de inicio');
       return;
     }
 
     this.saving.set(true);
-    this.error.set('');
+    this.setError('');
 
     const id = this.route.snapshot.paramMap.get('id');
     const athleteData: any = {
@@ -169,16 +161,9 @@ export class AthleteForm implements OnInit {
 
     request.subscribe({
       next: (athlete) => {
-        // Crear plan si es nuevo y hay datos
         if (!this.isEdit() && hasPlanData) {
           this.createPlan(athlete.id);
-        }
-        // Actualizar plan si está editando, tiene plan y puede editarlo
-        else if (this.isEdit() && this.activePlan() && !this.hasSessions() && hasPlanData) {
-          this.updatePlan(athlete.id);
-        }
-        // Solo guardar deportista
-        else {
+        } else {
           this.toast.success(
             this.isEdit() ? 'Deportista actualizado correctamente' : 'Deportista creado correctamente'
           );
@@ -216,26 +201,9 @@ export class AthleteForm implements OnInit {
     });
   }
 
-  private updatePlan(athleteId: string) {
-    const f = this.form();
-    const planData = {
-      plan_type:      f.plan_type,
-      total_sessions: parseInt(f.total_sessions, 10),
-      start_date:     f.start_date,
-    };
+  planLabel(type: string): string { return this.plans.getPlanLabel(type); }
 
-    this.plans.update(this.activePlan()!.id, planData).subscribe({
-      next: () => {
-        this.toast.success('Deportista y plan actualizados correctamente');
-        setTimeout(() => this.router.navigate(['/deportistas', athleteId]), 500);
-      },
-      error: (err) => {
-        const msg = err?.error?.message ?? 'Error al actualizar el plan. El deportista fue actualizado correctamente.';
-        this.error.set(Array.isArray(msg) ? msg.join(', ') : msg);
-        this.saving.set(false);
-      },
-    });
-  }
+  goToPlans() { this.router.navigate(['/planes']); }
 
   goBack() { this.location.back(); }
 }

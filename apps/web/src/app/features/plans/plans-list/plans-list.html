@@ -53,6 +53,7 @@
               <th>Deportista</th>
               <th>Tipo</th>
               <th>Inicio</th>
+              <th>Fin</th>
               <th>Sesiones</th>
               <th>Estado</th>
               @if (canManage()) {
@@ -70,6 +71,7 @@
                   <span class="plan-type-label">{{ planLabel(plan.plan_type) }}</span>
                 </td>
                 <td class="date-cell">{{ formatDate(plan.start_date) }}</td>
+                <td class="date-cell">{{ plan.end_date ? formatDate(plan.end_date) : '—' }}</td>
                 <td class="sessions-cell">{{ plan.total_sessions }}</td>
                 <td>
                   <span class="status-badge {{ statusCss(plan) }}">{{ statusLabel(plan) }}</span>

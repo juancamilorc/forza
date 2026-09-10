@@ -8,6 +8,7 @@ export interface Plan {
   plan_type:      string;
   total_sessions: number;
   start_date:     string;
+  end_date:       string;
   is_active:      boolean;
   is_frozen:      boolean;
   frozen_at:      string | null;

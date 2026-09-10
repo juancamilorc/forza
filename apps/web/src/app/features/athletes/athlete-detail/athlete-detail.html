@@ -121,6 +121,12 @@
               <span class="info-label">Inicio</span>
               <span class="info-value">{{ activePlan()!.start_date | date:'dd/MM/yyyy' }}</span>
             </div>
+            @if (activePlan()!.end_date) {
+              <div class="info-row">
+                <span class="info-label">Fin</span>
+                <span class="info-value">{{ activePlan()!.end_date | date:'dd/MM/yyyy' }}</span>
+              </div>
+            }
             <div class="info-row">
               <span class="info-label">Total sesiones</span>
               <span class="info-value">{{ activePlan()!.total_sessions }}</span>
