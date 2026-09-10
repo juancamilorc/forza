@@ -84,11 +84,19 @@ export class AthleteForm implements OnInit {
     payment_reference:   '',
   });
 
+  // Un día antes del inicio del plan: el pago debe estar listo antes de la
+  // primera clase (regla "no hay clases sin pago", validada en FOR-76).
+  private dayBefore(dateStr: string): string {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  }
+
   togglePayment(enabled: boolean) {
     this.paymentEnabled.set(enabled);
-    // Al activar, sugerir la fecha de inicio del plan como vencimiento
+    // Al activar, sugerir "un día antes del inicio del plan" como vencimiento
     if (enabled && !this.form().payment_due_date && this.form().start_date) {
-      this.form.update(f => ({ ...f, payment_due_date: f.start_date }));
+      this.form.update(f => ({ ...f, payment_due_date: this.dayBefore(f.start_date) }));
     }
   }
 
@@ -252,9 +260,9 @@ export class AthleteForm implements OnInit {
       plan_id:     planId,
       amount:      parseFloat(f.payment_amount),
       amount_paid: parseFloat(f.payment_amount_paid) || 0,
-      // Sin fecha explícita, vence el día de inicio del plan (regla "no hay
-      // clases sin pago"): así el saldo pendiente entra al widget de vencidos.
-      due_date:    f.payment_due_date || f.start_date || null,
+      // Sin fecha explícita, vence un día antes del inicio del plan (regla
+      // "no hay clases sin pago"): así el saldo pendiente entra al widget de vencidos.
+      due_date:    f.payment_due_date || (f.start_date ? this.dayBefore(f.start_date) : null),
       method:      f.payment_method    || null,
       referencia:  f.payment_reference || null,
     };
