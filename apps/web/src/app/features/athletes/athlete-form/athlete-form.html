@@ -100,7 +100,7 @@
         <!-- Entrenador -->
         @if (isAdmin) {
           <div class="form-group">
-            <label class="form-label" for="trainer_id">Entrenador <span class="required">*</span></label>
+            <label class="form-label" for="trainer_id">Entrenador</label>
             <select
               id="trainer_id"
               class="form-input"
@@ -130,17 +130,11 @@
 
       </div>
 
-      <!-- Plan (opcional) -->
-      @if (isAdmin) {
+      <!-- Plan (opcional) — solo al crear. En edición, los planes se gestionan
+           desde el módulo /planes (activar, congelar, cancelar, extender). -->
+      @if (isAdmin && !isEdit()) {
         <div class="form-section">
           <h2 class="section-title">Plan (opcional)</h2>
-
-          @if (isEdit() && hasSessions()) {
-            <div class="info-banner">
-              <span class="material-symbols-outlined">info</span>
-              {{ planDisabledMessage }}
-            </div>
-          }
 
           <div class="form-grid">
             <div class="form-group">
@@ -148,7 +142,6 @@
               <select
                 id="plan_type"
                 class="form-input"
-                [disabled]="isEdit() && hasSessions()"
                 (change)="updateField('plan_type', $any($event.target).value)"
               >
                 <option value="" [selected]="form().plan_type === ''">Seleccionar...</option>
@@ -169,7 +162,6 @@
                 min="1"
                 placeholder="Ej: 12"
                 [value]="form().total_sessions"
-                [disabled]="isEdit() && hasSessions()"
                 (input)="updateField('total_sessions', $any($event.target).value)"
               />
             </div>
@@ -181,7 +173,6 @@
                 type="date"
                 class="form-input"
                 [value]="form().start_date"
-                [disabled]="isEdit() && hasSessions()"
                 (input)="updateField('start_date', $any($event.target).value)"
               />
             </div>

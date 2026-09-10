@@ -14,6 +14,7 @@ describe('AthletesController', () => {
     first_name: 'Juan',
     last_name: 'Pérez',
     birth_date: '2000-01-15',
+    gender: 'M',
     status: 'active',
     trainer_id: 'trainer-uuid-1',
     photo_url: null,
@@ -31,6 +32,7 @@ describe('AthletesController', () => {
           provide: AthletesService,
           useValue: {
             findAll: jest.fn(),
+            getTrainerIdByUserId: jest.fn(),
             findOne: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
@@ -51,14 +53,26 @@ describe('AthletesController', () => {
   });
 
   describe('findAll', () => {
-    it('should use user.trainer_id when user role is trainer', async () => {
+    it('should resolve the trainer id from the user when role is trainer', async () => {
       service.findAll.mockResolvedValue([mockAthlete]);
-      const trainerUser = { role: 'trainer', trainer_id: 'trainer-uuid-1' };
+      service.getTrainerIdByUserId.mockResolvedValue('trainer-uuid-1');
+      const trainerUser = { role: 'trainer', id: 'user-uuid-1' };
 
       const result = await controller.findAll(trainerUser, undefined);
 
+      expect(service.getTrainerIdByUserId).toHaveBeenCalledWith('user-uuid-1');
       expect(service.findAll).toHaveBeenCalledWith('trainer-uuid-1');
       expect(result).toEqual([mockAthlete]);
+    });
+
+    it('should return an empty list when the trainer has no trainer profile', async () => {
+      service.getTrainerIdByUserId.mockResolvedValue(null);
+      const trainerUser = { role: 'trainer', id: 'user-uuid-1' };
+
+      const result = await controller.findAll(trainerUser, undefined);
+
+      expect(service.findAll).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
 
     it('should use query param trainerId for admin user', async () => {
@@ -81,7 +95,8 @@ describe('AthletesController', () => {
 
     it('should ignore query param trainerId for trainer role (uses own trainer_id)', async () => {
       service.findAll.mockResolvedValue([mockAthlete]);
-      const trainerUser = { role: 'trainer', trainer_id: 'trainer-uuid-1' };
+      service.getTrainerIdByUserId.mockResolvedValue('trainer-uuid-1');
+      const trainerUser = { role: 'trainer', id: 'user-uuid-1' };
 
       await controller.findAll(trainerUser, 'other-trainer-id');
 
@@ -106,6 +121,7 @@ describe('AthletesController', () => {
         first_name: 'María',
         last_name: 'García',
         birth_date: '2000-01-15',
+        gender: 'F',
         status: AthleteStatus.ACTIVE,
       };
       const created = { ...mockAthlete, first_name: 'María', last_name: 'García' };

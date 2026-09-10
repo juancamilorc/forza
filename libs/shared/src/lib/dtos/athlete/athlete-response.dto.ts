@@ -3,6 +3,7 @@ export class AthleteResponseDto {
   first_name!:  string;
   last_name!:   string;
   birth_date!:  string;
+  gender!:      string | null;
   status!:      string;
   trainer_id!:  string | null;
   photo_url!:   string | null;
