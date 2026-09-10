@@ -14,10 +14,20 @@ export class PlansService {
   /**
    * Todos los planes duran lo mismo sin importar el tipo:
    * end_date = start_date + 1 mes + 1 semana.
+   *
+   * El "+ 1 mes" recorta al último día del mes destino si el día no existe
+   * (ej: 31-ene + 1 mes = 28-feb), igual que `date + interval '1 month'` en
+   * Postgres, para que el cálculo del backend y cualquier backfill SQL coincidan.
    */
   private calculateEndDate(startDate: string): string {
     const d = new Date(`${startDate}T00:00:00Z`);
+    const day = d.getUTCDate();
+    d.setUTCDate(1);
     d.setUTCMonth(d.getUTCMonth() + 1);
+    const lastDayOfTargetMonth = new Date(
+      Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0),
+    ).getUTCDate();
+    d.setUTCDate(Math.min(day, lastDayOfTargetMonth));
     d.setUTCDate(d.getUTCDate() + 7);
     return d.toISOString().slice(0, 10);
   }
