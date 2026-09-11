@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { PlansService, Plan } from '../../../core/services/plans.service';
+import { PaymentsService, Payment } from '../../../core/services/payments.service';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { AssessmentsService, NutritionalAssessment, TechnicalAssessment, PhysicalAssessment } from '../../../core/services/assessments.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,12 +20,15 @@ export class AthleteDetail implements OnInit {
   private location = inject(Location);
   private service             = inject(AthletesService);
   private plansService        = inject(PlansService);
+  private paymentsService     = inject(PaymentsService);
   private sessionsService     = inject(SessionsService);
   private assessmentsService  = inject(AssessmentsService);
   private auth                = inject(AuthService);
 
   athlete          = signal<Athlete | null>(null);
   activePlan       = signal<Plan | null>(null);
+  payments              = signal<Payment[]>([]);
+  loadingPayments       = signal(true);
   sessions              = signal<Session[]>([]);
   nutritionalList       = signal<NutritionalAssessment[]>([]);
   technicalList         = signal<TechnicalAssessment[]>([]);
@@ -35,17 +39,37 @@ export class AthleteDetail implements OnInit {
   loadingAssessments    = signal(true);
   role             = this.auth.getRole() ?? '';
 
+  // Últimas 10 para la tabla de historial (los contadores usan `sessions()` completo)
+  recentSessions = computed(() => this.sessions().slice(0, 10));
+
   completedSessions = computed(() =>
     this.sessions().filter(s =>
       s.status === 'completed' && s.plan_id === this.activePlan()?.id
     ).length
   );
 
-  remainingSessions = computed(() => {
+  // Clases agendadas (no canceladas) del plan activo — lo que consume cupo (FOR-62)
+  scheduledSessions = computed(() =>
+    this.sessions().filter(s =>
+      s.status !== 'cancelled' && s.plan_id === this.activePlan()?.id
+    ).length
+  );
+
+  // Cupos libres para agendar más clases
+  availableSessions = computed(() => {
     const plan = this.activePlan();
     if (!plan) return null;
-    return Math.max(0, plan.total_sessions - this.completedSessions());
+    return Math.max(0, plan.total_sessions - this.scheduledSessions());
   });
+
+  // Saldo pendiente = suma de (monto - abonado) de los pagos no saldados — FOR-61
+  paymentBalance = computed(() =>
+    this.payments()
+      .filter(p => p.status !== 'pagado')
+      .reduce((acc, p) => acc + Math.max(0, p.amount - p.amount_paid), 0)
+  );
+
+  hasDebt = computed(() => this.paymentBalance() > 0);
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -72,11 +96,24 @@ export class AthleteDetail implements OnInit {
 
     this.sessionsService.getAll(id).subscribe({
       next: (data) => {
-        this.sessions.set(data.slice(0, 10));
+        // Se guardan todas (para calcular cupos del plan); la tabla solo
+        // muestra las últimas 10 vía `recentSessions()`.
+        this.sessions.set(data);
         this.loadingSessions.set(false);
       },
       error: () => this.loadingSessions.set(false),
     });
+
+    // Pagos — admin ve todos, trainer ve solo lectura de sus propios
+    // deportistas (el backend ya filtra); FOR-63
+    if (this.canSeePayments()) {
+      this.paymentsService.getAll(id).subscribe({
+        next: (data) => { this.payments.set(data); this.loadingPayments.set(false); },
+        error: () => this.loadingPayments.set(false),
+      });
+    } else {
+      this.loadingPayments.set(false);
+    }
 
     let pending = 3;
     const done = () => { if (--pending === 0) this.loadingAssessments.set(false); };
@@ -167,8 +204,23 @@ export class AthleteDetail implements OnInit {
     });
   }
 
+  formatCOP(value: number): string {
+    return value.toLocaleString('es-CO', {
+      style: 'currency', currency: 'COP', minimumFractionDigits: 0,
+    });
+  }
+
   canEdit(): boolean {
     return ['super_admin', 'admin'].includes(this.role);
+  }
+
+  // Solo lectura para trainer (FOR-63); admin ya lo cubre canEdit()
+  canSeePayments(): boolean {
+    return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  isTrainer(): boolean {
+    return this.role === 'trainer';
   }
 
   goToEdit() {

@@ -23,6 +23,14 @@
   }
 
   @if (!loading() && athlete()) {
+    <!-- Aviso de saldo pendiente para el entrenador (FOR-63) -->
+    @if (isTrainer() && !loadingPayments() && hasDebt()) {
+      <div class="debt-banner">
+        <span class="material-symbols-outlined">warning</span>
+        Este deportista tiene un saldo pendiente de {{ formatCOP(paymentBalance()) }}.
+      </div>
+    }
+
     <!-- Perfil -->
     <div class="profile-card">
       <div class="profile-avatar">
@@ -137,8 +145,12 @@
                 <span class="info-value">{{ completedSessions() }}</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Restantes</span>
-                <span class="info-value sessions-remaining">{{ remainingSessions() }}</span>
+                <span class="info-label">Agendadas</span>
+                <span class="info-value">{{ scheduledSessions() }} / {{ activePlan()!.total_sessions }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Disponibles</span>
+                <span class="info-value sessions-remaining">{{ availableSessions() }}</span>
               </div>
             }
             <div class="info-row">
@@ -149,6 +161,16 @@
                 <span class="plan-badge plan-active">Activo</span>
               }
             </div>
+            @if (canSeePayments() && !loadingPayments()) {
+              <div class="info-row">
+                <span class="info-label">Pago</span>
+                @if (hasDebt()) {
+                  <span class="plan-badge pay-debt">Debe {{ formatCOP(paymentBalance()) }}</span>
+                } @else {
+                  <span class="plan-badge pay-ok">Al día</span>
+                }
+              </div>
+            }
           </div>
         } @else {
           <div class="coming-soon">
@@ -187,7 +209,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (s of sessions(); track s.id) {
+              @for (s of recentSessions(); track s.id) {
                 <tr>
                   <td class="session-num">{{ s.session_number }}</td>
                   <td class="session-date">{{ formatDate(s.session_date) }}</td>

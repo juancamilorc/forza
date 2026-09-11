@@ -177,6 +177,91 @@
               />
             </div>
           </div>
+
+          <!-- Pago inicial (opcional) — FOR-61 -->
+          <label class="checkbox-row">
+            <input
+              type="checkbox"
+              [checked]="paymentEnabled()"
+              (change)="togglePayment($any($event.target).checked)"
+            />
+            <span>Registrar pago inicial</span>
+          </label>
+
+          @if (paymentEnabled()) {
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="payment_amount">Monto del plan <span class="required">*</span></label>
+                <input
+                  id="payment_amount"
+                  type="number"
+                  class="form-input"
+                  min="0"
+                  placeholder="Ej: 450000"
+                  [value]="form().payment_amount"
+                  (input)="updateField('payment_amount', $any($event.target).value)"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="payment_amount_paid">Monto abonado ahora</label>
+                <input
+                  id="payment_amount_paid"
+                  type="number"
+                  class="form-input"
+                  min="0"
+                  placeholder="0 = queda pendiente"
+                  [value]="form().payment_amount_paid"
+                  (input)="updateField('payment_amount_paid', $any($event.target).value)"
+                />
+              </div>
+
+              <div class="form-group">
+                <span class="form-label">Vencimiento</span>
+                <p class="readonly-value">
+                  @if (paymentDueDate()) {
+                    {{ paymentDueDate() | date:'dd/MM/yyyy' }} — un día antes del inicio del plan
+                  } @else {
+                    Se calcula con la fecha de inicio del plan
+                  }
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="payment_method">Método</label>
+                <select
+                  id="payment_method"
+                  class="form-input"
+                  (change)="updateField('payment_method', $any($event.target).value)"
+                >
+                  <option value="" [selected]="form().payment_method === ''">Seleccionar...</option>
+                  @for (m of paymentMethods; track m.value) {
+                    <option [value]="m.value" [selected]="form().payment_method === m.value">
+                      {{ m.label }}
+                    </option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="payment_reference">Referencia</label>
+                <input
+                  id="payment_reference"
+                  type="text"
+                  class="form-input"
+                  placeholder="N° transferencia, recibo..."
+                  [value]="form().payment_reference"
+                  (input)="updateField('payment_reference', $any($event.target).value)"
+                />
+              </div>
+            </div>
+            <p class="section-hint">
+              Sin abono (o abono &lt; monto) el deportista queda con saldo pendiente,
+              visible en su perfil. El pago vence un día antes del inicio del plan; al
+              pasar esa fecha el saldo entra al widget de pagos vencidos. Para otra
+              fecha, edita el pago luego en Pagos.
+            </p>
+          }
         </div>
       }
 

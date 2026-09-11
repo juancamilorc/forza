@@ -21,6 +21,7 @@ interface CalEvent {
   confirmed_by_trainer?: boolean;
   confirmation_status?:  string;
   reschedule_count?:     number;
+  isExtra?:              boolean; // sesión sin plan_id: no descuenta cupo, se factura aparte
 }
 
 @Component({
@@ -191,6 +192,7 @@ export class ScheduleList implements OnInit {
       location:             s.location,
       confirmed_by_trainer: s.confirmed_by_trainer,
       confirmation_status:  s.confirmation_status,
+      isExtra:              !s.plan_id,
     }));
   }
 

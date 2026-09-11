@@ -28,6 +28,45 @@ export class PaymentsService {
     return data;
   }
 
+  // ── TRAINER ID LOOKUP ────────────────────────────────────────
+  async getTrainerIdByUserId(userId: string): Promise<string | null> {
+    const { data } = await this.supabase.db
+      .from('trainers')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+    return data?.id ?? null;
+  }
+
+  // ── GET ALL (solo lectura, deportistas del trainer) — FOR-63 ──
+  async findAllForTrainer(trainerId: string, athleteId?: string) {
+    const { data: athletes, error: athletesError } = await this.supabase.db
+      .from('athletes')
+      .select('id')
+      .eq('trainer_id', trainerId);
+
+    if (athletesError) throw new BadRequestException(athletesError.message);
+
+    const athleteIds = (athletes ?? []).map((a: { id: string }) => a.id);
+    if (athleteIds.length === 0) return [];
+
+    let query = this.supabase.db
+      .from('payments')
+      .select(`
+        *,
+        athletes ( id, first_name, last_name ),
+        plans ( id, plan_type )
+      `)
+      .in('athlete_id', athleteIds)
+      .order('created_at', { ascending: false });
+
+    if (athleteId) query = query.eq('athlete_id', athleteId);
+
+    const { data, error } = await query;
+    if (error) throw new BadRequestException(error.message);
+    return data;
+  }
+
   // ── GET ONE ──────────────────────────────────────────────────
   async findOne(id: string) {
     const { data, error } = await this.supabase.db

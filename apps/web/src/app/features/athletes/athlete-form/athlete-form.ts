@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import { AthletesService } from '../../../core/services/athletes.service';
 import { TrainersService, Trainer } from '../../../core/services/trainers.service';
 import { PlansService, Plan } from '../../../core/services/plans.service';
+import { PaymentsService } from '../../../core/services/payments.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -22,6 +23,7 @@ export class AthleteForm implements OnInit {
   private service   = inject(AthletesService);
   private trainers  = inject(TrainersService);
   private plans     = inject(PlansService);
+  private payments  = inject(PaymentsService);
   private auth      = inject(AuthService);
   private toast     = inject(ToastService);
 
@@ -53,6 +55,15 @@ export class AthleteForm implements OnInit {
     { value: 'addicted_to_football', label: 'Addicted to Football' },
   ];
 
+  // Pago inicial (solo al crear, junto con el plan) — FOR-61
+  paymentEnabled = signal(false);
+
+  paymentMethods = [
+    { value: 'transferencia', label: 'Transferencia' },
+    { value: 'efectivo',      label: 'Efectivo' },
+    { value: 'otro',          label: 'Otro' },
+  ];
+
   form = signal({
     first_name: '',
     last_name:  '',
@@ -65,7 +76,30 @@ export class AthleteForm implements OnInit {
     plan_type:       '',
     total_sessions:  '',
     start_date:      '',
+    // Pago inicial (solo al crear) — FOR-61
+    payment_amount:      '',
+    payment_amount_paid: '',
+    payment_method:      '',
+    payment_reference:   '',
   });
+
+  // Un día antes del inicio del plan: el pago debe estar listo antes de la
+  // primera clase (regla "no hay clases sin pago", validada en FOR-76).
+  // Se calcula, no se pide: si hay que cambiarlo, se edita el pago en /pagos.
+  private dayBefore(dateStr: string): string {
+    const d = new Date(`${dateStr}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  paymentDueDate = computed(() => {
+    const start = this.form().start_date;
+    return start ? this.dayBefore(start) : '';
+  });
+
+  togglePayment(enabled: boolean) {
+    this.paymentEnabled.set(enabled);
+  }
 
   ngOnInit() {
     if (this.isAdmin) {
@@ -137,6 +171,25 @@ export class AthleteForm implements OnInit {
       return;
     }
 
+    // Validar pago inicial (FOR-61) — requiere un plan al que asociarlo
+    const wantsPayment = !this.isEdit() && this.paymentEnabled();
+    if (wantsPayment) {
+      if (!hasPlanData) {
+        this.setError('El pago inicial requiere un plan. Completa los datos del plan.');
+        return;
+      }
+      const amt  = parseFloat(f.payment_amount);
+      const paid = parseFloat(f.payment_amount_paid) || 0;
+      if (isNaN(amt) || amt <= 0) {
+        this.setError('El monto del plan (pago inicial) debe ser mayor a 0');
+        return;
+      }
+      if (paid > amt) {
+        this.setError('El monto abonado no puede superar el monto del plan');
+        return;
+      }
+    }
+
     this.saving.set(true);
     this.setError('');
 
@@ -162,12 +215,9 @@ export class AthleteForm implements OnInit {
     request.subscribe({
       next: (athlete) => {
         if (!this.isEdit() && hasPlanData) {
-          this.createPlan(athlete.id);
+          this.createPlan(athlete.id, wantsPayment);
         } else {
-          this.toast.success(
-            this.isEdit() ? 'Deportista actualizado correctamente' : 'Deportista creado correctamente'
-          );
-          setTimeout(() => this.router.navigate(['/deportistas', athlete.id]), 500);
+          this.finish(athlete.id, this.isEdit() ? 'Deportista actualizado correctamente' : 'Deportista creado correctamente');
         }
       },
       error: (err) => {
@@ -178,7 +228,7 @@ export class AthleteForm implements OnInit {
     });
   }
 
-  private createPlan(athleteId: string) {
+  private createPlan(athleteId: string, withPayment: boolean) {
     const f = this.form();
     const planData = {
       athlete_id:     athleteId,
@@ -189,9 +239,12 @@ export class AthleteForm implements OnInit {
     };
 
     this.plans.create(planData).subscribe({
-      next: () => {
-        this.toast.success('Deportista y plan creados correctamente');
-        setTimeout(() => this.router.navigate(['/deportistas', athleteId]), 500);
+      next: (plan) => {
+        if (withPayment) {
+          this.createPayment(athleteId, plan.id);
+        } else {
+          this.finish(athleteId, 'Deportista y plan creados correctamente');
+        }
       },
       error: (err) => {
         const msg = err?.error?.message ?? 'Error al crear el plan. El deportista fue creado correctamente.';
@@ -199,6 +252,35 @@ export class AthleteForm implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  private createPayment(athleteId: string, planId: string) {
+    const f = this.form();
+    const paymentData: any = {
+      athlete_id:  athleteId,
+      plan_id:     planId,
+      amount:      parseFloat(f.payment_amount),
+      amount_paid: parseFloat(f.payment_amount_paid) || 0,
+      // Vence un día antes del inicio del plan (regla "no hay clases sin pago"):
+      // así el saldo pendiente entra al widget de vencidos.
+      due_date:    this.paymentDueDate() || null,
+      method:      f.payment_method    || null,
+      referencia:  f.payment_reference || null,
+    };
+
+    this.payments.create(paymentData).subscribe({
+      next: () => this.finish(athleteId, 'Deportista, plan y pago inicial creados correctamente'),
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Error al registrar el pago. El deportista y el plan fueron creados.';
+        this.error.set(Array.isArray(msg) ? msg.join(', ') : msg);
+        this.saving.set(false);
+      },
+    });
+  }
+
+  private finish(athleteId: string, message: string) {
+    this.toast.success(message);
+    setTimeout(() => this.router.navigate(['/deportistas', athleteId]), 500);
   }
 
   planLabel(type: string): string { return this.plans.getPlanLabel(type); }

@@ -155,6 +155,9 @@
                   </span>
                 }
                 <span class="status-badge {{ getStatusClass(e) }}">{{ getStatusLabel(e) }}</span>
+                @if (e.isExtra) {
+                  <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
+                }
               </div>
               <div class="day-panel-actions">
                 @if (canConfirm(e)) {
@@ -237,6 +240,9 @@
               }
               <td>
                 <span class="status-badge {{ getStatusClass(e) }}">{{ getStatusLabel(e) }}</span>
+                @if (e.isExtra) {
+                  <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
+                }
               </td>
               <td class="actions-cell">
                 @if (canConfirm(e)) {

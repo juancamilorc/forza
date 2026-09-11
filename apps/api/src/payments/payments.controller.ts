@@ -15,6 +15,7 @@ import { CreatePaymentDto, UpdatePaymentDto } from '@forza/shared';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('payments')
@@ -22,9 +23,15 @@ export class PaymentsController {
   constructor(private readonly payments: PaymentsService) {}
 
   // GET /api/payments?athlete_id=uuid
-  @Roles('super_admin', 'admin')
+  // trainer: solo lectura, filtrado a sus propios deportistas (FOR-63)
+  @Roles('super_admin', 'admin', 'trainer')
   @Get()
-  findAll(@Query('athlete_id') athleteId?: string) {
+  async findAll(@CurrentUser() user: any, @Query('athlete_id') athleteId?: string) {
+    if (user.role === 'trainer') {
+      const trainerId = await this.payments.getTrainerIdByUserId(user.id);
+      if (!trainerId) return [];
+      return this.payments.findAllForTrainer(trainerId, athleteId);
+    }
     return this.payments.findAll(athleteId);
   }
 
