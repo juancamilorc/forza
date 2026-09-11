@@ -23,6 +23,14 @@
   }
 
   @if (!loading() && athlete()) {
+    <!-- Aviso de saldo pendiente para el entrenador (FOR-63) -->
+    @if (isTrainer() && !loadingPayments() && hasDebt()) {
+      <div class="debt-banner">
+        <span class="material-symbols-outlined">warning</span>
+        Este deportista tiene un saldo pendiente de {{ formatCOP(paymentBalance()) }}.
+      </div>
+    }
+
     <!-- Perfil -->
     <div class="profile-card">
       <div class="profile-avatar">
@@ -153,7 +161,7 @@
                 <span class="plan-badge plan-active">Activo</span>
               }
             </div>
-            @if (canEdit() && !loadingPayments()) {
+            @if (canSeePayments() && !loadingPayments()) {
               <div class="info-row">
                 <span class="info-label">Pago</span>
                 @if (hasDebt()) {

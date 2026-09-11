@@ -104,8 +104,9 @@ export class AthleteDetail implements OnInit {
       error: () => this.loadingSessions.set(false),
     });
 
-    // Pagos — solo admin (el endpoint no está disponible para trainer)
-    if (this.canEdit()) {
+    // Pagos — admin ve todos, trainer ve solo lectura de sus propios
+    // deportistas (el backend ya filtra); FOR-63
+    if (this.canSeePayments()) {
       this.paymentsService.getAll(id).subscribe({
         next: (data) => { this.payments.set(data); this.loadingPayments.set(false); },
         error: () => this.loadingPayments.set(false),
@@ -211,6 +212,15 @@ export class AthleteDetail implements OnInit {
 
   canEdit(): boolean {
     return ['super_admin', 'admin'].includes(this.role);
+  }
+
+  // Solo lectura para trainer (FOR-63); admin ya lo cubre canEdit()
+  canSeePayments(): boolean {
+    return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  isTrainer(): boolean {
+    return this.role === 'trainer';
   }
 
   goToEdit() {
