@@ -93,10 +93,33 @@ export class SessionsService {
     }
   }
 
+  // ── VALIDAR PAGO ANTES DE AGENDAR/CONFIRMAR (FOR-76) ──────────
+  // "No se puede dar clases si no ha pagado": el plan debe tener al menos
+  // un pago en estado 'pagado' o 'parcial'. Sesiones sin plan_id (extra)
+  // no pasan por esta validación — se facturan aparte.
+  private async validatePlanHasPayment(planId: string) {
+    const { data: payments, error } = await this.supabase.db
+      .from('payments')
+      .select('status')
+      .eq('plan_id', planId);
+
+    if (error) throw new BadRequestException(error.message);
+
+    const hasPayment = (payments ?? []).some(
+      (p: { status: string }) => p.status === 'pagado' || p.status === 'parcial',
+    );
+    if (!hasPayment) {
+      throw new BadRequestException(
+        'No se puede agendar ni confirmar sesiones sin un pago registrado para este plan',
+      );
+    }
+  }
+
   // ── CREATE ───────────────────────────────────────────────────
   async create(dto: CreateSessionDto) {
     if (dto.plan_id) {
       await this.validatePlanCapacity(dto.plan_id);
+      await this.validatePlanHasPayment(dto.plan_id);
     }
 
     const confirmation_token = uuidv4();
@@ -150,7 +173,11 @@ export class SessionsService {
 
   // ── TRAINER CONFIRM ──────────────────────────────────────────
   async confirmByTrainer(id: string) {
-    await this.findOne(id);
+    const session = await this.findOne(id);
+
+    if (session.plan_id) {
+      await this.validatePlanHasPayment(session.plan_id);
+    }
 
     const { data, error } = await this.supabase.db
       .from('sessions')
@@ -242,6 +269,7 @@ async reschedule(id: string, dto: CreateSessionDto) {
 
   if (dto.plan_id) {
     await this.validatePlanCapacity(dto.plan_id);
+    await this.validatePlanHasPayment(dto.plan_id);
   }
 
   // Crear nueva sesión con referencia a la original
