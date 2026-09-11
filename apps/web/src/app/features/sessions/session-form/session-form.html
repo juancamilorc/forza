@@ -39,6 +39,25 @@
         </select>
       </div>
 
+      <!-- Plan del deportista + sesión extra (FOR-62) -->
+      @if (form().athlete_id) {
+        <div class="form-group full-width">
+          @if (activePlanLabel()) {
+            <p class="plan-hint">Plan activo: <strong>{{ activePlanLabel() }}</strong></p>
+          } @else {
+            <p class="plan-hint">Este deportista no tiene un plan activo.</p>
+          }
+          <label class="checkbox-row">
+            <input
+              type="checkbox"
+              [checked]="isExtra()"
+              (change)="toggleExtra($any($event.target).checked)"
+            />
+            <span>Sesión extra (no se vincula al plan ni cuenta contra su cupo)</span>
+          </label>
+        </div>
+      }
+
        <!-- Entrenador — solo admin/super_admin -->
         @if (isAdminOrSuper()) {
           <div class="form-group full-width">

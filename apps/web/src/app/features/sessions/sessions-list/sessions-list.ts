@@ -25,6 +25,16 @@ export class SessionsList implements OnInit {
   search        = signal('');
   filterStatus  = signal('all');
 
+  // Cancelar sesión
+  cancelTarget = signal<Session | null>(null);
+  cancelReason = signal('');
+  cancelSaving = signal(false);
+  cancelReasons = [
+    { value: 'cambio_climatico', label: 'Cambio climático' },
+    { value: 'entrenador',       label: 'Entrenador no disponible' },
+    { value: 'usuario',          label: 'Deportista / acudiente' },
+  ];
+
   ngOnInit() {
     this.service.getAll().subscribe({
       next: (data) => {
@@ -105,6 +115,43 @@ export class SessionsList implements OnInit {
     if (session.status !== 'pending') return false;
     if (session.confirmed_by_trainer) return false;
     return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  canCancel(session: Session): boolean {
+    if (session.status !== 'pending') return false;
+    return ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  openCancel(session: Session) {
+    this.cancelTarget.set(session);
+    this.cancelReason.set('');
+  }
+
+  closeCancel() {
+    this.cancelTarget.set(null);
+    this.cancelReason.set('');
+  }
+
+  confirmCancel() {
+    const session = this.cancelTarget();
+    const reason  = this.cancelReason();
+    if (!session || !reason) return;
+
+    this.cancelSaving.set(true);
+    this.service.cancel(session.id, reason).subscribe({
+      next: (updated) => {
+        this.sessions.update(list => list.map(s => s.id === updated.id ? { ...s, ...updated } : s));
+        this.applyFilters();
+        this.toast.show('Sesión cancelada correctamente', 'success');
+        this.cancelSaving.set(false);
+        this.closeCancel();
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Error al cancelar la sesión';
+        this.toast.show(Array.isArray(msg) ? msg.join(', ') : msg, 'error');
+        this.cancelSaving.set(false);
+      },
+    });
   }
 
   confirmSession(id: string) {

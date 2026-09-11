@@ -33,6 +33,11 @@ export class SessionForm implements OnInit {
 
   athletesList = signal<Athlete[]>([]);
 
+  // Plan activo del deportista seleccionado (solo informativo) y flag de
+  // sesión "extra": no se vincula al plan, no cuenta contra su cupo (FOR-62).
+  activePlanLabel = signal<string | null>(null);
+  isExtra         = signal(false);
+
   form = signal({
     athlete_id:   '',
     plan_id:      '',
@@ -80,6 +85,8 @@ export class SessionForm implements OnInit {
 
   onAthleteChange(athleteId: string) {
     this.form.update(f => ({ ...f, athlete_id: athleteId, plan_id: '', trainer_id: '' }));
+    this.activePlanLabel.set(null);
+    this.isExtra.set(false);
 
     if (!athleteId) return;
 
@@ -93,8 +100,13 @@ export class SessionForm implements OnInit {
           plan_id: activePlan?.id || '',
           trainer_id: trainerId
         }));
+        this.activePlanLabel.set(activePlan ? `${activePlan.plan_type} (${activePlan.total_sessions} clases)` : null);
       }
     });
+  }
+
+  toggleExtra(value: boolean) {
+    this.isExtra.set(value);
   }
 
   onSubmit() {
@@ -109,7 +121,8 @@ export class SessionForm implements OnInit {
 
     const data = {
       athlete_id:    f.athlete_id,
-      plan_id:       f.plan_id || null,
+      // Sesión extra: no se vincula al plan ni cuenta contra su cupo (FOR-62)
+      plan_id:       this.isExtra() ? null : (f.plan_id || null),
       trainer_id:    f.trainer_id || null,
       session_date:  f.session_date,
       session_time:  f.session_time,
