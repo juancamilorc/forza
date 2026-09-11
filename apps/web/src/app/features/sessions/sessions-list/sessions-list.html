@@ -72,6 +72,9 @@
             <span class="confirm-badge confirm-{{ session.confirmation_status }}">
               {{ getConfirmationLabel(session.confirmation_status) }}
             </span>
+            @if (!session.plan_id) {
+              <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
+            }
             @if (canConfirm(session)) {
               <button
                 class="btn-confirm"
@@ -84,6 +87,12 @@
                   <span class="material-symbols-outlined">check_circle</span>
                 }
                 Confirmar
+              </button>
+            }
+            @if (canCancel(session)) {
+              <button class="btn-cancel-session" (click)="openCancel(session)">
+                <span class="material-symbols-outlined">cancel</span>
+                Cancelar
               </button>
             }
           </div>
@@ -100,3 +109,44 @@
   }
 
 </div>
+
+<!-- Modal: Cancelar sesión -->
+@if (cancelTarget(); as session) {
+  <div class="modal-overlay" (click)="closeCancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Cancelar sesión</h2>
+        <button class="modal-close" (click)="closeCancel()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Sesión de <strong>{{ session.athletes?.first_name }} {{ session.athletes?.last_name }}</strong>
+          — {{ session.session_date | date:'dd/MM/yyyy' }}
+        </p>
+        <label class="field-label">Motivo <span class="required">*</span></label>
+        <select
+          class="field-input"
+          [value]="cancelReason()"
+          (change)="cancelReason.set($any($event.target).value)"
+        >
+          <option value="">Seleccionar...</option>
+          @for (r of cancelReasons; track r.value) {
+            <option [value]="r.value">{{ r.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeCancel()">Volver</button>
+        <button
+          class="btn-danger"
+          [disabled]="!cancelReason() || cancelSaving()"
+          (click)="confirmCancel()"
+        >
+          {{ cancelSaving() ? 'Cancelando...' : 'Cancelar sesión' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

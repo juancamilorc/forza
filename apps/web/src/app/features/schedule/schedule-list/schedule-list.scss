@@ -96,6 +96,14 @@
   &.status-no_show   { background: rgba(156,163,175,0.15); color: #4b5563; }
 }
 
+.extra-badge {
+  display: inline-block; padding: 3px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; font-family: 'Cairo', sans-serif;
+  background: rgba(201,151,52,0.15); color: #96741f;
+  margin-left: 6px;
+}
+
 .actions-cell { display: flex; gap: 4px; }
 
 .icon-btn {

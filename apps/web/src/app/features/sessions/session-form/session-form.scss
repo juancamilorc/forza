@@ -86,6 +86,28 @@
   .required { color: #c99734; }
 }
 
+.plan-hint {
+  font-size: 13px;
+  color: #535353;
+  margin: 0 0 8px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: #c99734;
+    cursor: pointer;
+  }
+}
+
 .form-input {
   padding: 10px 14px;
   border: 1px solid #e5e5e5;
