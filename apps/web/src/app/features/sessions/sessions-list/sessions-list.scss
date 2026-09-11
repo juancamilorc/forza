@@ -210,6 +210,18 @@
   &.confirm-conflict           { background: rgba(248,113,113,0.15); color: #b91c1c; }
 }
 
+.extra-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+  background: rgba(201,151,52,0.15);
+  color: #96741f;
+}
+
 .btn-confirm {
   display: flex;
   align-items: center;

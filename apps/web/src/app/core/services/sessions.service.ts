@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
 
 export interface Session {
   id:                    string;
-  plan_id:               string;
+  plan_id:               string | null;
   trainer_id:            string;
   athlete_id:            string;
   session_number:        number;

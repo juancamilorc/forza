@@ -72,6 +72,9 @@
             <span class="confirm-badge confirm-{{ session.confirmation_status }}">
               {{ getConfirmationLabel(session.confirmation_status) }}
             </span>
+            @if (!session.plan_id) {
+              <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
+            }
             @if (canConfirm(session)) {
               <button
                 class="btn-confirm"
