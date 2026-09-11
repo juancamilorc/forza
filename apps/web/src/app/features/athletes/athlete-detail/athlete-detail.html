@@ -137,8 +137,12 @@
                 <span class="info-value">{{ completedSessions() }}</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Restantes</span>
-                <span class="info-value sessions-remaining">{{ remainingSessions() }}</span>
+                <span class="info-label">Agendadas</span>
+                <span class="info-value">{{ scheduledSessions() }} / {{ activePlan()!.total_sessions }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Disponibles</span>
+                <span class="info-value sessions-remaining">{{ availableSessions() }}</span>
               </div>
             }
             <div class="info-row">
@@ -197,7 +201,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (s of sessions(); track s.id) {
+              @for (s of recentSessions(); track s.id) {
                 <tr>
                   <td class="session-num">{{ s.session_number }}</td>
                   <td class="session-date">{{ formatDate(s.session_date) }}</td>

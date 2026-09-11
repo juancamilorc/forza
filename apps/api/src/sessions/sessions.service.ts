@@ -59,8 +59,46 @@ export class SessionsService {
     return data;
   }
 
+  // ── VALIDAR CUPO DEL PLAN (FOR-62) ────────────────────────────
+  // Cuenta como "usado" toda sesión no cancelada del plan (pending o
+  // completed); una cancelada libera el cupo (reposición). Sesiones
+  // "extra" (sin plan_id) no tienen límite.
+  private async validatePlanCapacity(planId: string) {
+    const { data: plan, error } = await this.supabase.db
+      .from('plans')
+      .select('total_sessions, is_active, is_frozen')
+      .eq('id', planId)
+      .single();
+
+    if (error || !plan) {
+      throw new BadRequestException('El plan indicado no existe');
+    }
+    if (!plan.is_active) {
+      throw new BadRequestException('No se pueden agendar sesiones en un plan inactivo');
+    }
+    if (plan.is_frozen) {
+      throw new BadRequestException('No se pueden agendar sesiones en un plan congelado');
+    }
+
+    const { count } = await this.supabase.db
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('plan_id', planId)
+      .neq('status', 'cancelled');
+
+    if ((count ?? 0) >= plan.total_sessions) {
+      throw new BadRequestException(
+        `El plan ya tiene sus ${plan.total_sessions} clases agendadas. Cancela una sesión o amplía el plan desde Planes.`,
+      );
+    }
+  }
+
   // ── CREATE ───────────────────────────────────────────────────
   async create(dto: CreateSessionDto) {
+    if (dto.plan_id) {
+      await this.validatePlanCapacity(dto.plan_id);
+    }
+
     const confirmation_token = uuidv4();
     const token_expires_at = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
 
@@ -196,11 +234,15 @@ async reschedule(id: string, dto: CreateSessionDto) {
     );
   }
 
-  // Cancelar la sesión original
+  // Cancelar la sesión original (libera su cupo antes de validar el nuevo)
   await this.supabase.db
     .from('sessions')
     .update({ status: 'cancelled', cancellation_reason: dto.cancellation_reason ?? 'usuario' })
     .eq('id', id);
+
+  if (dto.plan_id) {
+    await this.validatePlanCapacity(dto.plan_id);
+  }
 
   // Crear nueva sesión con referencia a la original
   const confirmation_token = uuidv4();

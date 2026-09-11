@@ -39,16 +39,27 @@ export class AthleteDetail implements OnInit {
   loadingAssessments    = signal(true);
   role             = this.auth.getRole() ?? '';
 
+  // Últimas 10 para la tabla de historial (los contadores usan `sessions()` completo)
+  recentSessions = computed(() => this.sessions().slice(0, 10));
+
   completedSessions = computed(() =>
     this.sessions().filter(s =>
       s.status === 'completed' && s.plan_id === this.activePlan()?.id
     ).length
   );
 
-  remainingSessions = computed(() => {
+  // Clases agendadas (no canceladas) del plan activo — lo que consume cupo (FOR-62)
+  scheduledSessions = computed(() =>
+    this.sessions().filter(s =>
+      s.status !== 'cancelled' && s.plan_id === this.activePlan()?.id
+    ).length
+  );
+
+  // Cupos libres para agendar más clases
+  availableSessions = computed(() => {
     const plan = this.activePlan();
     if (!plan) return null;
-    return Math.max(0, plan.total_sessions - this.completedSessions());
+    return Math.max(0, plan.total_sessions - this.scheduledSessions());
   });
 
   // Saldo pendiente = suma de (monto - abonado) de los pagos no saldados — FOR-61
@@ -85,7 +96,9 @@ export class AthleteDetail implements OnInit {
 
     this.sessionsService.getAll(id).subscribe({
       next: (data) => {
-        this.sessions.set(data.slice(0, 10));
+        // Se guardan todas (para calcular cupos del plan); la tabla solo
+        // muestra las últimas 10 vía `recentSessions()`.
+        this.sessions.set(data);
         this.loadingSessions.set(false);
       },
       error: () => this.loadingSessions.set(false),
