@@ -8,10 +8,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
 
   .page-title   { font-size: 24px; font-weight: 700; color: #1a1a1a; font-family: 'Cairo', sans-serif; margin: 0 0 4px; }
   .page-subtitle { font-size: 13px; color: #535353; font-family: 'Cairo', sans-serif; margin: 0; }
 }
+
+.header-actions { display: flex; align-items: center; gap: 12px; }
 
 .btn-primary {
   display: flex; align-items: center; gap: 8px;
@@ -39,6 +43,9 @@
 }
 
 .status-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.extra-filters { display: flex; gap: 12px; flex-wrap: wrap; }
+.plan-filter, .month-filter { min-width: 160px; max-width: 100%; }
 
 .filter-chip {
   padding: 6px 16px; border: 1px solid #e5e5e5; border-radius: 20px;
@@ -186,8 +193,11 @@
 }
 
 .btn-secondary {
+  display: flex; align-items: center; gap: 8px;
   padding: 10px 20px; background: transparent; border: 1px solid #e5e5e5; border-radius: 8px;
   font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: #535353;
   cursor: pointer; transition: all 0.2s;
+  .material-symbols-outlined { font-size: 18px; }
   &:hover { border-color: #1a1a1a; color: #1a1a1a; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; &:hover { border-color: #e5e5e5; color: #535353; } }
 }
