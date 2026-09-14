@@ -1,5 +1,5 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 11 Sep 2026
+> Fuente única de verdad. Actualizado: 14 Sep 2026
 > Verificado con `git log` + Linear API
 
 ---
@@ -55,17 +55,30 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-### 🔜 Cycle 15 (11-25 Sep 2026) — empieza mañana
+### 🔜 Cycle 15 (11-25 Sep 2026) — en curso
 
-| Ticket | Descripción | Prioridad |
-|--------|-------------|-----------|
-| FOR-66 | Intentos configurables 1-4 en evaluaciones | — |
-| FOR-67 | Fórmulas nutricionales por género M/F | — |
-| FOR-68 | Filtros y exportar pagos a Excel | — |
-| FOR-69 | Vista entrenadores con clases y deportistas | — |
+⚠️ Los números de ticket que teníamos anotados acá NO coincidían con Linear
+(se corrieron). Confirmado con `node scripts/linear-sync.js list` el 14 Sep:
 
-Verificar prioridad/detalle de cada uno en Linear antes de arrancar (`node
-scripts/linear-sync.js list` una vez el cycle quede activo, o revisar directo en Linear).
+| Ticket | Descripción | Estado |
+|--------|-------------|--------|
+| FOR-66 | Fórmulas nutricionales diferenciadas por género (M/F) | 🔄 In Review — bug menor encontrado y arreglado (ver abajo), branch `bugfix/FOR-66-redondeo-preview-nutricional` |
+| FOR-67 | Filtros por mes/plan y exportar pagos a Excel | Todo — siguiente |
+| FOR-68 | Vista entrenadores con clases y deportistas | Todo |
+| FOR-69 | Banner de campos faltantes en detalle deportista | Todo |
+
+**FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
+implementadas desde Cycle 14 (efecto colateral de FOR-85, gender), tanto en
+backend (`assessments.service.ts`) como en el preview del frontend
+(`nutritional-form.ts`). Validado con los fixtures A1 (M) y A2 (F) —
+mismos pliegues (Σ=100mm), % grasa distinto solo por género, IMC igual en
+ambos (correcto, no depende de género). Se encontró una inconsistencia de
+redondeo: el preview usaba `toFixed(2)` y el backend `Math.round(x*100)/100`;
+por imprecisión de punto flotante daban resultados distintos en casos borde
+(13.095 → preview 13.09, backend 13.10). Corregido unificando el redondeo
+del frontend al método del backend. Queda un registro de prueba guardado en
+el fixture A1 (`PRUEBA AlDia`) — no hay endpoint DELETE para evaluaciones
+nutricionales, se limpia solo con el próximo `--wipe`.
 
 ---
 
