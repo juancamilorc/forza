@@ -6,6 +6,11 @@ import { AthletesService, Athlete } from '../../../core/services/athletes.servic
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
+// Mismo método de redondeo que el backend (assessments.service.ts) —
+// deben coincidir exacto, si no el preview no refleja lo que se guarda.
+function round2(x: number): number { return Math.round(x * 100) / 100; }
+function round3(x: number): number { return Math.round(x * 1000) / 1000; }
+
 interface NutriForm {
   evaluation_date:          string;
   period_label:             string;
@@ -138,15 +143,15 @@ export class NutritionalForm implements OnInit {
       : null;
 
     return {
-      sumatoria:      +sumatoria.toFixed(2),
-      pct_grasa:      +pct_grasa.toFixed(2),
-      peso_graso:     +peso_graso.toFixed(2),
-      mlg:            +mlg.toFixed(2),
-      iaks:           +iaks.toFixed(3),
-      imlg:           +imlg.toFixed(2),
-      imc:            +imc.toFixed(2),
-      complexion:     complexion ? +complexion.toFixed(2) : null,
-      peso_ideal:     peso_ideal ? +peso_ideal.toFixed(2) : null,
+      sumatoria:      round2(sumatoria),
+      pct_grasa:      round2(pct_grasa),
+      peso_graso:     round2(peso_graso),
+      mlg:            round2(mlg),
+      iaks:           round3(iaks),
+      imlg:           round2(imlg),
+      imc:            round2(imc),
+      complexion:     complexion ? round2(complexion) : null,
+      peso_ideal:     peso_ideal ? round2(peso_ideal) : null,
     };
   });
 
