@@ -18,7 +18,8 @@ export interface TrainerAthleteSummary {
   remaining_sessions:  number | null;
   plan_end_date:       string | null;
   plan_expiring_soon:  boolean;
-  has_debt:            boolean;
+  days_until_expiry:   number | null;
+  debt_amount:         number;
 }
 
 export interface TrainerOverview {

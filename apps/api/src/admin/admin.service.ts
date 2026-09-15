@@ -205,15 +205,17 @@ export class AdminService {
       ? (
           await this.supabase.db
             .from('payments')
-            .select('athlete_id')
+            .select('athlete_id, amount, amount_paid')
             .in('athlete_id', athleteIds)
             .neq('status', 'pagado')
         ).data ?? []
       : [];
 
-    const athletesWithDebt = new Set(
-      unpaidPayments.map((p: { athlete_id: string }) => p.athlete_id),
-    );
+    const debtByAthlete = new Map<string, number>();
+    for (const p of unpaidPayments as { athlete_id: string; amount: number; amount_paid: number }[]) {
+      const saldo = Math.max(0, p.amount - p.amount_paid);
+      debtByAthlete.set(p.athlete_id, (debtByAthlete.get(p.athlete_id) ?? 0) + saldo);
+    }
     const { start: weekStart, end: weekEnd } = this.getWeekRange();
 
     return trainers.map((trainer: any) => {
@@ -246,7 +248,8 @@ export class AdminService {
           plan_end_date: plan?.end_date ?? null,
           plan_expiring_soon:
             daysUntilExpiry !== null && daysUntilExpiry >= 0 && daysUntilExpiry <= 7,
-          has_debt: athletesWithDebt.has(a.id),
+          days_until_expiry: daysUntilExpiry,
+          debt_amount: debtByAthlete.get(a.id) ?? 0,
         };
       });
 

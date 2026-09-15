@@ -62,6 +62,12 @@
   tbody tr:last-child td { border-bottom: none; }
 }
 
+.athlete-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+  &:hover { background: #fafafa; }
+}
+
 .athlete-name { font-weight: 600; }
 .text-mid { color: #535353; }
 

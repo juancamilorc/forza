@@ -2,14 +2,13 @@
 
   <div class="page-header">
     <div>
-      <h1 class="page-title">Entrenadores</h1>
-      <p class="page-subtitle">
-        @if (isTrainer()) {
-          Tu resumen de deportistas y clases
-        } @else {
-          {{ overview().length }} entrenadores
-        }
-      </p>
+      @if (isTrainer()) {
+        <h1 class="page-title">Mi resumen</h1>
+        <p class="page-subtitle">Tus deportistas y clases</p>
+      } @else {
+        <h1 class="page-title">Entrenadores</h1>
+        <p class="page-subtitle">{{ overview().length }} entrenadores</p>
+      }
     </div>
   </div>
 
@@ -62,7 +61,7 @@
               </thead>
               <tbody>
                 @for (a of t.athletes; track a.athlete_id) {
-                  <tr>
+                  <tr class="athlete-row" (click)="goToAthlete(a.athlete_id)" title="Ver detalle del deportista">
                     <td class="athlete-name">{{ a.name }}</td>
                     <td class="text-mid">{{ getPlanLabel(a.plan_type) }}</td>
                     <td class="text-mid">{{ a.completed_sessions }}</td>
@@ -70,10 +69,10 @@
                     <td class="text-mid">{{ formatDate(a.plan_end_date) }}</td>
                     <td class="badges-cell">
                       @if (a.plan_expiring_soon) {
-                        <span class="badge badge-warning">Vence pronto</span>
+                        <span class="badge badge-warning">Vence {{ expiryLabel(a.days_until_expiry) }}</span>
                       }
-                      @if (a.has_debt) {
-                        <span class="badge badge-debt">Debe</span>
+                      @if (a.debt_amount > 0) {
+                        <span class="badge badge-debt">Debe {{ formatCOP(a.debt_amount) }}</span>
                       }
                     </td>
                   </tr>
