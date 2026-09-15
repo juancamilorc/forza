@@ -1,0 +1,99 @@
+<div class="trainers-overview">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Entrenadores</h1>
+      <p class="page-subtitle">
+        @if (isTrainer()) {
+          Tu resumen de deportistas y clases
+        } @else {
+          {{ overview().length }} entrenadores
+        }
+      </p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    @for (t of overview(); track t.trainer_id) {
+      <div class="trainer-card">
+
+        <div class="trainer-header">
+          <h2 class="trainer-name">{{ t.trainer_name }}</h2>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi">
+            <span class="kpi-value">{{ t.athletes_count }}</span>
+            <span class="kpi-label">Deportistas</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value">{{ t.active_athletes_count }}</span>
+            <span class="kpi-label">Activos</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value">{{ t.active_plans_count }}</span>
+            <span class="kpi-label">Planes activos</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-value">{{ t.sessions_this_week }}</span>
+            <span class="kpi-label">Clases esta semana</span>
+          </div>
+        </div>
+
+        @if (t.athletes.length > 0) {
+          <div class="athletes-table-wrap">
+            <table class="athletes-table">
+              <thead>
+                <tr>
+                  <th>Deportista</th>
+                  <th>Plan</th>
+                  <th>Dadas</th>
+                  <th>Restantes</th>
+                  <th>Vencimiento</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of t.athletes; track a.athlete_id) {
+                  <tr>
+                    <td class="athlete-name">{{ a.name }}</td>
+                    <td class="text-mid">{{ getPlanLabel(a.plan_type) }}</td>
+                    <td class="text-mid">{{ a.completed_sessions }}</td>
+                    <td class="text-mid">{{ a.remaining_sessions ?? '—' }}</td>
+                    <td class="text-mid">{{ formatDate(a.plan_end_date) }}</td>
+                    <td class="badges-cell">
+                      @if (a.plan_expiring_soon) {
+                        <span class="badge badge-warning">Vence pronto</span>
+                      }
+                      @if (a.has_debt) {
+                        <span class="badge badge-debt">Debe</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="empty-note">Sin deportistas asignados.</p>
+        }
+
+      </div>
+    }
+
+    @empty {
+      <div class="empty-state">
+        <span class="material-symbols-outlined">sports</span>
+        <p>No hay información de entrenadores para mostrar</p>
+      </div>
+    }
+  }
+
+</div>
