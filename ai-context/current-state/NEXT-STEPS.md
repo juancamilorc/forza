@@ -1,5 +1,5 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 14 Sep 2026
+> Fuente única de verdad. Actualizado: 15 Sep 2026
 > Verificado con `git log` + Linear API
 
 ---
@@ -14,7 +14,7 @@
 - Smoke post-deploy: login OK, `/sessions` 200.
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop (staging) — commit `5d4c03d` — nivelado con main
+### develop (staging) — commit `9933cd5` — un poco adelante de main (FOR-66 + FOR-67, Cycle 15)
 - **Deploy staging:** https://forza-git-develop-jcrc.vercel.app
 - ✅ Branch protection activa en `main` y `develop` (Restrict deletions + Block force
   pushes, bypass list vacía) — confirmado con capturas, ya no debería repetirse el
@@ -62,9 +62,9 @@ prefijo `feature/` y hace `git pull`.)
 
 | Ticket | Descripción | Estado |
 |--------|-------------|--------|
-| FOR-66 | Fórmulas nutricionales diferenciadas por género (M/F) | 🔄 In Review — bug menor encontrado y arreglado (ver abajo), branch `bugfix/FOR-66-redondeo-preview-nutricional` |
-| FOR-67 | Filtros por mes/plan y exportar pagos a Excel | Todo — siguiente |
-| FOR-68 | Vista entrenadores con clases y deportistas | Todo |
+| FOR-66 | Fórmulas nutricionales diferenciadas por género (M/F) | ✅ Done — bug menor encontrado y arreglado (ver abajo) |
+| FOR-67 | Filtros por mes/plan y exportar pagos a Excel | ✅ Done — ver nota de seguridad xlsx abajo |
+| FOR-68 | Vista entrenadores con clases y deportistas | 🔄 En curso — siguiente |
 | FOR-69 | Banner de campos faltantes en detalle deportista | Todo |
 
 **FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
@@ -79,6 +79,18 @@ por imprecisión de punto flotante daban resultados distintos en casos borde
 del frontend al método del backend. Queda un registro de prueba guardado en
 el fixture A1 (`PRUEBA AlDia`) — no hay endpoint DELETE para evaluaciones
 nutricionales, se limpia solo con el próximo `--wipe`.
+
+**FOR-67 — nota de seguridad (xlsx):** la exportación usa `xlsx@0.18.5` de
+npm para generar el `.xlsx` (SheetJS). Esa versión tiene 2 CVEs conocidos
+(prototype pollution + ReDoS), pero ambos se disparan al **parsear** un
+archivo `.xlsx` no confiable — nuestro código solo **genera** el archivo
+desde datos internos (`json_to_sheet` + `writeFile`), nunca lo parsea, así
+que el riesgo real hoy es bajo. ⚠️ Si en algún momento se agrega una función
+de **importar** pagos/datos desde un Excel subido por el usuario, ahí sí hay
+que resolver esto primero: instalar la versión parchada desde el CDN oficial
+(`npm install https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz` — no
+instalable en este sandbox por restricción de URLs externas, pero sí desde
+una máquina normal) o cambiar de librería.
 
 ---
 
@@ -140,7 +152,6 @@ trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportist
 ### Sin cycle asignado
 - FOR-87 — Validación inline (borde rojo) en formularios
 - FOR-64 — Rediseño completo Agenda/Schedule
-- FOR-70 — Banner campos faltantes en detalle deportista
 - FOR-54 — Recordatorios automáticos WhatsApp
 - FOR-55 — Historial congelamientos
 - FOR-46 — UI/UX Premium con Stitch
