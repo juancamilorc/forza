@@ -1,6 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import * as XLSX from 'xlsx';
 import { PaymentsService, Payment } from '../../../core/services/payments.service';
+import { PLAN_TYPES } from '../../../core/services/plans.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -21,7 +23,11 @@ export class PaymentsList implements OnInit {
   loading      = signal(true);
   search       = signal('');
   statusFilter = signal('');
+  planFilter   = signal('');
+  monthFilter  = signal(''); // formato "YYYY-MM", filtra por due_date
   role         = this.auth.getRole() ?? '';
+
+  readonly planTypes = PLAN_TYPES;
 
   // Modal abono
   abonoTarget  = signal<Payment | null>(null);
@@ -51,6 +57,16 @@ export class PaymentsList implements OnInit {
     this.applyFilters();
   }
 
+  onPlanFilter(event: Event) {
+    this.planFilter.set((event.target as HTMLSelectElement).value);
+    this.applyFilters();
+  }
+
+  onMonthFilter(event: Event) {
+    this.monthFilter.set((event.target as HTMLInputElement).value);
+    this.applyFilters();
+  }
+
   private normalize(str: string): string {
     return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   }
@@ -59,6 +75,8 @@ export class PaymentsList implements OnInit {
     let result = this.payments();
     const term   = this.normalize(this.search());
     const status = this.statusFilter();
+    const plan   = this.planFilter();
+    const month  = this.monthFilter(); // "YYYY-MM"
 
     if (term) {
       result = result.filter(p => {
@@ -67,6 +85,8 @@ export class PaymentsList implements OnInit {
       });
     }
     if (status) result = result.filter(p => p.status === status);
+    if (plan)   result = result.filter(p => p.plans?.plan_type === plan);
+    if (month)  result = result.filter(p => p.due_date?.startsWith(month));
     this.filtered.set(result);
   }
 
@@ -144,5 +164,31 @@ export class PaymentsList implements OnInit {
 
   formatCOP(value: number): string {
     return value.toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+  }
+
+  getPlanLabel(type: string | undefined): string {
+    if (!type) return '—';
+    return this.planTypes.find(p => p.value === type)?.label ?? type;
+  }
+
+  // Exporta exactamente lo que está filtrado en pantalla (FOR-67)
+  exportarExcel() {
+    const rows = this.filtered().map(p => ({
+      Deportista: `${p.athletes?.first_name ?? ''} ${p.athletes?.last_name ?? ''}`.trim(),
+      Plan: this.getPlanLabel(p.plans?.plan_type),
+      Total: p.amount,
+      Pagado: p.amount_paid,
+      Saldo: this.getSaldo(p),
+      Método: this.getMethodLabel(p.method),
+      Vencimiento: p.due_date ?? '—',
+      Estado: this.getStatusLabel(p.status),
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Pagos');
+
+    const fecha = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `pagos_${fecha}.xlsx`);
   }
 }

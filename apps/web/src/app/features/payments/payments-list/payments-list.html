@@ -6,10 +6,16 @@
       <h1 class="page-title">Pagos</h1>
       <p class="page-subtitle">{{ filtered().length }} registros</p>
     </div>
-    <button class="btn-primary" (click)="goToNew()">
-      <span class="material-symbols-outlined">add</span>
-      Registrar pago
-    </button>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="exportarExcel()" [disabled]="filtered().length === 0">
+        <span class="material-symbols-outlined">download</span>
+        Exportar Excel
+      </button>
+      <button class="btn-primary" (click)="goToNew()">
+        <span class="material-symbols-outlined">add</span>
+        Registrar pago
+      </button>
+    </div>
   </div>
 
   <!-- Filtros -->
@@ -28,6 +34,20 @@
       <button class="filter-chip" [class.active]="statusFilter() === 'pendiente'"  (click)="onStatusFilter('pendiente')">Pendiente</button>
       <button class="filter-chip" [class.active]="statusFilter() === 'parcial'"    (click)="onStatusFilter('parcial')">Parcial</button>
       <button class="filter-chip" [class.active]="statusFilter() === 'pagado'"     (click)="onStatusFilter('pagado')">Pagado</button>
+    </div>
+    <div class="extra-filters">
+      <select class="form-input plan-filter" (change)="onPlanFilter($event)">
+        <option value="">Todos los planes</option>
+        @for (plan of planTypes; track plan.value) {
+          <option [value]="plan.value">{{ plan.label }}</option>
+        }
+      </select>
+      <input
+        type="month"
+        class="form-input month-filter"
+        title="Filtrar por mes de vencimiento"
+        (change)="onMonthFilter($event)"
+      />
     </div>
   </div>
 
