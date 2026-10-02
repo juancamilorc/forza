@@ -1,11 +1,13 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AthletesService, Athlete } from '../../../core/services/athletes.service';
+import { AthletesService, Athlete, AthleteStatus } from '../../../core/services/athletes.service';
 import { PlansService, Plan } from '../../../core/services/plans.service';
 import { PaymentsService, Payment } from '../../../core/services/payments.service';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
 import { AssessmentsService, NutritionalAssessment, TechnicalAssessment, PhysicalAssessment } from '../../../core/services/assessments.service';
+import { GuardiansService, Guardian } from '../../../core/services/guardians.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { DatePipe , Location } from '@angular/common';
 
 @Component({
@@ -23,7 +25,9 @@ export class AthleteDetail implements OnInit {
   private paymentsService     = inject(PaymentsService);
   private sessionsService     = inject(SessionsService);
   private assessmentsService  = inject(AssessmentsService);
+  private guardiansService    = inject(GuardiansService);
   private auth                = inject(AuthService);
+  private toast                = inject(ToastService);
 
   athlete          = signal<Athlete | null>(null);
   activePlan       = signal<Plan | null>(null);
@@ -33,11 +37,36 @@ export class AthleteDetail implements OnInit {
   nutritionalList       = signal<NutritionalAssessment[]>([]);
   technicalList         = signal<TechnicalAssessment[]>([]);
   physicalList          = signal<PhysicalAssessment[]>([]);
+  guardians             = signal<Guardian[]>([]);
+  loadingGuardians       = signal(true);
+  athleteStatus          = signal<AthleteStatus | null>(null);
   loading               = signal(true);
   loadingPlan           = signal(true);
   loadingSessions       = signal(true);
   loadingAssessments    = signal(true);
   role             = this.auth.getRole() ?? '';
+
+  // Modal acudiente (FOR-69)
+  guardianModalOpen = signal(false);
+  guardianSaving    = signal(false);
+  guardianForm = signal({
+    id:             '',
+    full_name:      '',
+    whatsapp_phone: '',
+    email:          '',
+    relationship:   '',
+  });
+
+  readonly positionLabels: Record<string, string> = {
+    portero: 'Portero', defensa: 'Defensa',
+    mediocampista: 'Mediocampista', delantero: 'Delantero',
+  };
+
+  readonly evalFormRoutes: Record<'nutritional' | 'technical' | 'physical', () => void> = {
+    nutritional: () => this.goToNutritionalForm(),
+    technical:   () => this.goToTechnicalForm(),
+    physical:    () => this.goToPhysicalForm(),
+  };
 
   // Últimas 10 para la tabla de historial (los contadores usan `sessions()` completo)
   recentSessions = computed(() => this.sessions().slice(0, 10));
@@ -129,6 +158,16 @@ export class AthleteDetail implements OnInit {
     this.assessmentsService.getPhysicalByAthlete(id).subscribe({
       next: (d) => { this.physicalList.set(d); done(); },
       error: () => done(),
+    });
+
+    // Acudientes y estado del perfil (campos faltantes + evaluaciones vencidas) — FOR-69
+    this.guardiansService.getByAthlete(id).subscribe({
+      next: (d) => { this.guardians.set(d); this.loadingGuardians.set(false); },
+      error: () => this.loadingGuardians.set(false),
+    });
+    this.service.getStatus(id).subscribe({
+      next: (d) => this.athleteStatus.set(d),
+      error: () => {},
     });
   }
 
@@ -254,6 +293,97 @@ export class AthleteDetail implements OnInit {
   goToPhysicalForm() {
     this.router.navigate(['/evaluaciones/fisica/nueva'], {
       queryParams: { athlete_id: this.athlete()!.id },
+    });
+  }
+
+  // ── Banner campos faltantes / evaluaciones vencidas (FOR-69) ──────────
+
+  primaryGuardian(): Guardian | null {
+    const list = this.guardians();
+    return list.find(g => g.is_primary) ?? list[0] ?? null;
+  }
+
+  positionLabel(): string {
+    const p = this.athlete()?.position;
+    return p ? (this.positionLabels[p] ?? p) : 'Sin definir';
+  }
+
+  // Click en un campo faltante del banner amarillo — lleva al formulario correspondiente
+  goToMissingField(key: string) {
+    if (key === 'guardian') {
+      this.openGuardianModal();
+    } else if (key === 'position') {
+      this.goToEdit();
+    }
+  }
+
+  evalLabel(type: 'nutritional' | 'technical' | 'physical'): string {
+    const labels = { nutritional: 'Nutricional', technical: 'Técnica', physical: 'Física' };
+    return labels[type];
+  }
+
+  goToEvalForm(type: 'nutritional' | 'technical' | 'physical') {
+    this.evalFormRoutes[type]();
+  }
+
+  // ── Modal acudiente ─────────────────────────────────────────────────
+
+  openGuardianModal() {
+    const existing = this.primaryGuardian();
+    this.guardianForm.set({
+      id:             existing?.id ?? '',
+      full_name:      existing?.full_name ?? '',
+      whatsapp_phone: existing?.whatsapp_phone ?? '',
+      email:          existing?.email ?? '',
+      relationship:   existing?.relationship ?? '',
+    });
+    this.guardianModalOpen.set(true);
+  }
+
+  closeGuardianModal() {
+    this.guardianModalOpen.set(false);
+  }
+
+  updateGuardianField(field: string, value: string) {
+    this.guardianForm.update(f => ({ ...f, [field]: value }));
+  }
+
+  saveGuardian() {
+    const f = this.guardianForm();
+    if (!f.full_name.trim() || !f.whatsapp_phone.trim()) {
+      this.toast.error('Nombre y WhatsApp del acudiente son obligatorios');
+      return;
+    }
+
+    const payload = {
+      full_name:      f.full_name.trim(),
+      whatsapp_phone: f.whatsapp_phone.trim(),
+      email:          f.email.trim() || null,
+      relationship:   f.relationship.trim() || null,
+    };
+
+    this.guardianSaving.set(true);
+
+    const request = f.id
+      ? this.guardiansService.update(f.id, payload)
+      : this.guardiansService.create({ ...payload, athlete_id: this.athlete()!.id, is_primary: true });
+
+    request.subscribe({
+      next: (guardian) => {
+        this.guardians.update(list => {
+          const exists = list.some(g => g.id === guardian.id);
+          return exists ? list.map(g => g.id === guardian.id ? guardian : g) : [...list, guardian];
+        });
+        // Refrescar el estado para que el banner amarillo desaparezca si ya no falta
+        this.service.getStatus(this.athlete()!.id).subscribe(s => this.athleteStatus.set(s));
+        this.toast.success('Acudiente guardado correctamente');
+        this.guardianSaving.set(false);
+        this.closeGuardianModal();
+      },
+      error: () => {
+        this.toast.error('Error al guardar el acudiente');
+        this.guardianSaving.set(false);
+      },
     });
   }
 }

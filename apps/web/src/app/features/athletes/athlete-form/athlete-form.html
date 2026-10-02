@@ -83,6 +83,21 @@
           </select>
         </div>
 
+        <!-- Posición -->
+        <div class="form-group">
+          <label class="form-label" for="position">Posición</label>
+          <select
+            id="position"
+            class="form-input"
+            (change)="updateField('position', $any($event.target).value)"
+          >
+            <option value="" [selected]="form().position === ''">Sin definir</option>
+            @for (p of positions; track p.value) {
+              <option [value]="p.value" [selected]="form().position === p.value">{{ p.label }}</option>
+            }
+          </select>
+        </div>
+
         <!-- Estado -->
         <div class="form-group">
           <label class="form-label" for="status">Estado</label>

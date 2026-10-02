@@ -38,6 +38,12 @@ export class AthletesController {
     return this.athletes.findOne(id);
   }
 
+  // Campos faltantes + evaluaciones vencidas — FOR-69
+  @Get(':id/status')
+  getStatus(@Param('id', ParseUUIDPipe) id: string) {
+    return this.athletes.getStatus(id);
+  }
+
   @Roles('super_admin', 'admin')
   @Post()
   create(@Body() dto: CreateAthleteDto) {

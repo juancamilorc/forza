@@ -31,5 +31,8 @@ export * from './lib/dtos/assessment/update-physical-assessment.dto';
 
 export * from './lib/dtos/payment/create-payment.dto';
 export * from './lib/dtos/payment/update-payment.dto';
+
+export * from './lib/dtos/guardian/create-guardian.dto';
+export * from './lib/dtos/guardian/update-guardian.dto';
 export * from './lib/dtos/video/create-video.dto';
 export * from './lib/dtos/video/update-video.dto';

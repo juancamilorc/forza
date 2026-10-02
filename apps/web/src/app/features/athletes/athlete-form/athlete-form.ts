@@ -43,6 +43,13 @@ export class AthleteForm implements OnInit {
   // desde el módulo /planes).
   activePlan = signal<Plan | null>(null);
 
+  positions = [
+    { value: 'portero',       label: 'Portero' },
+    { value: 'defensa',       label: 'Defensa' },
+    { value: 'mediocampista', label: 'Mediocampista' },
+    { value: 'delantero',     label: 'Delantero' },
+  ];
+
   planTypes = [
     { value: 'momentum', label: 'Momentum' },
     { value: 'momentum_pro', label: 'Momentum Pro' },
@@ -70,6 +77,7 @@ export class AthleteForm implements OnInit {
     birth_date: '',
     gender:     '',
     status:     'trial',
+    position:   '',
     notes:      '',
     trainer_id: '',
     // Campos de plan (solo al crear)
@@ -128,6 +136,7 @@ export class AthleteForm implements OnInit {
             birth_date: athlete.birth_date,
             gender:     athlete.gender ?? '',
             status:     athlete.status,
+            position:   athlete.position ?? '',
             notes:      athlete.notes ?? '',
             trainer_id: athlete.trainer_id ?? '',
           }));
@@ -200,6 +209,7 @@ export class AthleteForm implements OnInit {
       birth_date: f.birth_date,
       gender:     f.gender,
       status:     f.status,
+      position:   f.position || null,
       notes:      f.notes || null,
     };
 

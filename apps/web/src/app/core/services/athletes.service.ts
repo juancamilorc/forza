@@ -10,6 +10,7 @@ export interface Athlete {
   status:     string;
   trainer_id: string | null;
   photo_url:  string | null;
+  position:   string | null;
   notes:      string | null;
   age:        number;
   gender:     string | null;
@@ -24,6 +25,23 @@ export interface Athlete {
   };
 }
 
+export interface AthleteEvalStatus {
+  last_date:  string | null;
+  days_since: number | null;
+  overdue:    boolean;
+}
+
+export interface AthleteStatus {
+  missing_fields:       { key: string; label: string }[];
+  profile_incomplete:   boolean;
+  evaluations: {
+    nutritional: AthleteEvalStatus;
+    technical:   AthleteEvalStatus;
+    physical:    AthleteEvalStatus;
+  };
+  evaluations_overdue: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AthletesService {
   private http = inject(HttpClient);
@@ -36,6 +54,11 @@ export class AthletesService {
 
   getOne(id: string) {
     return this.http.get<Athlete>(`${this.url}/${id}`);
+  }
+
+  // FOR-69 — campos faltantes + evaluaciones vencidas
+  getStatus(id: string) {
+    return this.http.get<AthleteStatus>(`${this.url}/${id}/status`);
   }
 
   create(data: Partial<Athlete>) {
