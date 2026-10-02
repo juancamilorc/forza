@@ -101,6 +101,13 @@ export const appRoutes: Route[] = [
             .then(m => m.AppointmentForm),
       },
       {
+        path: 'entrenadores',
+        canActivate: [rolesGuard('super_admin', 'admin', 'trainer')],
+        loadComponent: () =>
+          import('./features/trainers/trainers-overview/trainers-overview')
+            .then(m => m.TrainersOverview),
+      },
+      {
         path: 'pagos',
         canActivate: [rolesGuard('super_admin', 'admin')],
         loadComponent: () =>
