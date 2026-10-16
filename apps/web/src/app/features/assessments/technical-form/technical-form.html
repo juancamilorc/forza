@@ -172,6 +172,11 @@
         </div>
       </div>
 
+      <div class="result-split">
+        <span>Derecha: {{ results().controlDerechaTotal }} / {{ 3 * form().control_intentos }} ({{ results().controlDerechaPct }}%)</span>
+        <span>Izquierda: {{ results().controlIzquierdaTotal }} / {{ 3 * form().control_intentos }} ({{ results().controlIzquierdaPct }}%)</span>
+      </div>
+
       <div class="section-result">
         <span class="result-label">Total: {{ results().controlTotal }} / {{ 6 * form().control_intentos }}</span>
         <span class="result-pct">{{ results().controlPct }}%</span>
@@ -335,6 +340,11 @@
             }
           </div>
         </div>
+      </div>
+
+      <div class="result-split">
+        <span>Derecha: {{ results().defDerechaTotal }} / {{ 3 * form().definicion_intentos }} ({{ results().defDerechaPct }}%)</span>
+        <span>Izquierda: {{ results().defIzquierdaTotal }} / {{ 3 * form().definicion_intentos }} ({{ results().defIzquierdaPct }}%)</span>
       </div>
 
       <div class="section-result">

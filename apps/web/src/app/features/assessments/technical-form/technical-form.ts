@@ -103,20 +103,28 @@ export class TechnicalForm implements OnInit {
   results = computed(() => {
     const f = this.form();
 
-    const controlTotal = f.control_rastrero_dr + f.control_rastrero_iz
-      + f.control_media_altura_dr + f.control_media_altura_iz
-      + f.control_alto_dr + f.control_alto_iz;
+    const controlDerechaTotal = f.control_rastrero_dr + f.control_media_altura_dr + f.control_alto_dr;
+    const controlIzquierdaTotal = f.control_rastrero_iz + f.control_media_altura_iz + f.control_alto_iz;
+    const controlTotal = controlDerechaTotal + controlIzquierdaTotal;
+    const controlDerechaPct   = +(controlDerechaTotal / (3 * f.control_intentos) * 100).toFixed(1);
+    const controlIzquierdaPct = +(controlIzquierdaTotal / (3 * f.control_intentos) * 100).toFixed(1);
     const controlPct = +(controlTotal / (6 * f.control_intentos) * 100).toFixed(1);
 
     const paseTotal = f.pase_derecha + f.pase_izquierda;
     const pasePct   = +(paseTotal / (2 * f.pase_intentos) * 100).toFixed(1);
 
-    const defTotal = f.definicion_carril_der_dr + f.definicion_carril_der_iz
-      + f.definicion_carril_cen_dr + f.definicion_carril_cen_iz
-      + f.definicion_carril_izq_dr + f.definicion_carril_izq_iz;
+    const defDerechaTotal = f.definicion_carril_der_dr + f.definicion_carril_cen_dr + f.definicion_carril_izq_dr;
+    const defIzquierdaTotal = f.definicion_carril_der_iz + f.definicion_carril_cen_iz + f.definicion_carril_izq_iz;
+    const defTotal = defDerechaTotal + defIzquierdaTotal;
+    const defDerechaPct   = +(defDerechaTotal / (3 * f.definicion_intentos) * 100).toFixed(1);
+    const defIzquierdaPct = +(defIzquierdaTotal / (3 * f.definicion_intentos) * 100).toFixed(1);
     const defPct = +(defTotal / (6 * f.definicion_intentos) * 100).toFixed(1);
 
-    return { controlTotal, controlPct, paseTotal, pasePct, defTotal, defPct };
+    return {
+      controlTotal, controlPct, controlDerechaTotal, controlDerechaPct, controlIzquierdaTotal, controlIzquierdaPct,
+      paseTotal, pasePct,
+      defTotal, defPct, defDerechaTotal, defDerechaPct, defIzquierdaTotal, defIzquierdaPct,
+    };
   });
 
   ngOnInit() {

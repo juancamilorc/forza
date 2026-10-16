@@ -198,6 +198,18 @@
   }
 }
 
+// ── RESULT SPLIT (derecha/izquierda) ─────────────────────────
+.result-split {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #535353;
+  font-family: 'Cairo', sans-serif;
+}
+
 // ── SECTION RESULT ───────────────────────────────────────────
 .section-result {
   display: flex;

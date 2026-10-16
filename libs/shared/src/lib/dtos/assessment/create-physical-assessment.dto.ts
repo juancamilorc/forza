@@ -75,10 +75,10 @@ export class CreatePhysicalAssessmentDto {
   sentadilla_foto_url?: string;
 
   // ── Salto vertical (1-4 intentos; se clasifica con el mejor) ──
-  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @IsOptional()
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @Min(0, { each: true }) @IsOptional()
   salto_vertical_valores?: number[];
 
-  @IsNumber() @IsOptional()
+  @IsNumber() @Min(0) @IsOptional()
   salto_vertical_cm?: number;
 
   @IsEnum(PhysicalClassification)
@@ -89,10 +89,10 @@ export class CreatePhysicalAssessmentDto {
   salto_vertical_notas?: string;
 
   // ── Salto horizontal (1-4 intentos; se clasifica con el mejor)
-  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @IsOptional()
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @Min(0, { each: true }) @IsOptional()
   salto_horizontal_valores?: number[];
 
-  @IsNumber() @IsOptional()
+  @IsNumber() @Min(0) @IsOptional()
   salto_horizontal_cm?: number;
 
   @IsEnum(PhysicalClassification)
