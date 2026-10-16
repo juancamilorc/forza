@@ -157,10 +157,13 @@ export class PhysicalForm implements OnInit {
     event: Event,
   ) {
     const valoresField = `${tipo}_valores` as const;
-    const v = (event.target as HTMLInputElement).value;
+    const input = event.target as HTMLInputElement;
+    // Un salto no puede ser negativo — se clampea a 0 en vez de dejarlo pasar.
+    const parsed = input.value !== '' ? Math.max(0, +input.value) : null;
+    if (parsed !== null && +input.value < 0) input.value = String(parsed);
     this.form.update(f => {
       const nuevos = [...(f[valoresField] as (number | null)[])];
-      nuevos[index] = v !== '' ? +v : null;
+      nuevos[index] = parsed;
       return { ...f, [valoresField]: nuevos };
     });
   }
@@ -222,9 +225,10 @@ export class PhysicalForm implements OnInit {
         this.toast.show('Evaluación física guardada', 'success');
         this.router.navigate(['/deportistas', this.athleteId()]);
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.toast.show('Error al guardar la evaluación', 'error');
+        const msg = err?.error?.message ?? err?.message ?? 'Error al guardar la evaluación';
+        this.toast.show(Array.isArray(msg) ? msg.join(', ') : msg, 'error');
       },
     });
   }

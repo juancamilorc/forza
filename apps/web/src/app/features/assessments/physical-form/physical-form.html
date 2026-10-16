@@ -122,6 +122,16 @@
           </select>
         </div>
 
+        <div class="field-group">
+          <label class="field-label">Intentos salto horizontal</label>
+          <select class="field-input"
+            (change)="setSaltoIntentos('salto_horizontal', +$any($event.target).value)">
+            @for (n of intentosOpts; track n) {
+              <option [value]="n" [selected]="form().salto_horizontal_intentos === n">{{ n }}</option>
+            }
+          </select>
+        </div>
+
         <div class="field-group field-full">
           <label class="field-label">Salto vertical — valores (cm)</label>
           <div class="score-group">
@@ -134,23 +144,6 @@
           </div>
         </div>
 
-        <div class="field-group">
-          <label class="field-label">Notas salto vertical</label>
-          <input type="text" class="field-input"
-            [value]="form().salto_vertical_notas"
-            (input)="updateStr('salto_vertical_notas', $event)" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Intentos salto horizontal</label>
-          <select class="field-input"
-            (change)="setSaltoIntentos('salto_horizontal', +$any($event.target).value)">
-            @for (n of intentosOpts; track n) {
-              <option [value]="n" [selected]="form().salto_horizontal_intentos === n">{{ n }}</option>
-            }
-          </select>
-        </div>
-
         <div class="field-group field-full">
           <label class="field-label">Salto horizontal — valores (cm)</label>
           <div class="score-group">
@@ -161,6 +154,13 @@
                 (input)="setSaltoValor('salto_horizontal', $index, $event)" />
             }
           </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Notas salto vertical</label>
+          <input type="text" class="field-input"
+            [value]="form().salto_vertical_notas"
+            (input)="updateStr('salto_vertical_notas', $event)" />
         </div>
 
         <div class="field-group">

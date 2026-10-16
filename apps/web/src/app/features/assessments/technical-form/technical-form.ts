@@ -226,9 +226,10 @@ export class TechnicalForm implements OnInit {
         this.toast.show('Evaluación técnica guardada', 'success');
         this.router.navigate(['/deportistas', this.athleteId()]);
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.toast.show('Error al guardar la evaluación', 'error');
+        const msg = err?.error?.message ?? err?.message ?? 'Error al guardar la evaluación';
+        this.toast.show(Array.isArray(msg) ? msg.join(', ') : msg, 'error');
       },
     });
   }
