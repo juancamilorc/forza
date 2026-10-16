@@ -80,18 +80,18 @@
         <tbody>
           <tr>
             <td>Rastrero</td>
-            <td class="score">{{ assessment()!.control_rastrero_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.control_rastrero_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_rastrero_dr ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.control_rastrero_iz ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
           </tr>
           <tr>
             <td>Media altura</td>
-            <td class="score">{{ assessment()!.control_media_altura_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.control_media_altura_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_media_altura_dr ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.control_media_altura_iz ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
           </tr>
           <tr>
             <td>Alto</td>
-            <td class="score">{{ assessment()!.control_alto_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.control_alto_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.control_alto_dr ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.control_alto_iz ?? '—' }} / {{ assessment()!.control_intentos ?? 2 }}</td>
           </tr>
           <tr class="total-row">
             <td>Efectividad</td>
@@ -122,11 +122,11 @@
       <div class="pase-row">
         <div class="pase-box">
           <span class="pase-label">Pierna derecha</span>
-          <span class="pase-score">{{ assessment()!.pase_derecha ?? '—' }} / 4</span>
+          <span class="pase-score">{{ assessment()!.pase_derecha ?? '—' }} / {{ assessment()!.pase_intentos ?? 4 }}</span>
         </div>
         <div class="pase-box">
           <span class="pase-label">Pierna izquierda</span>
-          <span class="pase-score">{{ assessment()!.pase_izquierda ?? '—' }} / 4</span>
+          <span class="pase-score">{{ assessment()!.pase_izquierda ?? '—' }} / {{ assessment()!.pase_intentos ?? 4 }}</span>
         </div>
       </div>
       @if (assessment()!.pase_notas) {
@@ -159,18 +159,18 @@
         <tbody>
           <tr>
             <td>Carril derecho</td>
-            <td class="score">{{ assessment()!.definicion_carril_der_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.definicion_carril_der_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_der_dr ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.definicion_carril_der_iz ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
           </tr>
           <tr>
             <td>Carril central</td>
-            <td class="score">{{ assessment()!.definicion_carril_cen_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.definicion_carril_cen_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_cen_dr ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.definicion_carril_cen_iz ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
           </tr>
           <tr>
             <td>Carril izquierdo</td>
-            <td class="score">{{ assessment()!.definicion_carril_izq_dr ?? '—' }} / 2</td>
-            <td class="score">{{ assessment()!.definicion_carril_izq_iz ?? '—' }} / 2</td>
+            <td class="score">{{ assessment()!.definicion_carril_izq_dr ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
+            <td class="score">{{ assessment()!.definicion_carril_izq_iz ?? '—' }} / {{ assessment()!.definicion_intentos ?? 2 }}</td>
           </tr>
           <tr class="total-row">
             <td>Efectividad</td>

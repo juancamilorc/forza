@@ -48,23 +48,26 @@ export class CreateTechnicalAssessmentDto {
   @IsOptional()
   cambios_direccion_izquierda?: number;
 
-  // ── Control de balón (0-2 por zona) ──────────────────────────
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  // ── Control de balón (0-N por zona, N = control_intentos) ────
+  @IsInt() @Min(1) @Max(4) @IsOptional()
+  control_intentos?: number;
+
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_rastrero_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_rastrero_iz?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_media_altura_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_media_altura_iz?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_alto_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   control_alto_iz?: number;
 
   @IsEnum(TechnicalClassification)
@@ -75,7 +78,10 @@ export class CreateTechnicalAssessmentDto {
   @IsOptional()
   control_notas?: string;
 
-  // ── Precisión en el pase (0-4 por pierna) ────────────────────
+  // ── Precisión en el pase (0-N por pierna, N = pase_intentos) ─
+  @IsInt() @Min(1) @Max(4) @IsOptional()
+  pase_intentos?: number;
+
   @IsInt() @Min(0) @Max(4) @IsOptional()
   pase_derecha?: number;
 
@@ -90,23 +96,26 @@ export class CreateTechnicalAssessmentDto {
   @IsOptional()
   pase_notas?: string;
 
-  // ── Definición (0-2 por carril/pierna) ───────────────────────
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  // ── Definición (0-N por carril/pierna, N = definicion_intentos)
+  @IsInt() @Min(1) @Max(4) @IsOptional()
+  definicion_intentos?: number;
+
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_der_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_der_iz?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_cen_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_cen_iz?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_izq_dr?: number;
 
-  @IsInt() @Min(0) @Max(2) @IsOptional()
+  @IsInt() @Min(0) @Max(4) @IsOptional()
   definicion_carril_izq_iz?: number;
 
   @IsEnum(TechnicalClassification)

@@ -14,6 +14,7 @@ interface TechForm {
   conduccion_20m:               number | null;
   cambios_direccion_derecha:    number | null;
   cambios_direccion_izquierda:  number | null;
+  control_intentos:             number;
   control_rastrero_dr:          number;
   control_rastrero_iz:          number;
   control_media_altura_dr:      number;
@@ -22,10 +23,12 @@ interface TechForm {
   control_alto_iz:              number;
   control_clasificacion:        string;
   control_notas:                string;
+  pase_intentos:                number;
   pase_derecha:                 number;
   pase_izquierda:               number;
   pase_clasificacion:           string;
   pase_notas:                   string;
+  definicion_intentos:          number;
   definicion_carril_der_dr:     number;
   definicion_carril_der_iz:     number;
   definicion_carril_cen_dr:     number;
@@ -44,6 +47,7 @@ const DEFAULT: TechForm = {
   conduccion_20m:               null,
   cambios_direccion_derecha:    null,
   cambios_direccion_izquierda:  null,
+  control_intentos:             2,
   control_rastrero_dr:          0,
   control_rastrero_iz:          0,
   control_media_altura_dr:      0,
@@ -52,10 +56,12 @@ const DEFAULT: TechForm = {
   control_alto_iz:              0,
   control_clasificacion:        '',
   control_notas:                '',
+  pase_intentos:                4,
   pase_derecha:                 0,
   pase_izquierda:               0,
   pase_clasificacion:           '',
   pase_notas:                   '',
+  definicion_intentos:          2,
   definicion_carril_der_dr:     0,
   definicion_carril_der_iz:     0,
   definicion_carril_cen_dr:     0,
@@ -87,9 +93,12 @@ export class TechnicalForm implements OnInit {
   saving    = signal(false);
   form      = signal<TechForm>({ ...DEFAULT });
 
-  readonly clasif   = ['bueno', 'aceptable', 'inadecuado'] as const;
-  readonly vals02   = [0, 1, 2];
-  readonly vals04   = [0, 1, 2, 3, 4];
+  readonly clasif     = ['bueno', 'aceptable', 'inadecuado'] as const;
+  readonly intentosOpts = [1, 2, 3, 4];
+
+  controlVals    = computed(() => Array.from({ length: this.form().control_intentos + 1 }, (_, i) => i));
+  paseVals       = computed(() => Array.from({ length: this.form().pase_intentos + 1 }, (_, i) => i));
+  definicionVals = computed(() => Array.from({ length: this.form().definicion_intentos + 1 }, (_, i) => i));
 
   results = computed(() => {
     const f = this.form();
@@ -97,15 +106,15 @@ export class TechnicalForm implements OnInit {
     const controlTotal = f.control_rastrero_dr + f.control_rastrero_iz
       + f.control_media_altura_dr + f.control_media_altura_iz
       + f.control_alto_dr + f.control_alto_iz;
-    const controlPct = +(controlTotal / 12 * 100).toFixed(1);
+    const controlPct = +(controlTotal / (6 * f.control_intentos) * 100).toFixed(1);
 
     const paseTotal = f.pase_derecha + f.pase_izquierda;
-    const pasePct   = +(paseTotal / 8 * 100).toFixed(1);
+    const pasePct   = +(paseTotal / (2 * f.pase_intentos) * 100).toFixed(1);
 
     const defTotal = f.definicion_carril_der_dr + f.definicion_carril_der_iz
       + f.definicion_carril_cen_dr + f.definicion_carril_cen_iz
       + f.definicion_carril_izq_dr + f.definicion_carril_izq_iz;
-    const defPct = +(defTotal / 12 * 100).toFixed(1);
+    const defPct = +(defTotal / (6 * f.definicion_intentos) * 100).toFixed(1);
 
     return { controlTotal, controlPct, paseTotal, pasePct, defTotal, defPct };
   });
@@ -123,6 +132,22 @@ export class TechnicalForm implements OnInit {
 
   set(field: keyof TechForm, value: number | string) {
     this.form.update(f => ({ ...f, [field]: value }));
+  }
+
+  // Al bajar los intentos configurados, los scores ya elegidos que superen el
+  // nuevo máximo se ajustan hacia abajo para no dejar el formulario inválido.
+  setIntentos(
+    intentosField: 'control_intentos' | 'pase_intentos' | 'definicion_intentos',
+    scoreFields: (keyof TechForm)[],
+    value: number,
+  ) {
+    this.form.update(f => {
+      const next: TechForm = { ...f, [intentosField]: value };
+      for (const k of scoreFields) {
+        if ((next[k] as number) > value) (next as any)[k] = value;
+      }
+      return next;
+    });
   }
 
   updateNum(field: keyof TechForm, event: Event) {
@@ -164,10 +189,13 @@ export class TechnicalForm implements OnInit {
     }
 
     const intFields: (keyof TechForm)[] = [
+      'control_intentos',
       'control_rastrero_dr', 'control_rastrero_iz',
       'control_media_altura_dr', 'control_media_altura_iz',
       'control_alto_dr', 'control_alto_iz',
+      'pase_intentos',
       'pase_derecha', 'pase_izquierda',
+      'definicion_intentos',
       'definicion_carril_der_dr', 'definicion_carril_der_iz',
       'definicion_carril_cen_dr', 'definicion_carril_cen_iz',
       'definicion_carril_izq_dr', 'definicion_carril_izq_iz',

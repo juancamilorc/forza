@@ -1,6 +1,6 @@
 import {
   IsNotEmpty, IsDateString, IsOptional,
-  IsString, IsNumber, IsEnum, IsInt, Min, Max,
+  IsString, IsNumber, IsEnum, IsInt, Min, Max, IsArray, ArrayMaxSize, ArrayMinSize,
 } from 'class-validator';
 
 export enum PhysicalClassification {
@@ -74,7 +74,10 @@ export class CreatePhysicalAssessmentDto {
   @IsString() @IsOptional()
   sentadilla_foto_url?: string;
 
-  // ── Salto vertical ────────────────────────────────────────────
+  // ── Salto vertical (1-4 intentos; se clasifica con el mejor) ──
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @IsOptional()
+  salto_vertical_valores?: number[];
+
   @IsNumber() @IsOptional()
   salto_vertical_cm?: number;
 
@@ -85,7 +88,10 @@ export class CreatePhysicalAssessmentDto {
   @IsString() @IsOptional()
   salto_vertical_notas?: string;
 
-  // ── Salto horizontal ──────────────────────────────────────────
+  // ── Salto horizontal (1-4 intentos; se clasifica con el mejor)
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(4) @IsNumber({}, { each: true }) @IsOptional()
+  salto_horizontal_valores?: number[];
+
   @IsNumber() @IsOptional()
   salto_horizontal_cm?: number;
 
