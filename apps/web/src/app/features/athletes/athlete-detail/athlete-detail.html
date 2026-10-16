@@ -31,6 +31,34 @@
       </div>
     }
 
+    <!-- Banner amarillo: campos faltantes del perfil (FOR-69) -->
+    @if (athleteStatus()?.profile_incomplete) {
+      <div class="status-banner status-banner-warning">
+        <span class="material-symbols-outlined">info</span>
+        <span class="status-banner-text">Faltan datos del perfil:</span>
+        @for (f of athleteStatus()!.missing_fields; track f.key) {
+          <button class="status-banner-chip" (click)="goToMissingField(f.key)">{{ f.label }}</button>
+        }
+      </div>
+    }
+
+    <!-- Banner rojo: evaluaciones vencidas (FOR-69) -->
+    @if (athleteStatus()?.evaluations_overdue) {
+      <div class="status-banner status-banner-danger">
+        <span class="material-symbols-outlined">event_busy</span>
+        <span class="status-banner-text">Evaluaciones vencidas:</span>
+        @if (athleteStatus()!.evaluations.nutritional.overdue) {
+          <button class="status-banner-chip" (click)="goToEvalForm('nutritional')">Nutricional</button>
+        }
+        @if (athleteStatus()!.evaluations.technical.overdue) {
+          <button class="status-banner-chip" (click)="goToEvalForm('technical')">Técnica</button>
+        }
+        @if (athleteStatus()!.evaluations.physical.overdue) {
+          <button class="status-banner-chip" (click)="goToEvalForm('physical')">Física</button>
+        }
+      </div>
+    }
+
     <!-- Perfil -->
     <div class="profile-card">
       <div class="profile-avatar">
@@ -92,6 +120,31 @@
                 <span class="text-mid">Sin asignar</span>
               }
             </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Posición</span>
+            <span class="info-value">
+              @if (athlete()!.position) {
+                {{ positionLabel() }}
+              } @else {
+                <span class="text-mid">Sin definir</span>
+              }
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Acudiente</span>
+            <span class="info-value">
+              @if (!loadingGuardians() && primaryGuardian()) {
+                {{ primaryGuardian()!.full_name }} · {{ primaryGuardian()!.whatsapp_phone }}
+              } @else if (!loadingGuardians()) {
+                <span class="text-mid">Sin registrar</span>
+              }
+            </span>
+            @if (canEdit() && !loadingGuardians()) {
+              <button class="btn-link" (click)="openGuardianModal()">
+                {{ primaryGuardian() ? 'Editar' : 'Agregar' }}
+              </button>
+            }
           </div>
           @if (athlete()!.notes) {
             <div class="info-row">
@@ -411,3 +464,76 @@
   }
 
 </div>
+
+<!-- Modal acudiente (FOR-69) -->
+@if (guardianModalOpen()) {
+  <div class="modal-overlay" (click)="closeGuardianModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h2 class="modal-title">{{ primaryGuardian() ? 'Editar' : 'Agregar' }} acudiente</h2>
+        <button class="modal-close" (click)="closeGuardianModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nombre completo *</label>
+          <input
+            type="text"
+            class="form-input"
+            [value]="guardianForm().full_name"
+            (input)="updateGuardianField('full_name', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">WhatsApp *</label>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="+573001112233"
+            [value]="guardianForm().whatsapp_phone"
+            (input)="updateGuardianField('whatsapp_phone', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-input"
+            [value]="guardianForm().email"
+            (input)="updateGuardianField('email', $any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Parentesco</label>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Madre, padre, tío..."
+            [value]="guardianForm().relationship"
+            (input)="updateGuardianField('relationship', $any($event.target).value)"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeGuardianModal()">Cancelar</button>
+        <button class="btn-primary" (click)="saveGuardian()" [disabled]="guardianSaving()">
+          @if (guardianSaving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined">check</span>
+            Guardar
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

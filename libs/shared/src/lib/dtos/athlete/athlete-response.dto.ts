@@ -7,6 +7,7 @@ export class AthleteResponseDto {
   status!:      string;
   trainer_id!:  string | null;
   photo_url!:   string | null;
+  position!:    string | null;
   notes!:       string | null;
   created_at!:  string;
   updated_at!:  string;

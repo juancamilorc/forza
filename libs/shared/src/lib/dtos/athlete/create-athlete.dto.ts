@@ -45,4 +45,8 @@ export class CreateAthleteDto {
   @IsEnum(AthleteGender)
   @IsNotEmpty()
   gender!: string;
+
+  @IsString()
+  @IsOptional()
+  position?: string;
 }
