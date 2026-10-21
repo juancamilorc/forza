@@ -24,9 +24,11 @@ interface PhysForm {
   movilidad_clasificacion:       string;
   movilidad_notas:               string;
   sentadilla_foto_url:           string;
-  salto_vertical_cm:             number | null;
+  salto_vertical_intentos:       number;
+  salto_vertical_valores:        (number | null)[];
   salto_vertical_notas:          string;
-  salto_horizontal_cm:           number | null;
+  salto_horizontal_intentos:     number;
+  salto_horizontal_valores:      (number | null)[];
   salto_horizontal_notas:        string;
   sprint_5m:                     number | null;
   sprint_10m:                    number | null;
@@ -52,9 +54,11 @@ const DEFAULT: PhysForm = {
   movilidad_clasificacion:       '',
   movilidad_notas:               '',
   sentadilla_foto_url:           '',
-  salto_vertical_cm:             null,
+  salto_vertical_intentos:       1,
+  salto_vertical_valores:        [null],
   salto_vertical_notas:          '',
-  salto_horizontal_cm:           null,
+  salto_horizontal_intentos:     1,
+  salto_horizontal_valores:      [null],
   salto_horizontal_notas:        '',
   sprint_5m:                     null,
   sprint_10m:                    null,
@@ -84,6 +88,7 @@ export class PhysicalForm implements OnInit {
   form      = signal<PhysForm>({ ...DEFAULT });
 
   readonly vals03  = [0, 1, 2, 3];
+  readonly intentosOpts = [1, 2, 3, 4];
   readonly movilLabels = ['No logra', 'Compens. importantes', 'Compens. menores', 'Perfecto'];
   readonly clasif  = ['excelente', 'bueno', 'promedio', 'debajo_promedio'] as const;
   readonly clasifLabels: Record<string, string> = {
@@ -131,6 +136,38 @@ export class PhysicalForm implements OnInit {
     this.form.update(f => ({ ...f, [field]: f[field] === value ? '' : value }));
   }
 
+  // Redimensiona el array de intentos de salto manteniendo los valores ya
+  // ingresados (trunca o rellena con null según crezca o baje el número).
+  setSaltoIntentos(
+    tipo: 'salto_vertical' | 'salto_horizontal',
+    value: number,
+  ) {
+    const intentosField = `${tipo}_intentos` as const;
+    const valoresField  = `${tipo}_valores` as const;
+    this.form.update(f => {
+      const actuales = f[valoresField] as (number | null)[];
+      const nuevos = Array.from({ length: value }, (_, i) => actuales[i] ?? null);
+      return { ...f, [intentosField]: value, [valoresField]: nuevos };
+    });
+  }
+
+  setSaltoValor(
+    tipo: 'salto_vertical' | 'salto_horizontal',
+    index: number,
+    event: Event,
+  ) {
+    const valoresField = `${tipo}_valores` as const;
+    const input = event.target as HTMLInputElement;
+    // Un salto no puede ser negativo — se clampea a 0 en vez de dejarlo pasar.
+    const parsed = input.value !== '' ? Math.max(0, +input.value) : null;
+    if (parsed !== null && +input.value < 0) input.value = String(parsed);
+    this.form.update(f => {
+      const nuevos = [...(f[valoresField] as (number | null)[])];
+      nuevos[index] = parsed;
+      return { ...f, [valoresField]: nuevos };
+    });
+  }
+
   goBack() { this.location.back(); }
 
   submit() {
@@ -156,12 +193,18 @@ export class PhysicalForm implements OnInit {
 
     // Número nullable
     const numFields: (keyof PhysForm)[] = [
-      'salto_vertical_cm', 'salto_horizontal_cm',
       'sprint_5m', 'sprint_10m', 'sprint_15m', 'sprint_20m',
     ];
     for (const k of numFields) {
       if (f[k] !== null) payload[k] = f[k];
     }
+
+    // Intentos de salto — solo los valores diligenciados (sin huecos)
+    const saltoVerticalValores = f.salto_vertical_valores.filter((v): v is number => v !== null);
+    if (saltoVerticalValores.length > 0) payload['salto_vertical_valores'] = saltoVerticalValores;
+
+    const saltoHorizontalValores = f.salto_horizontal_valores.filter((v): v is number => v !== null);
+    if (saltoHorizontalValores.length > 0) payload['salto_horizontal_valores'] = saltoHorizontalValores;
 
     // Strings opcionales
     const strFields: (keyof PhysForm)[] = [
@@ -182,9 +225,10 @@ export class PhysicalForm implements OnInit {
         this.toast.show('Evaluación física guardada', 'success');
         this.router.navigate(['/deportistas', this.athleteId()]);
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        this.toast.show('Error al guardar la evaluación', 'error');
+        const msg = err?.error?.message ?? err?.message ?? 'Error al guardar la evaluación';
+        this.toast.show(Array.isArray(msg) ? msg.join(', ') : msg, 'error');
       },
     });
   }
