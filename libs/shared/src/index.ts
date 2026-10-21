@@ -36,3 +36,7 @@ export * from './lib/dtos/guardian/create-guardian.dto';
 export * from './lib/dtos/guardian/update-guardian.dto';
 export * from './lib/dtos/video/create-video.dto';
 export * from './lib/dtos/video/update-video.dto';
+
+export * from './lib/dtos/trial-session/create-trial-session.dto';
+export * from './lib/dtos/trial-session/update-trial-session.dto';
+export * from './lib/dtos/trial-session/convert-trial-session.dto';

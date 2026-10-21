@@ -1,0 +1,234 @@
+<div class="trial-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Clases de prueba</h1>
+      <p class="page-subtitle">
+        Valor por clase: <strong>{{ price() | currency:'COP':'symbol-narrow':'1.0-0' }}</strong>
+        · Separadas de los deportistas con plan
+      </p>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      Nueva clase de prueba
+    </button>
+  </div>
+
+  <div class="type-chips">
+    <button class="chip" [class.active]="filter() === 'programada'" (click)="setFilter('programada')">Programadas</button>
+    <button class="chip" [class.active]="filter() === 'cancelada'"  (click)="setFilter('cancelada')">Canceladas</button>
+    <button class="chip" [class.active]="filter() === 'all'"        (click)="setFilter('all')">Todas</button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>Cargando clases de prueba...</p>
+    </div>
+  }
+
+  @if (!loading() && groups().length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <p>No hay clases de prueba {{ filter() === 'all' ? '' : (filter() === 'programada' ? 'programadas' : 'canceladas') }}.</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    @for (g of groups(); track g.date) {
+      <h2 class="day-heading">{{ g.date + 'T00:00:00' | date:'EEEE d MMMM yyyy' }}</h2>
+
+      @for (t of g.sessions; track t.id) {
+        <div class="trial-card" [class.is-cancelled]="t.status === 'cancelada'">
+          <div class="trial-time">{{ hora(t) }}</div>
+
+          <div class="trial-main">
+            <div class="trial-name">
+              {{ t.child_name }}
+              @if (t.status === 'cancelada') { <span class="badge badge-cancelled">Cancelada</span> }
+              @if (t.converted_to_athlete_id) { <span class="badge badge-converted">Ya es deportista</span> }
+              @if (t.payment_status === 'pagado') {
+                <span class="badge badge-paid">Pagada</span>
+              } @else {
+                <span class="badge badge-pending">Pago pendiente</span>
+              }
+            </div>
+            <div class="trial-meta">
+              <span><span class="material-symbols-outlined">person</span>{{ t.guardian_name }} · {{ t.guardian_whatsapp }}</span>
+              <span><span class="material-symbols-outlined">sports</span>{{ t.trainer?.users?.full_name ?? 'Sin entrenador' }}</span>
+              @if (t.location) {
+                <span><span class="material-symbols-outlined">location_on</span>{{ t.location }}</span>
+              }
+            </div>
+            @if (t.notes) { <p class="trial-notes">{{ t.notes }}</p> }
+          </div>
+
+          <div class="trial-actions">
+            @if (!isLocked(t)) {
+              <button class="act" (click)="openWhatsapp(t)" title="Abrir WhatsApp con el mensaje de confirmación">
+                <span class="material-symbols-outlined">chat</span>WhatsApp
+              </button>
+            }
+            @if (t.payment_status === 'pendiente' && t.status !== 'cancelada') {
+              <button class="act" (click)="markPaid(t)">
+                <span class="material-symbols-outlined">payments</span>Marcar pagada
+              </button>
+            }
+            @if (!isLocked(t)) {
+              <button class="act" (click)="openEdit(t)">
+                <span class="material-symbols-outlined">edit_calendar</span>Reprogramar / editar
+              </button>
+              <button class="act act-primary" (click)="openConvert(t)">
+                <span class="material-symbols-outlined">person_add</span>Convertir en deportista
+              </button>
+              <button class="act act-danger" (click)="cancel(t)">
+                <span class="material-symbols-outlined">event_busy</span>Cancelar
+              </button>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>
+
+<!-- ── Modal crear / editar ─────────────────────────────────── -->
+@if (formOpen()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ editingId() ? 'Reprogramar / editar' : 'Nueva' }} clase de prueba</h2>
+        <button class="modal-close" (click)="closeForm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nombre del deportista *</label>
+          <input type="text" class="form-input" [value]="form().child_name"
+            (input)="updateField('child_name', $any($event.target).value)" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Acudiente *</label>
+            <input type="text" class="form-input" [value]="form().guardian_name"
+              (input)="updateField('guardian_name', $any($event.target).value)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp *</label>
+            <input type="text" class="form-input" placeholder="3001234567" [value]="form().guardian_whatsapp"
+              (input)="updateField('guardian_whatsapp', $any($event.target).value)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email (opcional)</label>
+          <input type="email" class="form-input" [value]="form().guardian_email"
+            (input)="updateField('guardian_email', $any($event.target).value)" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha *</label>
+            <input type="date" class="form-input" [value]="form().trial_date"
+              (input)="updateField('trial_date', $any($event.target).value)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora *</label>
+            <input type="time" class="form-input" [value]="form().trial_time"
+              (input)="updateField('trial_time', $any($event.target).value)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Entrenador *</label>
+          <select class="form-input" (change)="updateField('trainer_id', $any($event.target).value)">
+            <option value="" [selected]="form().trainer_id === ''">Seleccionar entrenador...</option>
+            @for (tr of trainerList(); track tr.id) {
+              <option [value]="tr.id" [selected]="form().trainer_id === tr.id">{{ tr.users.full_name }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lugar</label>
+          <input type="text" class="form-input" placeholder="Ej: Parque Lleras" [value]="form().location"
+            (input)="updateField('location', $any($event.target).value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notas</label>
+          <input type="text" class="form-input" [value]="form().notes"
+            (input)="updateField('notes', $any($event.target).value)" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeForm()">Cancelar</button>
+        <button class="btn-primary" (click)="save()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>Guardando...
+          } @else {
+            <span class="material-symbols-outlined">check</span>Guardar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Modal convertir en deportista ────────────────────────── -->
+@if (convertTarget(); as target) {
+  <div class="modal-overlay" (click)="closeConvert()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Convertir en deportista</h2>
+        <button class="modal-close" (click)="closeConvert()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-hint">
+          {{ target.child_name }} pasa al módulo de deportistas. El acudiente
+          ({{ target.guardian_name }}) se crea como acudiente principal.
+          Después podrás asignarle un plan.
+        </p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre *</label>
+            <input type="text" class="form-input" [value]="convertForm().first_name"
+              (input)="updateConvertField('first_name', $any($event.target).value)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido *</label>
+            <input type="text" class="form-input" [value]="convertForm().last_name"
+              (input)="updateConvertField('last_name', $any($event.target).value)" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha de nacimiento *</label>
+            <input type="date" class="form-input" [value]="convertForm().birth_date"
+              (input)="updateConvertField('birth_date', $any($event.target).value)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Género *</label>
+            <select class="form-input" (change)="updateConvertField('gender', $any($event.target).value)">
+              <option value="" [selected]="convertForm().gender === ''">Seleccionar...</option>
+              <option value="M" [selected]="convertForm().gender === 'M'">Masculino</option>
+              <option value="F" [selected]="convertForm().gender === 'F'">Femenino</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeConvert()">Cancelar</button>
+        <button class="btn-primary" (click)="convert()" [disabled]="converting()">
+          @if (converting()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>Convirtiendo...
+          } @else {
+            <span class="material-symbols-outlined">person_add</span>Convertir
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
