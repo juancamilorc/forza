@@ -1,20 +1,21 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 16 Oct 2026
+> Fuente única de verdad. Actualizado: 21 Oct 2026
 > Verificado con `git log` + Linear API
 
 ---
 
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
-### main (producción) — commit `cf649a2` — **un paso atrás de develop**
+### main (producción) — commit `cf649a2` — **dos tickets atrás de develop**
 - PR #33 (develop → main): incluye FOR-66, FOR-67, FOR-68.
 - **Cycle 15 completo en producción.**
-- FOR-69 está mergeado a `develop` pero **todavía no a `main`** — pendiente de
-  acumular más tickets de Cycle 17 antes del próximo release.
+- FOR-69 y FOR-65 están mergeados a `develop` pero **todavía no a `main`** —
+  pendiente de acumular más tickets de Cycle 17 antes del próximo release.
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop — commit `a5c2a8b` — un commit adelante de main (FOR-69)
+### develop — commit `254e8aa` — dos commits adelante de main (FOR-69, FOR-65)
 - FOR-69 (banner de campos faltantes + CRUD de acudientes) mergeado 16 Oct 2026.
+- FOR-65 (intentos configurables 1-4 en evaluación técnica/física) mergeado 21 Oct 2026.
 - Backend de producción (Render) **no tiene este código todavía** — solo se prueba
   en local hasta el próximo release a `main`.
 
@@ -24,7 +25,6 @@
 - `feature/FOR-57-rediseno-agenda` (julio 2026, 2 commits) — **se deja a propósito**,
   no borrar. FOR-64 ("Retomar rediseño Agenda") es justo continuar este trabajo, no
   empezar de cero. Revisar ese código cuando se tome FOR-64.
-- `feature/FOR-65-intentos-configurables-evaluaciones` — **en progreso ahora**.
 
 ---
 
@@ -58,8 +58,9 @@
 | Ticket | Descripción | Estado |
 |--------|-------------|--------|
 | FOR-69 | Banner de campos faltantes en detalle deportista | ✅ Done (en develop, falta release a main) |
-| FOR-65 | Intentos configurables en evaluación técnica y física | 🔵 In Progress — actual |
-| FOR-71 | Módulo deportistas en clase de prueba | Todo |
+| FOR-65 | Intentos configurables en evaluación técnica y física | ✅ Done (en develop, falta release a main) |
+| FOR-88 | Bug: botón "Ver evolución" en Evaluaciones no hace nada | Todo — encontrado en QA de FOR-65, ver nota abajo |
+| FOR-71 | Módulo deportistas en clase de prueba | Todo — siguiente |
 | FOR-77 | Disponibilidad de entrenadores (días/horarios) | Todo |
 | FOR-78 | Bloqueos de agenda del entrenador | Todo |
 | FOR-79 | Historial de reprogramaciones (máx 2 por sesión) | Todo |
@@ -72,6 +73,23 @@ acudiente) y `evaluations_overdue` (30 días desde última evaluación nutricion
 técnica/física, o nunca evaluado = vencido). CRUD completo de acudientes (antes no
 existía ninguna UI, pese a que la tabla ya tenía datos). Campo `position` nuevo en
 athletes (migración `004_add_athlete_position.sql`).
+
+**FOR-65 — detalle:** Control de Balón, Pase y Definición (técnica) ahora tienen
+selector de intentos (1-4) independiente por test — antes fijo en 2 o 4. Salto
+Vertical/Horizontal (física) ahora registran de 1 a 4 intentos en cm; se clasifica
+con el mejor (máximo), que se guarda en el mismo campo de siempre (`salto_vertical_cm`)
+para no romper nada que ya lo consumía. Migración `005_intentos_configurables_evaluaciones.sql`.
+Bug encontrado y corregido durante el desarrollo: `<select>` con `[value]` en el host
+no refleja bien el valor inicial cuando las `<option>` se generan con `@for` — hay que
+usar `[selected]` en cada `<option>` (patrón ya usado en el resto del repo, ej.
+athlete-form.html). Guardar esto como gotcha para futuros selects dinámicos.
+
+**FOR-88 — pendiente de investigar:** el botón "Ver evolución" en `/evaluaciones`
+(filtrado por deportista) no parece hacer nada visible al hacer clic. El código
+(`assessments-list.ts:136`, `hasEvoData()`) requiere ≥2 evaluaciones del mismo tipo
+para ese deportista para mostrar el botón/datos — puede ser que simplemente falte un
+estado vacío explicando por qué no aparece nada, o puede ser un bug real en
+`enterEvoMode()`. No investigado a fondo todavía.
 
 **FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
 implementadas desde Cycle 14 (efecto colateral de FOR-85, gender). Se corrigió una
@@ -97,19 +115,11 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-Trabajando en **FOR-65** (rama `feature/FOR-65-intentos-configurables-evaluaciones`,
-creada desde `develop` el 16 Oct 2026, Linear ya en "In Progress").
+Siguiente ticket: **FOR-71 — Módulo deportistas en clase de prueba** (confirmar
+detalle en Linear antes de arrancar, por si vuelve a rodar el cycle).
 
-**FOR-65 — resumen del ticket:** hoy los campos de evaluación técnica y física tienen
-un número fijo de intentos. Hay que agregar un desplegable (1 a 4 intentos) al inicio
-de esos formularios; según lo elegido se muestran N campos de entrada. Los cálculos
-(% efectividad, clasificación) se hacen sobre el número de intentos elegido. Aplica a:
-Control de Balón, Precisión en el Pase, Definición, Salto Vertical, Salto Horizontal.
-Cambios: frontend (selector + render dinámico) y backend (DTOs reciben array de
-intentos, cálculo sobre promedio/total según el test).
-
-Después de FOR-65: siguiente en la lista es FOR-71 (confirmar en Linear antes de
-arrancar, por si vuelve a rodar el cycle).
+FOR-88 (bug de "Ver evolución") queda en el backlog de Cycle 17, sin tomar todavía —
+se puede intercalar entre tickets grandes si hay un hueco corto.
 
 ---
 
