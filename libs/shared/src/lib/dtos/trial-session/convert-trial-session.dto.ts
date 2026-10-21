@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsDateString,
   IsEnum,
-  IsUUID,
 } from 'class-validator';
 import { AthleteGender } from '../athlete/create-athlete.dto';
 
@@ -24,7 +23,7 @@ export class ConvertTrialSessionDto {
   @IsEnum(AthleteGender)
   gender!: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   trainer_id?: string;
 }

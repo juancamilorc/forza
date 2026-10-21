@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsEmail,
   IsDateString,
-  IsUUID,
   Matches,
 } from 'class-validator';
 
@@ -35,7 +34,8 @@ export class CreateTrialSessionDto {
   @IsOptional()
   location?: string;
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   trainer_id!: string;
 
   @IsString()
