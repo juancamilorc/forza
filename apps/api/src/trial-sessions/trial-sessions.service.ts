@@ -161,18 +161,31 @@ export class TrialSessionsService {
     let phone = String(t.guardian_whatsapp).replace(/\D/g, '');
     if (phone.length === 10 && phone.startsWith('3')) phone = `57${phone}`;
 
-    const fecha = new Date(`${t.trial_date}T00:00:00`).toLocaleDateString('es-CO', {
+    const fechaRaw = new Date(`${t.trial_date}T00:00:00`).toLocaleDateString('es-CO', {
       weekday: 'long', day: 'numeric', month: 'long',
     });
-    const hora = String(t.trial_time).slice(0, 5);
-    const trainerName = t.trainer?.users?.full_name;
+    const fecha = fechaRaw.charAt(0).toUpperCase() + fechaRaw.slice(1);
 
-    const message =
-      `Hola ${t.guardian_name}, te confirmamos la clase de prueba de ${t.child_name} ` +
-      `en FORZA el ${fecha} a las ${hora}` +
-      (t.location ? ` en ${t.location}` : '') +
-      (trainerName ? `, con el entrenador ${trainerName}` : '') +
-      `. ¡Los esperamos!`;
+    const [hh, mm] = String(t.trial_time).split(':').map(Number);
+    const hora = `${hh % 12 || 12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'a. m.' : 'p. m.'}`;
+
+    const trainerName = t.trainer?.users?.full_name;
+    const valor = TRIAL_PRICE.toLocaleString('es-CO');
+
+    const lines = [
+      `Hola ${t.guardian_name} 👋`,
+      '',
+      `Te confirmamos la clase de prueba de *${t.child_name}* en *FORZA* ⚽`,
+      '',
+      `📅 *Fecha:* ${fecha}`,
+      `🕘 *Hora:* ${hora}`,
+      ...(t.location ? [`📍 *Lugar:* ${t.location}`] : []),
+      ...(trainerName ? [`👤 *Entrenador:* ${trainerName}`] : []),
+      t.payment_status === 'pagado' ? '✅ *Pago:* recibido' : `💰 *Valor:* $${valor}`,
+      '',
+      '¡Los esperamos! 💪',
+    ];
+    const message = lines.join('\n');
 
     return { url: `https://wa.me/${phone}?text=${encodeURIComponent(message)}`, message };
   }
