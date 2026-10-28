@@ -1,51 +1,138 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 15 Sep 2026
+> Fuente única de verdad. Actualizado: 28 Oct 2026
 > Verificado con `git log` + Linear API
 
 ---
 
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
-### main (producción) — commit `5d4c03d` — nivelado con develop
-- PR #29 (develop → main): incluye FOR-61, FOR-62, FOR-63, FOR-76 + todo lo anterior
-  (FOR-59, FOR-60, FOR-71, FOR-73, FOR-74, contexto Sep 2026, FOR-85, FOR-86).
-- **Cycle 14 completo en producción.**
-- Sin migraciones nuevas en este release — todo lógica de backend/frontend.
-- Smoke post-deploy: login OK, `/sessions` 200.
+### main (producción) — commit `cf649a2` — **tres tickets atrás de develop**
+- PR #33 (develop → main): incluye FOR-66, FOR-67, FOR-68.
+- **Cycle 15 completo en producción.**
+- FOR-69, FOR-65 y FOR-71 están mergeados a `develop` pero **todavía no a `main`** —
+  pendiente de acumular más tickets antes del próximo release. **Ojo:** las migraciones
+  004, 005 y 006 ya están corridas en la BD compartida (que usa también producción);
+  el código que las usa no llega a Render hasta el release a `main`.
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop (staging) — commit `9933cd5` — un poco adelante de main (FOR-66 + FOR-67, Cycle 15)
-- **Deploy staging:** https://forza-git-develop-jcrc.vercel.app
-- ✅ Branch protection activa en `main` y `develop` (Restrict deletions + Block force
-  pushes, bypass list vacía) — confirmado con capturas, ya no debería repetirse el
-  incidente de borrado de ramas.
+### develop — commit `3dd45d8` — adelante de main (FOR-69, FOR-65, FOR-71)
+- FOR-69 (banner de campos faltantes + CRUD de acudientes) mergeado 16 Oct 2026.
+- FOR-65 (intentos configurables 1-4 en evaluación técnica/física) mergeado 21 Oct 2026.
+- FOR-71 (módulo clases de prueba `/prueba`) mergeado 28 Oct 2026 (PR #37).
+- Backend de producción (Render) **no tiene este código todavía** — solo se prueba
+  en local hasta el próximo release a `main`.
 
 ### demo — muy atrás, no bloquea
 
----
-
-## 🗄️ MIGRACIONES SQL
-
-Todas aplicadas, sin pendientes. `001` (contexto negocio), `002` (backfill end_date),
-`003` (backfill gender) — las 3 en la BD compartida (main/develop/local).
+### Ramas de feature abiertas sin mergear
+- `feature/FOR-57-rediseno-agenda` (julio 2026, 2 commits) — **se deja a propósito**,
+  no borrar. FOR-64 ("Retomar rediseño Agenda") es justo continuar este trabajo, no
+  empezar de cero. Revisar ese código cuando se tome FOR-64.
 
 ---
 
-## 📋 LINEAR — CYCLE 14 (28 Ago → 11 Sep 2026) — ✅ COMPLETO
+## ⚠️ GOTCHAS DE INFRAESTRUCTURA (aprendidos el 2, 14 y 28 Oct)
+
+1. **Supabase (plan free) pausa el proyecto tras varios días de inactividad.** Si el
+   login falla con `{"message":"fetch failed","error":"Unauthorized"}` en vez de un
+   401 normal, lo primero es revisar el dashboard de Supabase y reactivar el proyecto
+   — no es un bug de código. Pasó tras 16 días (2 Oct), 12 días (14 Oct) y 6 días
+   (28 Oct) sin tocar el repo. Desde la máquina local la señal es DNS: el host del
+   proyecto da `ENOTFOUND` mientras github.com/supabase.com sí resuelven.
+2. **Hay un solo backend Render, compartido por TODOS los entornos, y despliega desde
+   `main`** (no desde `develop`). Esto significa que el deploy de staging en Vercel
+   (`develop`) habla con el MISMO backend que producción — no hay forma de probar un
+   endpoint nuevo "en staging" hasta que el código llegue a `main`. Las pruebas reales
+   de un ticket se hacen en local; el deploy a `main` es el único lugar para verificar
+   contra infraestructura real.
+3. Render también se "duerme" tras inactividad (free tier) — el primer request tras un
+   rato sin tráfico puede tardar 30-60s (cold start). No confundir con un error real.
+4. **IDs de entrenadores NO son UUID estrictos:** 7 de 9 `trainers.id` son tipo
+   `bbbb0001-0000-0000-0000-00000000000N`. `@IsUUID()` los rechaza → validar
+   `trainer_id` con `@IsString()` (como el resto del repo). Pasó en FOR-71.
+5. **`wa.me` + emojis:** la app de WhatsApp Desktop en Mac rompe los emojis al abrir
+   enlaces `wa.me` (salen `�`) aunque el URL esté bien codificado. Por eso el módulo
+   de clases de prueba tiene botón "WhatsApp" y botón "Copiar mensaje".
+6. **`<select>` con `@for`:** usar `[selected]` en cada `<option>`, no `[value]` en el
+   `<select>` (no refleja el valor inicial). Patrón del resto del repo.
+7. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
+   corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
+
+---
+
+## 📋 LINEAR — CYCLE 15 (11-25 Sep 2026) — ✅ COMPLETO EN PRODUCCIÓN
 
 | Ticket | Descripción | Estado |
 |--------|-------------|--------|
-| FOR-59 | Asignar entrenador al crear deportista | ✅ Done |
-| FOR-85 | Bug: gender no se persiste al crear deportista | ✅ Done |
-| FOR-86 | end_date del plan: no se calcula ni se muestra | ✅ Done |
-| FOR-73 | Validación incorrecta al editar deportista | ✅ Done (resuelto por FOR-85) |
-| FOR-61 | Registrar pago inicial al crear deportista | ✅ Done |
-| FOR-62 | Limitar sesiones según clases del plan | ✅ Done |
-| FOR-76 | Validación de pago antes de confirmar/agendar sesión | ✅ Done |
-| FOR-63 | Entrenador ve pagos del deportista | ✅ Done |
+| FOR-66 | Fórmulas nutricionales diferenciadas por género (M/F) | ✅ Done |
+| FOR-67 | Filtros por mes/plan y exportar pagos a Excel | ✅ Done |
+| FOR-68 | Vista entrenadores con clases y deportistas | ✅ Done |
 
-Los 8 tickets del cycle, en producción. FOR-87 (validación inline, borde rojo en
-formularios) sigue en backlog sin cycle asignado.
+## 📋 LINEAR — CYCLE 18 (activo; los tickets rodaron de Cycle 17)
+
+| Ticket | Descripción | Estado |
+|--------|-------------|--------|
+| FOR-69 | Banner de campos faltantes en detalle deportista | ✅ Done (en develop, falta release a main) |
+| FOR-65 | Intentos configurables en evaluación técnica y física | ✅ Done (en develop, falta release a main) |
+| FOR-71 | Módulo deportistas en clase de prueba | ✅ Done (en develop, falta release a main) |
+| FOR-88 | Bug: botón "Ver evolución" en Evaluaciones no hace nada | Todo — encontrado en QA de FOR-65, ver nota abajo |
+| FOR-77 | Disponibilidad de entrenadores (días/horarios) | Todo |
+| FOR-78 | Bloqueos de agenda del entrenador | Todo |
+| FOR-79 | Historial de reprogramaciones (máx 2 por sesión) | Todo |
+| FOR-80 | Extensión manual de planes | Todo |
+| FOR-81 | Banner alertas de plan por vencer | Todo |
+| FOR-64 | Retomar rediseño Agenda (FOR-57) | Todo — ver rama vieja arriba |
+
+**FOR-69 — detalle:** `GET /athletes/:id/status` calcula `missing_fields` (posición,
+acudiente) y `evaluations_overdue` (30 días desde última evaluación nutricional/
+técnica/física, o nunca evaluado = vencido). CRUD completo de acudientes (antes no
+existía ninguna UI, pese a que la tabla ya tenía datos). Campo `position` nuevo en
+athletes (migración `004_add_athlete_position.sql`).
+
+**FOR-65 — detalle:** Control de Balón, Pase y Definición (técnica) ahora tienen
+selector de intentos (1-4) independiente por test — antes fijo en 2 o 4. Salto
+Vertical/Horizontal (física) ahora registran de 1 a 4 intentos en cm; se clasifica
+con el mejor (máximo), que se guarda en el mismo campo de siempre (`salto_vertical_cm`)
+para no romper nada que ya lo consumía. Migración `005_intentos_configurables_evaluaciones.sql`.
+Bug encontrado y corregido durante el desarrollo: `<select>` con `[value]` en el host
+no refleja bien el valor inicial cuando las `<option>` se generan con `@for` — hay que
+usar `[selected]` en cada `<option>` (patrón ya usado en el resto del repo, ej.
+athlete-form.html). Guardar esto como gotcha para futuros selects dinámicos.
+
+**FOR-71 — detalle:** módulo `/prueba` (solo admin) sobre la tabla `trial_sessions`
+que ya existía; migración `006` le agrega `trainer_id`, `status` (programada/cancelada),
+`amount_paid` default 0 y `guardian_email` opcional. Precio fijo $35.000 en
+`TRIAL_PRICE` (backend). Acciones: crear, reprogramar/editar, cancelar, marcar pagada,
+WhatsApp (link `wa.me` con mensaje estructurado, **sin envío automático**: Business API
+es Fase 2) y copiar mensaje, y **convertir en deportista** (crea athlete en estado
+`trial` + acudiente principal; endpoint `POST /trial-sessions/:id/convert`).
+**Regla de estado:** `PaymentsService.activateAthleteIfPaid` pasa `trial → active`
+cuando un pago queda `pagado` (create/update/abonar); nunca baja de active a trial.
+Decisión pendiente de confirmar con el cliente: activar solo con pago **completo** (hoy)
+o con el primer abono. Pendiente de probar con flujo real de cliente.
+
+**FOR-88 — pendiente de investigar:** el botón "Ver evolución" en `/evaluaciones`
+(filtrado por deportista) no parece hacer nada visible al hacer clic. El código
+(`assessments-list.ts:136`, `hasEvoData()`) requiere ≥2 evaluaciones del mismo tipo
+para ese deportista para mostrar el botón/datos — puede ser que simplemente falte un
+estado vacío explicando por qué no aparece nada, o puede ser un bug real en
+`enterEvoMode()`. No investigado a fondo todavía.
+
+**FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
+implementadas desde Cycle 14 (efecto colateral de FOR-85, gender). Se corrigió una
+inconsistencia de redondeo entre el preview (`toFixed`) y el backend (`Math.round`).
+
+**FOR-67 — nota de seguridad (xlsx):** exportación usa `xlsx@0.18.5` de npm (2 CVEs
+conocidos, ambos de **parsear** `.xlsx` no confiables). Nuestro código solo **genera**
+el archivo desde datos internos, nunca parsea — riesgo real bajo hoy. ⚠️ Si se agrega
+una función de **importar** Excel más adelante, resolver esto primero (versión
+parchada del CDN oficial de SheetJS, o cambiar de librería).
+
+**FOR-68 — detalle:** `GET /api/admin/trainers/overview` — admin ve el resumen de
+todos los entrenadores, el trainer logueado ve solo el suyo (y su nav dice "Mi
+resumen", no "Entrenadores"). Por deportista: clases dadas/restantes, vencimiento del
+plan (badge "vence pronto" a ≤7 días) y saldo pendiente (badge "Debe $monto"). Fila
+clickeable → detalle del deportista.
 
 **Sincronizar Linear siempre:** `update FOR-XX "In Progress"` al arrancar, `"In Review"`
 al terminar la rama, `"Done"` cuando el PR entre a develop. (No usar `start`: fuerza
@@ -55,42 +142,13 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-### 🔜 Cycle 15 (11-25 Sep 2026) — en curso
+Elegir el siguiente de Cycle 18: **FOR-77** (disponibilidad de entrenadores, días/horarios)
+abre la cadena de agenda (FOR-78 bloqueos, FOR-79 reprogramaciones, FOR-64 rediseño
+Agenda); **FOR-88** (bug "Ver evolución") es corto y se puede intercalar. Confirmar el
+detalle en Linear antes de arrancar.
 
-⚠️ Los números de ticket que teníamos anotados acá NO coincidían con Linear
-(se corrieron). Confirmado con `node scripts/linear-sync.js list` el 14 Sep:
-
-| Ticket | Descripción | Estado |
-|--------|-------------|--------|
-| FOR-66 | Fórmulas nutricionales diferenciadas por género (M/F) | ✅ Done — bug menor encontrado y arreglado (ver abajo) |
-| FOR-67 | Filtros por mes/plan y exportar pagos a Excel | ✅ Done — ver nota de seguridad xlsx abajo |
-| FOR-68 | Vista entrenadores con clases y deportistas | 🔄 En curso — siguiente |
-| FOR-69 | Banner de campos faltantes en detalle deportista | Todo |
-
-**FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
-implementadas desde Cycle 14 (efecto colateral de FOR-85, gender), tanto en
-backend (`assessments.service.ts`) como en el preview del frontend
-(`nutritional-form.ts`). Validado con los fixtures A1 (M) y A2 (F) —
-mismos pliegues (Σ=100mm), % grasa distinto solo por género, IMC igual en
-ambos (correcto, no depende de género). Se encontró una inconsistencia de
-redondeo: el preview usaba `toFixed(2)` y el backend `Math.round(x*100)/100`;
-por imprecisión de punto flotante daban resultados distintos en casos borde
-(13.095 → preview 13.09, backend 13.10). Corregido unificando el redondeo
-del frontend al método del backend. Queda un registro de prueba guardado en
-el fixture A1 (`PRUEBA AlDia`) — no hay endpoint DELETE para evaluaciones
-nutricionales, se limpia solo con el próximo `--wipe`.
-
-**FOR-67 — nota de seguridad (xlsx):** la exportación usa `xlsx@0.18.5` de
-npm para generar el `.xlsx` (SheetJS). Esa versión tiene 2 CVEs conocidos
-(prototype pollution + ReDoS), pero ambos se disparan al **parsear** un
-archivo `.xlsx` no confiable — nuestro código solo **genera** el archivo
-desde datos internos (`json_to_sheet` + `writeFile`), nunca lo parsea, así
-que el riesgo real hoy es bajo. ⚠️ Si en algún momento se agrega una función
-de **importar** pagos/datos desde un Excel subido por el usuario, ahí sí hay
-que resolver esto primero: instalar la versión parchada desde el CDN oficial
-(`npm install https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz` — no
-instalable en este sandbox por restricción de URLs externas, pero sí desde
-una máquina normal) o cambiar de librería.
+Pendiente de release: `develop → main` agrupa FOR-69, FOR-65 y FOR-71 (migraciones
+004-006 ya están en la BD compartida).
 
 ---
 
@@ -99,8 +157,8 @@ una máquina normal) o cambiar de librería.
 ```bash
 git checkout develop && git pull
 
-# ⚠️ Antes de nx serve api
-export $(cat apps/api/.env | xargs)
+# ⚠️ El .env real vive en la RAÍZ del repo, no en apps/api/
+export $(cat .env | xargs)
 
 npx nx serve api   # terminal 1 → localhost:3000
 npx nx serve web   # terminal 2 → localhost:4200
@@ -111,6 +169,12 @@ trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportist
                      asignados por defecto — reasignar uno temporalmente para probar]
 ```
 
+⚠️ **`nx serve` puede quedarse "esperando" otro proceso** (`Running in another Nx
+process...` / `Waiting for api:serve:development in another nx process`) si quedó un
+proceso anterior pegado al lock del daemon. Si pasa: `lsof -i :3000` / `:4200` para
+ver qué hay, matar los procesos sueltos (`kill -9 <pid>`), `npx nx daemon --stop`, y
+volver a correr `nx serve`.
+
 ### Datos de prueba
 - BD compartida (main/develop/local), **sin datos reales** — todo es de prueba.
 - `node scripts/seed-test-data.js --wipe` → reset a 5 fixtures documentados en
@@ -118,8 +182,8 @@ trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportist
 - ⚠️ **Ojo al cambiar de rama para probar un ticket**: el servidor local (`nx serve`)
   corre el código de la rama que esté activa en el working directory en ese momento.
   Si cambias de rama a mitad de una prueba, el backend puede dejar de tener la
-  validación que estás probando — pasó dos veces esta semana. Confirmar en qué rama
-  se está antes de repetir una prueba que "no bloqueó cuando debía".
+  validación que estás probando. Confirmar en qué rama se está antes de repetir una
+  prueba que "no bloqueó cuando debía".
 
 ---
 
@@ -127,32 +191,23 @@ trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportist
 
 | Entorno | Rama | Frontend | Backend |
 |---------|------|----------|---------|
-| Producción | main | https://forza-momentum.vercel.app | Render |
-| Staging | develop | https://forza-git-develop-jcrc.vercel.app | Render |
-| Demo | demo | Vercel preview | Render |
+| Producción | main | https://forza-momentum.vercel.app | Render (único, compartido) |
+| Staging | develop | https://forza-git-develop-jcrc.vercel.app | mismo Render que producción |
+| Demo | demo | Vercel preview | mismo Render |
 
-**Nota:** Backend y BD compartidos entre todos los entornos.
+**Nota:** Un solo backend + BD compartidos entre todos los entornos, desplegado desde
+`main`. Ver gotchas de infraestructura arriba.
 
 ---
 
-## 📊 BACKLOG CYCLE 16+
+## 📊 BACKLOG SIN CYCLE ASIGNADO
 
-### Cycle 16 (25 Sep - 9 Oct 2026)
-- FOR-77 — Disponibilidad entrenador (días + horarios)
-- FOR-78 — Bloqueos de agenda del entrenador
-- FOR-79 — Reprogramación con límite máx 2 veces
-- FOR-80 — Extensión manual de planes
-
-### Cycle 17 (9 Oct - 23 Oct 2026)
-- FOR-81 — Notificaciones: evaluaciones vencidas
-- FOR-82 — Notificaciones: plan próximo a vencer
-- FOR-83 — Subir foto de perfil (deportistas + entrenadores)
-- FOR-84 — Sesiones tipo "extra" y "reposición" (parcialmente cubierto por FOR-62/FOR-63)
-
-### Sin cycle asignado
 - FOR-87 — Validación inline (borde rojo) en formularios
-- FOR-64 — Rediseño completo Agenda/Schedule
 - FOR-54 — Recordatorios automáticos WhatsApp
 - FOR-55 — Historial congelamientos
-- FOR-46 — UI/UX Premium con Stitch
+- FOR-46 — UI/UX Premium con Stitch (rediseño visual general)
 - FOR-58 — Landing page pública
+
+Nota: los cycles ruedan solos por fecha en Linear (ya pasó de Cycle 15 → 16 → 17).
+Siempre confirmar con `node scripts/linear-sync.js list` antes de dar por buena
+cualquier lista de tickets/estados en este archivo.

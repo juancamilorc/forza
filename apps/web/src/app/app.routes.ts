@@ -174,6 +174,13 @@ export const appRoutes: Route[] = [
             .then(m => m.PhysicalDetail),
       },
       {
+        path: 'prueba',
+        canActivate: [rolesGuard('super_admin', 'admin')],
+        loadComponent: () =>
+          import('./features/trial-sessions/trial-sessions-list/trial-sessions-list')
+            .then(m => m.TrialSessionsList),
+      },
+      {
         path: 'videos',
         canActivate: [rolesGuard('super_admin', 'admin', 'trainer')],
         loadComponent: () =>

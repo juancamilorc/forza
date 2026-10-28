@@ -109,6 +109,11 @@
                 {{ classLabel(assessment()!.salto_vertical_clasificacion) }}
               </span>
             }
+            @if (assessment()!.salto_vertical_valores && assessment()!.salto_vertical_valores!.length > 1) {
+              <p class="salto-intentos">
+                Intentos: {{ assessment()!.salto_vertical_valores!.join(' cm, ') }} cm (mejor resaltado)
+              </p>
+            }
             @if (assessment()!.salto_vertical_notas) {
               <p class="salto-notes">{{ assessment()!.salto_vertical_notas }}</p>
             }
@@ -122,6 +127,11 @@
               <span class="clasif-badge {{ classCss(assessment()!.salto_horizontal_clasificacion) }}">
                 {{ classLabel(assessment()!.salto_horizontal_clasificacion) }}
               </span>
+            }
+            @if (assessment()!.salto_horizontal_valores && assessment()!.salto_horizontal_valores!.length > 1) {
+              <p class="salto-intentos">
+                Intentos: {{ assessment()!.salto_horizontal_valores!.join(' cm, ') }} cm (mejor resaltado)
+              </p>
             }
             @if (assessment()!.salto_horizontal_notas) {
               <p class="salto-notes">{{ assessment()!.salto_horizontal_notas }}</p>

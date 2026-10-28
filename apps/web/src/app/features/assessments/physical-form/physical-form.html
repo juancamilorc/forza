@@ -108,15 +108,52 @@
     <!-- ── 3. SALTOS ──────────────────────────────────────── -->
     <div class="form-card">
       <h2 class="card-title">Saltos</h2>
-      <p class="card-hint">La clasificación se calcula automáticamente según edad y género del deportista.</p>
+      <p class="card-hint">Registra entre 1 y 4 intentos por salto; la clasificación se calcula sobre el mejor intento, según edad y género del deportista.</p>
 
       <div class="fields-grid">
 
         <div class="field-group">
-          <label class="field-label">Salto vertical (cm)</label>
-          <input type="number" step="0.5" min="0" class="field-input" placeholder="Ej: 28"
-            [value]="form().salto_vertical_cm ?? ''"
-            (input)="updateNum('salto_vertical_cm', $event)" />
+          <label class="field-label">Intentos salto vertical</label>
+          <select class="field-input"
+            (change)="setSaltoIntentos('salto_vertical', +$any($event.target).value)">
+            @for (n of intentosOpts; track n) {
+              <option [value]="n" [selected]="form().salto_vertical_intentos === n">{{ n }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Intentos salto horizontal</label>
+          <select class="field-input"
+            (change)="setSaltoIntentos('salto_horizontal', +$any($event.target).value)">
+            @for (n of intentosOpts; track n) {
+              <option [value]="n" [selected]="form().salto_horizontal_intentos === n">{{ n }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group field-full">
+          <label class="field-label">Salto vertical — valores (cm)</label>
+          <div class="score-group">
+            @for (v of form().salto_vertical_valores; track $index) {
+              <input type="number" step="0.5" min="0" class="field-input" style="max-width:100px"
+                [placeholder]="'Intento ' + ($index + 1)"
+                [value]="v ?? ''"
+                (input)="setSaltoValor('salto_vertical', $index, $event)" />
+            }
+          </div>
+        </div>
+
+        <div class="field-group field-full">
+          <label class="field-label">Salto horizontal — valores (cm)</label>
+          <div class="score-group">
+            @for (v of form().salto_horizontal_valores; track $index) {
+              <input type="number" step="0.5" min="0" class="field-input" style="max-width:100px"
+                [placeholder]="'Intento ' + ($index + 1)"
+                [value]="v ?? ''"
+                (input)="setSaltoValor('salto_horizontal', $index, $event)" />
+            }
+          </div>
         </div>
 
         <div class="field-group">
@@ -124,13 +161,6 @@
           <input type="text" class="field-input"
             [value]="form().salto_vertical_notas"
             (input)="updateStr('salto_vertical_notas', $event)" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Salto horizontal (cm)</label>
-          <input type="number" step="0.5" min="0" class="field-input" placeholder="Ej: 135"
-            [value]="form().salto_horizontal_cm ?? ''"
-            (input)="updateNum('salto_horizontal_cm', $event)" />
         </div>
 
         <div class="field-group">

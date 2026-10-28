@@ -91,6 +91,7 @@ export class AthletesService {
         trainer_id: dto.trainer_id ?? null,
         status:     dto.status ?? 'trial',
         notes:      dto.notes ?? null,
+        position:   dto.position ?? null,
       })
       .select()
       .single();
@@ -132,6 +133,78 @@ export class AthletesService {
     if (error) throw new BadRequestException(error.message);
 
     return { message: `Deportista eliminado correctamente` };
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // ESTADO DEL DEPORTISTA — banner de campos faltantes (FOR-69)
+  // ════════════════════════════════════════════════════════════
+
+  private static readonly EVAL_STALE_DAYS = 30;
+
+  private daysSince(dateStr: string): number {
+    const today = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+    const date = new Date(`${dateStr}T00:00:00Z`);
+    return Math.floor((today.getTime() - date.getTime()) / 86_400_000);
+  }
+
+  private async lastEvaluationDate(table: string, athleteId: string): Promise<string | null> {
+    const { data } = await this.supabase.db
+      .from(table)
+      .select('evaluation_date')
+      .eq('athlete_id', athleteId)
+      .order('evaluation_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data?.evaluation_date ?? null;
+  }
+
+  private evalStatus(lastDate: string | null) {
+    if (lastDate === null) {
+      return { last_date: null, days_since: null, overdue: true };
+    }
+    const daysSince = this.daysSince(lastDate);
+    return { last_date: lastDate, days_since: daysSince, overdue: daysSince > AthletesService.EVAL_STALE_DAYS };
+  }
+
+  async getStatus(id: string) {
+    const { data: athlete, error } = await this.supabase.db
+      .from('athletes')
+      .select('id, position')
+      .eq('id', id)
+      .single();
+    if (error || !athlete) throw new NotFoundException(`Deportista ${id} no encontrado`);
+
+    const { data: guardians } = await this.supabase.db
+      .from('guardians')
+      .select('id')
+      .eq('athlete_id', id)
+      .limit(1);
+
+    const missingFields: { key: string; label: string }[] = [];
+    if (!athlete.position) missingFields.push({ key: 'position', label: 'Posición' });
+    if (!guardians || guardians.length === 0) {
+      missingFields.push({ key: 'guardian', label: 'Acudiente' });
+    }
+
+    const [nutritional, technical, physical] = await Promise.all([
+      this.lastEvaluationDate('nutritional_assessments', id),
+      this.lastEvaluationDate('technical_assessments', id),
+      this.lastEvaluationDate('physical_assessments', id),
+    ]);
+
+    const evaluations = {
+      nutritional: this.evalStatus(nutritional),
+      technical:   this.evalStatus(technical),
+      physical:    this.evalStatus(physical),
+    };
+
+    return {
+      missing_fields: missingFields,
+      profile_incomplete: missingFields.length > 0,
+      evaluations,
+      evaluations_overdue:
+        evaluations.nutritional.overdue || evaluations.technical.overdue || evaluations.physical.overdue,
+    };
   }
 
   async changeStatus(id: string, status: string) {

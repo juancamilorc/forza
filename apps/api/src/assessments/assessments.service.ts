@@ -92,8 +92,49 @@ export class AssessmentsService {
   // CÁLCULOS TÉCNICOS AUTOMÁTICOS
   // ════════════════════════════════════════════════════════════
 
+  /**
+   * Valida que ningún score de un test supere el número de intentos
+   * configurado para ese test (regla cruzada, no expresable en el DTO).
+   */
+  private validarIntentos(dto: CreateTechnicalAssessmentDto) {
+    const controlIntentos = dto.control_intentos ?? 2;
+    const paseIntentos = dto.pase_intentos ?? 4;
+    const definicionIntentos = dto.definicion_intentos ?? 2;
+
+    const checks: [string, number | undefined, number][] = [
+      ['control_rastrero_dr', dto.control_rastrero_dr, controlIntentos],
+      ['control_rastrero_iz', dto.control_rastrero_iz, controlIntentos],
+      ['control_media_altura_dr', dto.control_media_altura_dr, controlIntentos],
+      ['control_media_altura_iz', dto.control_media_altura_iz, controlIntentos],
+      ['control_alto_dr', dto.control_alto_dr, controlIntentos],
+      ['control_alto_iz', dto.control_alto_iz, controlIntentos],
+      ['pase_derecha', dto.pase_derecha, paseIntentos],
+      ['pase_izquierda', dto.pase_izquierda, paseIntentos],
+      ['definicion_carril_der_dr', dto.definicion_carril_der_dr, definicionIntentos],
+      ['definicion_carril_der_iz', dto.definicion_carril_der_iz, definicionIntentos],
+      ['definicion_carril_cen_dr', dto.definicion_carril_cen_dr, definicionIntentos],
+      ['definicion_carril_cen_iz', dto.definicion_carril_cen_iz, definicionIntentos],
+      ['definicion_carril_izq_dr', dto.definicion_carril_izq_dr, definicionIntentos],
+      ['definicion_carril_izq_iz', dto.definicion_carril_izq_iz, definicionIntentos],
+    ];
+
+    for (const [campo, valor, intentos] of checks) {
+      if (valor !== undefined && valor > intentos) {
+        throw new BadRequestException(
+          `${campo} (${valor}) no puede superar el número de intentos configurado (${intentos})`,
+        );
+      }
+    }
+  }
+
   private calcularTecnico(dto: CreateTechnicalAssessmentDto) {
+    this.validarIntentos(dto);
+
     const resultados: Record<string, number | null> = {};
+
+    const controlIntentos = dto.control_intentos ?? 2;
+    const paseIntentos = dto.pase_intentos ?? 4;
+    const definicionIntentos = dto.definicion_intentos ?? 2;
 
     // % efectividad control de balón
     const totalBalones =
@@ -111,14 +152,14 @@ export class AssessmentsService {
       (dto.control_media_altura_iz ?? 0) +
       (dto.control_alto_iz        ?? 0);
 
-    resultados.control_efectividad_derecha_pct   = Math.round((totalDerecha / 6) * 100);
-    resultados.control_efectividad_izquierda_pct = Math.round((totalIzquierda / 6) * 100);
-    resultados.control_efectividad_total_pct     = Math.round((totalBalones / 12) * 100);
+    resultados.control_efectividad_derecha_pct   = Math.round((totalDerecha / (3 * controlIntentos)) * 100);
+    resultados.control_efectividad_izquierda_pct = Math.round((totalIzquierda / (3 * controlIntentos)) * 100);
+    resultados.control_efectividad_total_pct     = Math.round((totalBalones / (6 * controlIntentos)) * 100);
 
     // % efectividad pase
     if (dto.pase_derecha !== undefined && dto.pase_izquierda !== undefined) {
       const totalPase = dto.pase_derecha + dto.pase_izquierda;
-      resultados.pase_efectividad_pct = Math.round((totalPase / 8) * 100);
+      resultados.pase_efectividad_pct = Math.round((totalPase / (2 * paseIntentos)) * 100);
     }
 
     // % efectividad definición
@@ -137,9 +178,9 @@ export class AssessmentsService {
       (dto.definicion_carril_cen_iz ?? 0) +
       (dto.definicion_carril_izq_iz ?? 0);
 
-    resultados.definicion_efectividad_dr_pct    = Math.round((definicionDerecha / 6) * 100);
-    resultados.definicion_efectividad_iz_pct    = Math.round((definicionIzquierda / 6) * 100);
-    resultados.definicion_efectividad_total_pct = Math.round((totalDefinicion / 12) * 100);
+    resultados.definicion_efectividad_dr_pct    = Math.round((definicionDerecha / (3 * definicionIntentos)) * 100);
+    resultados.definicion_efectividad_iz_pct    = Math.round((definicionIzquierda / (3 * definicionIntentos)) * 100);
+    resultados.definicion_efectividad_total_pct = Math.round((totalDefinicion / (6 * definicionIntentos)) * 100);
 
     return resultados;
   }
@@ -366,6 +407,15 @@ export class AssessmentsService {
     return data;
   }
 
+  /**
+   * Si llegan intentos de salto (1-4), el resultado clasificable es el mejor
+   * (valor máximo) de esos intentos — reemplaza el cm manual si se envían ambos.
+   */
+  private mejorSalto(valores: number[] | undefined, cmManual: number | undefined) {
+    if (valores && valores.length > 0) return Math.max(...valores);
+    return cmManual;
+  }
+
   async createPhysical(dto: CreatePhysicalAssessmentDto) {
     const { data: athlete } = await this.supabase.db
       .from('athletes')
@@ -378,19 +428,24 @@ export class AssessmentsService {
       : 18;
     const sexo = athlete?.gender ?? 'M';
 
-    // Clasificación automática de saltos
-    const salto_vertical_clasificacion = dto.salto_vertical_cm
-      ? this.clasificarSalto('vertical', dto.salto_vertical_cm, edad, sexo)
+    const salto_vertical_cm   = this.mejorSalto(dto.salto_vertical_valores, dto.salto_vertical_cm);
+    const salto_horizontal_cm = this.mejorSalto(dto.salto_horizontal_valores, dto.salto_horizontal_cm);
+
+    // Clasificación automática de saltos (con el mejor intento)
+    const salto_vertical_clasificacion = salto_vertical_cm
+      ? this.clasificarSalto('vertical', salto_vertical_cm, edad, sexo)
       : undefined;
 
-    const salto_horizontal_clasificacion = dto.salto_horizontal_cm
-      ? this.clasificarSalto('horizontal', dto.salto_horizontal_cm, edad, sexo)
+    const salto_horizontal_clasificacion = salto_horizontal_cm
+      ? this.clasificarSalto('horizontal', salto_horizontal_cm, edad, sexo)
       : undefined;
 
     const { data, error } = await this.supabase.db
       .from('physical_assessments')
       .insert({
         ...dto,
+        salto_vertical_cm:              salto_vertical_cm   ?? dto.salto_vertical_cm,
+        salto_horizontal_cm:            salto_horizontal_cm ?? dto.salto_horizontal_cm,
         salto_vertical_clasificacion:   salto_vertical_clasificacion   ?? dto.salto_vertical_clasificacion,
         salto_horizontal_clasificacion: salto_horizontal_clasificacion ?? dto.salto_horizontal_clasificacion,
       })
@@ -409,18 +464,23 @@ export class AssessmentsService {
       : 18;
     const sexo = existing.athletes?.gender ?? 'M';
 
-    const salto_vertical_clasificacion = dto.salto_vertical_cm
-      ? this.clasificarSalto('vertical', dto.salto_vertical_cm, edad, sexo)
+    const salto_vertical_cm   = this.mejorSalto(dto.salto_vertical_valores, dto.salto_vertical_cm);
+    const salto_horizontal_cm = this.mejorSalto(dto.salto_horizontal_valores, dto.salto_horizontal_cm);
+
+    const salto_vertical_clasificacion = salto_vertical_cm
+      ? this.clasificarSalto('vertical', salto_vertical_cm, edad, sexo)
       : undefined;
 
-    const salto_horizontal_clasificacion = dto.salto_horizontal_cm
-      ? this.clasificarSalto('horizontal', dto.salto_horizontal_cm, edad, sexo)
+    const salto_horizontal_clasificacion = salto_horizontal_cm
+      ? this.clasificarSalto('horizontal', salto_horizontal_cm, edad, sexo)
       : undefined;
 
     const { data, error } = await this.supabase.db
       .from('physical_assessments')
       .update({
         ...dto,
+        ...(salto_vertical_cm             !== undefined && { salto_vertical_cm }),
+        ...(salto_horizontal_cm           !== undefined && { salto_horizontal_cm }),
         ...(salto_vertical_clasificacion   && { salto_vertical_clasificacion }),
         ...(salto_horizontal_clasificacion && { salto_horizontal_clasificacion }),
       })

@@ -19,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Sesiones',       icon: 'fitness_center',  route: '/sesiones',        roles: ['super_admin', 'admin', 'trainer'] },
   { label: 'Agenda',         icon: 'calendar_today',  route: '/agenda',          roles: ['super_admin', 'admin', 'trainer'] },
   { label: 'Entrenadores',   trainerLabel: 'Mi resumen', icon: 'sports',         route: '/entrenadores',    roles: ['super_admin', 'admin', 'trainer'] },
+  { label: 'Clases de prueba', icon: 'sports_soccer', route: '/prueba',        roles: ['super_admin', 'admin'] },
   { label: 'Evaluaciones',   icon: 'analytics',       route: '/evaluaciones',    roles: ['super_admin', 'admin', 'trainer', 'nutritionist'] },
   { label: 'Pagos',          icon: 'payments',        route: '/pagos',           roles: ['super_admin', 'admin'] },
   { label: 'Videos',         icon: 'video_library',   route: '/videos',          roles: ['super_admin', 'admin', 'trainer'] },

@@ -98,6 +98,7 @@ export interface TechnicalAssessmentFull extends TechnicalAssessment {
   conduccion_20m:                    number | null;
   cambios_direccion_derecha:         number | null;
   cambios_direccion_izquierda:       number | null;
+  control_intentos:                  number | null;
   control_rastrero_dr:               number | null;
   control_rastrero_iz:               number | null;
   control_media_altura_dr:           number | null;
@@ -107,10 +108,12 @@ export interface TechnicalAssessmentFull extends TechnicalAssessment {
   control_notas:                     string | null;
   control_efectividad_derecha_pct:   number | null;
   control_efectividad_izquierda_pct: number | null;
+  pase_intentos:                     number | null;
   pase_derecha:                      number | null;
   pase_izquierda:                    number | null;
   pase_clasificacion:                string | null;
   pase_notas:                        string | null;
+  definicion_intentos:               number | null;
   definicion_carril_der_dr:          number | null;
   definicion_carril_der_iz:          number | null;
   definicion_carril_cen_dr:          number | null;
@@ -139,7 +142,9 @@ export interface PhysicalAssessmentFull extends PhysicalAssessment {
   movilidad_brazos:               number | null;
   movilidad_brazos_analisis:      string | null;
   movilidad_notas:                string | null;
+  salto_vertical_valores:         number[] | null;
   salto_vertical_notas:           string | null;
+  salto_horizontal_valores:       number[] | null;
   salto_horizontal_clasificacion: string | null;
   salto_horizontal_notas:         string | null;
   sprint_5m:                      number | null;
