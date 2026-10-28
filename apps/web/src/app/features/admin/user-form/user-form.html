@@ -116,6 +116,81 @@
 
       </div>
 
+      <!-- Disponibilidad — solo entrenadores en edición (FOR-77) -->
+      @if (showAvailability()) {
+        <div class="availability-section">
+          <h2 class="section-title">Disponibilidad</h2>
+          <p class="section-hint">
+            Define cuándo atiende este entrenador. Si no marcas días ni horarios, no tiene
+            restricción y se puede agendar en cualquier momento.
+          </p>
+
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label" for="coverage_area">Zona de cobertura</label>
+              <input
+                id="coverage_area"
+                type="text"
+                class="form-input"
+                placeholder="Ej: Laureles, Poblado, Envigado"
+                [value]="availability().coverage_area"
+                (input)="updateAvailability('coverage_area', $any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <span class="form-label">Días disponibles</span>
+              <div class="days-row">
+                @for (d of weekDays; track d.key) {
+                  <button
+                    type="button"
+                    class="day-chip"
+                    [class.active]="availability().available_days.includes(d.key)"
+                    [title]="d.label"
+                    (click)="toggleDay(d.key)"
+                  >{{ d.short }}</button>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="hours_start">Horario de inicio</label>
+              <input
+                id="hours_start"
+                type="time"
+                class="form-input"
+                [value]="availability().available_hours_start"
+                (input)="updateAvailability('available_hours_start', $any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="hours_end">Horario de fin</label>
+              <input
+                id="hours_end"
+                type="time"
+                class="form-input"
+                [value]="availability().available_hours_end"
+                (input)="updateAvailability('available_hours_end', $any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="timezone">Zona horaria</label>
+              <select
+                id="timezone"
+                class="form-input"
+                (change)="updateAvailability('timezone', $any($event.target).value)"
+              >
+                @for (tz of timezones; track tz) {
+                  <option [value]="tz" [selected]="availability().timezone === tz">{{ tz }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+      }
+
       <div class="form-actions">
         <button class="btn-secondary" (click)="goBack()">Cancelar</button>
         <button class="btn-primary" (click)="onSubmit()" [disabled]="saving()">

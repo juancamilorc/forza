@@ -21,6 +21,9 @@ export interface Appointment {
 export interface TrainerOption {
   id:    string;
   users: { full_name: string };
+  available_days?:        string[] | null;
+  available_hours_start?: string | null;
+  available_hours_end?:   string | null;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -73,7 +73,7 @@
               <option value="">Seleccionar entrenador...</option>
               @for (trainer of trainersList(); track trainer.id) {
                 <option [value]="trainer.id">
-                  {{ trainer.users?.full_name }}
+                  {{ trainer.users?.full_name }}{{ isUnavailable(trainer) ? ' — no disponible en ese día/hora' : '' }}
                 </option>
               }
             </select>
@@ -120,6 +120,13 @@
           (input)="updateField('session_time', $any($event.target).value)"
         />
       </div>
+
+      @if (availabilityMsg(); as msg) {
+        <div class="availability-warning full-width">
+          <span class="material-symbols-outlined">schedule</span>
+          {{ msg }}
+        </div>
+      }
 
       <!-- Ubicación -->
       <div class="form-group full-width">

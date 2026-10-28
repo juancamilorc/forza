@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { AthletesService, Athlete } from '../../../core/services/athletes.servic
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TrainersService } from '../../../core/services/trainers.service';
+import { availabilityWarning } from '../../../core/utils/trainer-availability';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
@@ -50,6 +51,21 @@ export class SessionForm implements OnInit {
   });
 
   trainersList = signal<any[]>([]);
+
+  // FOR-77 — aviso si el entrenador elegido no atiende ese día/hora
+  availabilityMsg = computed(() => {
+    const f = this.form();
+    return availabilityWarning(
+      this.trainersList().find(t => t.id === f.trainer_id),
+      f.session_date,
+      f.session_time,
+    );
+  });
+
+  isUnavailable(t: any): boolean {
+    const f = this.form();
+    return !!availabilityWarning(t, f.session_date, f.session_time);
+  }
   isAdminOrSuper = signal(false);
 
 
@@ -62,12 +78,13 @@ export class SessionForm implements OnInit {
       next: (data) => this.athletesList.set(data.filter(a => a.status === 'active')),
     });
 
-    // Si es admin/super_admin cargar entrenadores
-    if (this.isAdminOrSuper()) {
-      this.trainers.getAll().subscribe({
-        next: (data) => this.trainersList.set(data),
-      });
-    } else {
+    // Entrenadores: el admin los elige; el trainer los necesita para el aviso de
+    // disponibilidad propia (FOR-77)
+    this.trainers.getAll().subscribe({
+      next: (data) => this.trainersList.set(data),
+    });
+
+    if (!this.isAdminOrSuper()) {
       // Si es trainer, buscar su trainer_id
       this.http.get<any>(`${environment.apiUrl}/auth/trainer-id`).subscribe({
         next: (res) => {
