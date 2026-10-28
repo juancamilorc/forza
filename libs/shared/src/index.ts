@@ -40,3 +40,4 @@ export * from './lib/dtos/video/update-video.dto';
 export * from './lib/dtos/trial-session/create-trial-session.dto';
 export * from './lib/dtos/trial-session/update-trial-session.dto';
 export * from './lib/dtos/trial-session/convert-trial-session.dto';
+export * from './lib/dtos/trainer/update-trainer.dto';
