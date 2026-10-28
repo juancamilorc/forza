@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { TrainerAvailabilityService } from '../trainer-availability/trainer-availability.service';
 import { CreateSessionDto } from '@forza/shared';
 import { UpdateSessionDto } from '@forza/shared';
 import { ConfirmSessionDto } from '@forza/shared';
@@ -11,7 +12,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class SessionsService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private availability: TrainerAvailabilityService,
+  ) {}
 
   // ── GET ALL ──────────────────────────────────────────────────
   async findAll(trainerId?: string, athleteId?: string) {
@@ -117,6 +121,8 @@ export class SessionsService {
 
   // ── CREATE ───────────────────────────────────────────────────
   async create(dto: CreateSessionDto) {
+    await this.availability.assertAvailable(dto.trainer_id, dto.session_date, dto.session_time);
+
     if (dto.plan_id) {
       await this.validatePlanCapacity(dto.plan_id);
       await this.validatePlanHasPayment(dto.plan_id);
@@ -158,7 +164,15 @@ export class SessionsService {
 
   // ── UPDATE ───────────────────────────────────────────────────
   async update(id: string, dto: UpdateSessionDto) {
-    await this.findOne(id);
+    const existing = await this.findOne(id);
+
+    if (dto.trainer_id !== undefined || dto.session_date || dto.session_time) {
+      await this.availability.assertAvailable(
+        dto.trainer_id ?? existing.trainer_id,
+        dto.session_date ?? existing.session_date,
+        dto.session_time ?? existing.session_time,
+      );
+    }
 
     const { data, error } = await this.supabase.db
       .from('sessions')
@@ -253,6 +267,9 @@ async cancel(id: string, reason: string) {
 // ── RESCHEDULE ───────────────────────────────────────────────
 async reschedule(id: string, dto: CreateSessionDto) {
   const original = await this.findOne(id);
+
+  // Disponibilidad del entrenador: se valida ANTES de cancelar la original
+  await this.availability.assertAvailable(dto.trainer_id, dto.session_date, dto.session_time);
 
   // Verificar límite de reprogramaciones
   if (original.reschedule_count >= 2) {

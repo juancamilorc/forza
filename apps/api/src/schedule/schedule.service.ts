@@ -4,12 +4,16 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { TrainerAvailabilityService } from '../trainer-availability/trainer-availability.service';
 import { CreateAppointmentDto, RescheduleAppointmentDto } from '@forza/shared';
 import { UpdateAppointmentDto } from '@forza/shared';
 
 @Injectable()
 export class ScheduleService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private availability: TrainerAvailabilityService,
+  ) {}
 
   // ── GET ALL ──────────────────────────────────────────────────
   async findAll(trainerId?: string, date?: string) {
@@ -49,6 +53,8 @@ export class ScheduleService {
 
   // ── CREATE ───────────────────────────────────────────────────
   async create(dto: CreateAppointmentDto) {
+    await this.availability.assertAvailable(dto.trainer_id, dto.scheduled_date, dto.scheduled_time);
+
     const { data, error } = await this.supabase.db
       .from('appointments')
       .insert({
@@ -70,7 +76,15 @@ export class ScheduleService {
 
   // ── UPDATE ───────────────────────────────────────────────────
   async update(id: string, dto: UpdateAppointmentDto) {
-    await this.findOne(id);
+    const existing: any = await this.findOne(id);
+
+    if (dto.trainer_id !== undefined || dto.scheduled_date || dto.scheduled_time) {
+      await this.availability.assertAvailable(
+        dto.trainer_id ?? existing.trainer_id,
+        dto.scheduled_date ?? existing.scheduled_date,
+        dto.scheduled_time ?? existing.scheduled_time,
+      );
+    }
 
     const { data, error } = await this.supabase.db
       .from('appointments')
@@ -86,6 +100,10 @@ export class ScheduleService {
   // ── RESCHEDULE ───────────────────────────────────────────────
   async reschedule(id: string, dto: RescheduleAppointmentDto) {
     const current = await this.findOne(id);
+
+    await this.availability.assertAvailable(
+      (current as any).trainer_id, dto.scheduled_date, dto.scheduled_time,
+    );
 
     const count = (current as any).reschedule_count ?? 0;
     if (count >= 2) {
