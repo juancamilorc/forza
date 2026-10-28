@@ -169,7 +169,7 @@ npx nx serve api   # terminal 1 → localhost:3000
 npx nx serve web   # terminal 2 → localhost:4200
 
 # Credenciales
-admin@forza.com / Forza2024!
+admin@forza.com / [contraseña: la tiene el usuario, no se documenta aquí]
 trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportistas
                      asignados por defecto — reasignar uno temporalmente para probar]
 ```

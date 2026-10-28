@@ -17,7 +17,7 @@ login: admin, entrenadores, nutricionista).
 
 | Rol | Email | Password |
 |-----|-------|----------|
-| super_admin | admin@forza.com | Forza2024! |
+| super_admin | admin@forza.com | (guardada por el usuario; no se documenta aquí) |
 | trainer | trainer@forza.com | (ver .env) |
 
 Trainers usados en los fixtures:

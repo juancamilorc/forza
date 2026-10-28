@@ -115,7 +115,7 @@ forza/
 - Lazy load ALL feature routes with `loadComponent`
 
 ### Database (Supabase)
-- ALL new tables need RLS enabled + permissive policy for service role
+- ALL new tables need RLS enabled and **NO policies** (never `USING (true)`): the backend uses SERVICE_ROLE_KEY, which bypasses RLS, so without policies the public `anon` key is fully blocked
 - Use `uuid` for all IDs, generated with `gen_random_uuid()`
 - ALL tables have `created_at` and `updated_at` with trigger
 - Foreign keys use `ON DELETE` carefully — prefer soft deletes
@@ -348,7 +348,7 @@ Trainer: trainer@forza.com / [see .env]
 3. `localStorage is not defined` in SSR → always use `isPlatformBrowser`
 4. NestJS uses its OWN JWT — never use Supabase token in guards
 5. `gender` field must be in `CreateAthleteDto` or `forbidNonWhitelisted` rejects it
-6. New Supabase tables need RLS enabled + permissive policy even with SERVICE_ROLE_KEY
+6. New Supabase tables: enable RLS and create NO policies. A permissive policy (`USING (true)`) is NOT needed for the service role (it bypasses RLS) and exposes the table to anyone holding the public `anon` key (found on 28 Oct 2026, FOR-90)
 7. `PartialType` requires `@nestjs/mapped-types` installed separately
 8. Angular `@for` with `<a routerLink>` can cause template errors — use `<button (click)="navigate()">` instead
 9. `date pipe` with locale needs `registerLocaleData(localeEs)` + `{ provide: LOCALE_ID, useValue: 'es-CO' }` in app.config.ts
