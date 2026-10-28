@@ -1,9 +1,13 @@
 import {
   Controller,
   Get,
+  Patch,
+  Body,
+  Param,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UpdateTrainerDto } from '@forza/shared';
 
 import { AdminService } from './admin.service';
 
@@ -37,5 +41,16 @@ export class TrainersController {
       return this.admin.getTrainersOverview(myTrainerId);
     }
     return this.admin.getTrainersOverview(trainerId);
+  }
+
+  // PATCH /api/admin/trainers/:id — FOR-77 (disponibilidad).
+  // Sin ParseUUIDPipe: los ids de varios entrenadores no son UUID estricto.
+  @Roles('super_admin', 'admin')
+  @Patch(':id')
+  updateTrainer(
+    @Param('id') id: string,
+    @Body() dto: UpdateTrainerDto,
+  ) {
+    return this.admin.updateTrainer(id, dto);
   }
 }

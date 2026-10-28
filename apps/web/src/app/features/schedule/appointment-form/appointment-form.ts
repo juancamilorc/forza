@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { availabilityWarning } from '../../../core/utils/trainer-availability';
 import { ScheduleService, TrainerOption } from '../../../core/services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -37,6 +38,21 @@ export class AppointmentForm implements OnInit {
     location:       '',
     notes:          '',
   });
+
+  // FOR-77 — aviso si el entrenador elegido no atiende ese día/hora
+  availabilityMsg = computed(() => {
+    const f = this.form();
+    return availabilityWarning(
+      this.trainersList().find(t => t.id === f.trainer_id),
+      f.scheduled_date,
+      f.scheduled_time,
+    );
+  });
+
+  isUnavailable(t: TrainerOption): boolean {
+    const f = this.form();
+    return !!availabilityWarning(t, f.scheduled_date, f.scheduled_time);
+  }
 
   ngOnInit() {
     if (this.isAdmin) {

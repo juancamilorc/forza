@@ -1,26 +1,18 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 28 Oct 2026
+> Fuente única de verdad. Actualizado: 28 Oct 2026 (post-release a main)
 > Verificado con `git log` + Linear API
 
 ---
 
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
-### main (producción) — commit `cf649a2` — **tres tickets atrás de develop**
-- PR #33 (develop → main): incluye FOR-66, FOR-67, FOR-68.
-- **Cycle 15 completo en producción.**
-- FOR-69, FOR-65 y FOR-71 están mergeados a `develop` pero **todavía no a `main`** —
-  pendiente de acumular más tickets antes del próximo release. **Ojo:** las migraciones
-  004, 005 y 006 ya están corridas en la BD compartida (que usa también producción);
-  el código que las usa no llega a Render hasta el release a `main`.
+### main (producción) — commit `65f04d1` — nivelado con develop
+- PR #38 (develop → main), 28 Oct 2026: **FOR-69, FOR-65 y FOR-71 en producción.**
+- Smoke post-deploy contra producción: 10/10 OK (perfil, status/acudientes, evaluaciones
+  con intentos, `/prueba` con 403 para entrenador, crear/WhatsApp/convertir clase).
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop — commit `3dd45d8` — adelante de main (FOR-69, FOR-65, FOR-71)
-- FOR-69 (banner de campos faltantes + CRUD de acudientes) mergeado 16 Oct 2026.
-- FOR-65 (intentos configurables 1-4 en evaluación técnica/física) mergeado 21 Oct 2026.
-- FOR-71 (módulo clases de prueba `/prueba`) mergeado 28 Oct 2026 (PR #37).
-- Backend de producción (Render) **no tiene este código todavía** — solo se prueba
-  en local hasta el próximo release a `main`.
+### develop — nivelado con main (solo difiere en commits de docs)
 
 ### demo — muy atrás, no bloquea
 
@@ -55,7 +47,11 @@
    de clases de prueba tiene botón "WhatsApp" y botón "Copiar mensaje".
 6. **`<select>` con `@for`:** usar `[selected]` en cada `<option>`, no `[value]` en el
    `<select>` (no refleja el valor inicial). Patrón del resto del repo.
-7. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
+7. **RLS en tablas nuevas:** activar RLS y NO crear políticas (el backend usa service_role). Nunca
+   `USING (true)`: abre la tabla a quien tenga la clave anon pública. Verificar con la clave anon.
+8. **Repo PÚBLICO** (github.com/juancamilorc/forza): no escribir credenciales, URLs internas ni datos de
+   clientes en archivos versionados. El host de Supabase sigue expuesto en `scripts/backup-supabase.sh`.
+9. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
    corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
 
 ---
@@ -68,20 +64,46 @@
 | FOR-67 | Filtros por mes/plan y exportar pagos a Excel | ✅ Done |
 | FOR-68 | Vista entrenadores con clases y deportistas | ✅ Done |
 
-## 📋 LINEAR — CYCLE 18 (activo; los tickets rodaron de Cycle 17)
+## 📋 LINEAR — PLAN DE CYCLES (reorganizado el 28 Oct 2026)
 
-| Ticket | Descripción | Estado |
-|--------|-------------|--------|
-| FOR-69 | Banner de campos faltantes en detalle deportista | ✅ Done (en develop, falta release a main) |
-| FOR-65 | Intentos configurables en evaluación técnica y física | ✅ Done (en develop, falta release a main) |
-| FOR-71 | Módulo deportistas en clase de prueba | ✅ Done (en develop, falta release a main) |
-| FOR-88 | Bug: botón "Ver evolución" en Evaluaciones no hace nada | Todo — encontrado en QA de FOR-65, ver nota abajo |
-| FOR-77 | Disponibilidad de entrenadores (días/horarios) | Todo |
-| FOR-78 | Bloqueos de agenda del entrenador | Todo |
-| FOR-79 | Historial de reprogramaciones (máx 2 por sesión) | Todo |
-| FOR-80 | Extensión manual de planes | Todo |
-| FOR-81 | Banner alertas de plan por vencer | Todo |
-| FOR-64 | Retomar rediseño Agenda (FOR-57) | Todo — ver rama vieja arriba |
+Capacidad real del usuario: **3-4 tickets por cycle** (su trabajo principal limita el
+tiempo). Si hay más holgura, se adelanta del siguiente cycle.
+
+| Cycle | Fechas | Tickets |
+|-------|--------|---------|
+| **18** (activo) | 23 Oct → 6 Nov | ✅ FOR-77 disponibilidad (Done) · **FOR-90 seguridad fase 1** (rama lista, PR pendiente) · FOR-88 bug "Ver evolución" |
+| 19 | 6 → 20 Nov | **FOR-64 unificar Sesiones+Agenda (primero)** · FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones · FOR-92 seguridad fase 2 |
+| 20 | 20 Nov → 4 Dic | FOR-80 extensión de planes · FOR-81 banner plan por vencer · FOR-84 conversión trial (resto) |
+| 21 | 4 → 18 Dic | FOR-82 reasignar sesiones al bloquear agenda · FOR-87 validación inline |
+| Sin cycle | | FOR-46 (rediseño UI), FOR-54 y FOR-70 (WhatsApp Business API, Fase 2), FOR-55, FOR-58, FOR-83, FOR-89 (zona de cobertura estructurada), FOR-91 (arreglar pruebas web y lint) |
+
+Orden: FOR-77 primero porque FOR-78/82/64 dependen de la disponibilidad.
+Done: FOR-65, FOR-66, FOR-67, FOR-68, FOR-69, FOR-71, FOR-77.
+
+**FOR-90 — seguridad fase 1 (28 Oct):** la clave pública `anon` de Supabase LEÍA las 16 tablas
+(políticas `USING (true)` innecesarias: el backend usa service_role, que ignora RLS). Migración
+`007_cerrar_acceso_anon.sql` (YA CORRIDA): RLS activo, 0 políticas, sin privilegios para anon.
+Verificado: lectura 401 y escritura 42501 en todas; backend local y producción OK. Regla de RLS del
+CLAUDE.md corregida (tablas nuevas: RLS activado y NINGUNA política). Contraseña del admin quitada de
+los docs (sigue en el historial público de git). **Pendiente del usuario:** cambiar la contraseña del
+admin en Supabase Auth y decidir si el repo (público) pasa a privado. Rama
+`feature/FOR-90-seguridad-fase-1`, PR pendiente. Resto del checklist → FOR-92.
+
+**FOR-64 — alcance ampliado (28 Oct, acordado):** unificar las pantallas Sesiones y Agenda en
+una sola (Agenda = calendario + lista, con confirmar/cancelar con motivo/reprogramar/editar,
+un solo "+ Nuevo", `/sesiones` redirige a `/agenda`, quitar "Sesiones" del menú; mostrar clases
+de prueba y bloqueos en el calendario). Hoy ambas pantallas muestran las mismas sesiones con la
+mitad de las funciones cada una, y reprogramar una sesión no se puede desde ninguna (el backend
+`POST /sessions/:id/reschedule` existe). **Decisión (28 Oct): las "reuniones"
+(`appointments`, módulo `schedule`, 0 registros) SE ELIMINAN** — no se han hablado con el cliente;
+si las piden, ticket aparte. Hacerlo ANTES de FOR-78/79. Con ellas se va la validación de
+disponibilidad de FOR-77 en appointments (queda la de sesiones).
+
+**FOR-84 — decisión confirmada (28 Oct):** para convertir una clase de prueba la clase
+**debe estar pagada**. Se implementa en FOR-84 (validación en `POST /trial-sessions/:id/convert`
++ botón deshabilitado en `/prueba`). Hasta entonces la conversión NO exige el pago.
+FOR-71 ya cubrió la base de la conversión; a FOR-84 le queda: validar pago, `came_from_trial`
++ badge en el perfil, link bidireccional, plan y pago inicial en el formulario, banner.
 
 **FOR-69 — detalle:** `GET /athletes/:id/status` calcula `missing_fields` (posición,
 acudiente) y `evaluations_overdue` (30 días desde última evaluación nutricional/
@@ -142,13 +164,10 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-Elegir el siguiente de Cycle 18: **FOR-77** (disponibilidad de entrenadores, días/horarios)
-abre la cadena de agenda (FOR-78 bloqueos, FOR-79 reprogramaciones, FOR-64 rediseño
-Agenda); **FOR-88** (bug "Ver evolución") es corto y se puede intercalar. Confirmar el
-detalle en Linear antes de arrancar.
-
-Pendiente de release: `develop → main` agrupa FOR-69, FOR-65 y FOR-71 (migraciones
-004-006 ya están en la BD compartida).
+1. **El usuario crea el PR de FOR-90** (`feature/FOR-90-seguridad-fase-1` → `develop`) y mergea; cierre estándar.
+2. **FOR-88** (bug "Ver evolución") para cerrar Cycle 18, con calma.
+3. Cycle 19: **FOR-64** primero (unificar Sesiones+Agenda, eliminar reuniones/appointments), luego FOR-78,
+   FOR-79 y FOR-92 (seguridad fase 2: rate limiting, helmet/CORS, entornos separados).
 
 ---
 
@@ -164,7 +183,7 @@ npx nx serve api   # terminal 1 → localhost:3000
 npx nx serve web   # terminal 2 → localhost:4200
 
 # Credenciales
-admin@forza.com / Forza2024!
+admin@forza.com / [contraseña: la tiene el usuario, no se documenta aquí]
 trainer@forza.com / [tiene el password el usuario; el user_id no tiene deportistas
                      asignados por defecto — reasignar uno temporalmente para probar]
 ```

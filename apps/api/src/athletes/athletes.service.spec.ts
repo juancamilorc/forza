@@ -178,6 +178,7 @@ describe('AthletesService', () => {
         trainer_id: 'trainer-uuid-1',
         status: 'active',
         notes: null,
+        position: null,
       });
       expect(result).toMatchObject({ first_name: 'María', age: expect.any(Number) });
     });

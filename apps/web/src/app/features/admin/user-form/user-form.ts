@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { AdminUsersService } from '../../../core/services/admin-users.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TrainersService } from '../../../core/services/trainers.service';
+import { WEEK_DAYS } from '../../../core/utils/trainer-availability';
 
 @Component({
   selector: 'app-user-form',
@@ -16,6 +18,7 @@ export class UserForm implements OnInit {
   private location = inject(Location);
   private service = inject(AdminUsersService);
   private toast   = inject(ToastService);
+  private trainersApi = inject(TrainersService);
 
   isEdit  = signal(false);
   loading = signal(false);
@@ -29,6 +32,53 @@ export class UserForm implements OnInit {
     role:      '',
     phone:     '',
   });
+
+  // ── Disponibilidad del entrenador (FOR-77) ───────────────────
+  readonly weekDays  = WEEK_DAYS;
+  readonly timezones = ['America/Bogota', 'America/Mexico_City', 'America/Lima'];
+
+  trainerId    = signal<string | null>(null);
+  availability = signal({
+    coverage_area:         '',
+    available_days:        [] as string[],
+    available_hours_start: '',
+    available_hours_end:   '',
+    timezone:              'America/Bogota',
+  });
+
+  showAvailability = computed(
+    () => this.isEdit() && this.form().role === 'trainer' && this.trainerId() !== null,
+  );
+
+  private loadTrainer(userId: string) {
+    this.trainersApi.getAll().subscribe({
+      next: (list) => {
+        const t = list.find(x => x.user_id === userId);
+        if (!t) return;
+        this.trainerId.set(t.id);
+        this.availability.set({
+          coverage_area:         t.coverage_area ?? '',
+          available_days:        t.available_days ?? [],
+          available_hours_start: (t.available_hours_start ?? '').slice(0, 5),
+          available_hours_end:   (t.available_hours_end ?? '').slice(0, 5),
+          timezone:              t.timezone ?? 'America/Bogota',
+        });
+      },
+    });
+  }
+
+  toggleDay(key: string) {
+    this.availability.update(a => ({
+      ...a,
+      available_days: a.available_days.includes(key)
+        ? a.available_days.filter(d => d !== key)
+        : [...a.available_days, key],
+    }));
+  }
+
+  updateAvailability(field: 'coverage_area' | 'available_hours_start' | 'available_hours_end' | 'timezone', value: string) {
+    this.availability.update(a => ({ ...a, [field]: value }));
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -45,6 +95,7 @@ export class UserForm implements OnInit {
             phone:     user.phone ?? '',
           });
           this.loading.set(false);
+          if (user.role === 'trainer') this.loadTrainer(id);
         },
         error: () => this.router.navigate(['/administracion/usuarios']),
       });
@@ -71,6 +122,13 @@ export class UserForm implements OnInit {
       return;
     }
 
+    const a = this.availability();
+    if (this.showAvailability() && a.available_hours_start && a.available_hours_end
+        && a.available_hours_start >= a.available_hours_end) {
+      this.error.set('El horario de inicio debe ser anterior al horario de fin');
+      return;
+    }
+
     this.saving.set(true);
     this.error.set('');
 
@@ -82,8 +140,30 @@ export class UserForm implements OnInit {
 
       this.service.update(id, data).subscribe({
         next: () => {
-          this.toast.success('Usuario actualizado correctamente');
-          setTimeout(() => this.router.navigate(['/administracion/usuarios']), 500);
+          const trainerId = this.trainerId();
+          if (!this.showAvailability() || !trainerId) {
+            this.toast.success('Usuario actualizado correctamente');
+            setTimeout(() => this.router.navigate(['/administracion/usuarios']), 500);
+            return;
+          }
+
+          this.trainersApi.update(trainerId, {
+            coverage_area:         a.coverage_area || null,
+            available_days:        a.available_days,
+            available_hours_start: a.available_hours_start || null,
+            available_hours_end:   a.available_hours_end || null,
+            timezone:              a.timezone,
+          }).subscribe({
+            next: () => {
+              this.toast.success('Usuario y disponibilidad actualizados');
+              setTimeout(() => this.router.navigate(['/administracion/usuarios']), 500);
+            },
+            error: (err) => {
+              const msg = err?.error?.message ?? 'No se pudo guardar la disponibilidad';
+              this.error.set(Array.isArray(msg) ? msg.join(', ') : msg);
+              this.saving.set(false);
+            },
+          });
         },
         error: () => {
           this.error.set('Error al guardar. Intenta de nuevo.');
