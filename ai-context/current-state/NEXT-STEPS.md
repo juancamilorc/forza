@@ -1,21 +1,24 @@
 # FORZA — Estado Real del Proyecto
-> Fuente única de verdad. Actualizado: 21 Oct 2026
+> Fuente única de verdad. Actualizado: 28 Oct 2026
 > Verificado con `git log` + Linear API
 
 ---
 
 ## 📍 ESTADO DE RAMAS (verificado con git)
 
-### main (producción) — commit `cf649a2` — **dos tickets atrás de develop**
+### main (producción) — commit `cf649a2` — **tres tickets atrás de develop**
 - PR #33 (develop → main): incluye FOR-66, FOR-67, FOR-68.
 - **Cycle 15 completo en producción.**
-- FOR-69 y FOR-65 están mergeados a `develop` pero **todavía no a `main`** —
-  pendiente de acumular más tickets de Cycle 17 antes del próximo release.
+- FOR-69, FOR-65 y FOR-71 están mergeados a `develop` pero **todavía no a `main`** —
+  pendiente de acumular más tickets antes del próximo release. **Ojo:** las migraciones
+  004, 005 y 006 ya están corridas en la BD compartida (que usa también producción);
+  el código que las usa no llega a Render hasta el release a `main`.
 - **Deploy:** https://forza-momentum.vercel.app · Backend: https://forza-api-u7cq.onrender.com/api
 
-### develop — commit `254e8aa` — dos commits adelante de main (FOR-69, FOR-65)
+### develop — commit `3dd45d8` — adelante de main (FOR-69, FOR-65, FOR-71)
 - FOR-69 (banner de campos faltantes + CRUD de acudientes) mergeado 16 Oct 2026.
 - FOR-65 (intentos configurables 1-4 en evaluación técnica/física) mergeado 21 Oct 2026.
+- FOR-71 (módulo clases de prueba `/prueba`) mergeado 28 Oct 2026 (PR #37).
 - Backend de producción (Render) **no tiene este código todavía** — solo se prueba
   en local hasta el próximo release a `main`.
 
@@ -28,12 +31,14 @@
 
 ---
 
-## ⚠️ GOTCHAS DE INFRAESTRUCTURA (nuevos, aprendidos el 2 Oct)
+## ⚠️ GOTCHAS DE INFRAESTRUCTURA (aprendidos el 2, 14 y 28 Oct)
 
 1. **Supabase (plan free) pausa el proyecto tras varios días de inactividad.** Si el
    login falla con `{"message":"fetch failed","error":"Unauthorized"}` en vez de un
    401 normal, lo primero es revisar el dashboard de Supabase y reactivar el proyecto
-   — no es un bug de código. Pasó tras 16 días sin tocar el repo.
+   — no es un bug de código. Pasó tras 16 días (2 Oct), 12 días (14 Oct) y 6 días
+   (28 Oct) sin tocar el repo. Desde la máquina local la señal es DNS: el host del
+   proyecto da `ENOTFOUND` mientras github.com/supabase.com sí resuelven.
 2. **Hay un solo backend Render, compartido por TODOS los entornos, y despliega desde
    `main`** (no desde `develop`). Esto significa que el deploy de staging en Vercel
    (`develop`) habla con el MISMO backend que producción — no hay forma de probar un
@@ -42,6 +47,16 @@
    contra infraestructura real.
 3. Render también se "duerme" tras inactividad (free tier) — el primer request tras un
    rato sin tráfico puede tardar 30-60s (cold start). No confundir con un error real.
+4. **IDs de entrenadores NO son UUID estrictos:** 7 de 9 `trainers.id` son tipo
+   `bbbb0001-0000-0000-0000-00000000000N`. `@IsUUID()` los rechaza → validar
+   `trainer_id` con `@IsString()` (como el resto del repo). Pasó en FOR-71.
+5. **`wa.me` + emojis:** la app de WhatsApp Desktop en Mac rompe los emojis al abrir
+   enlaces `wa.me` (salen `�`) aunque el URL esté bien codificado. Por eso el módulo
+   de clases de prueba tiene botón "WhatsApp" y botón "Copiar mensaje".
+6. **`<select>` con `@for`:** usar `[selected]` en cada `<option>`, no `[value]` en el
+   `<select>` (no refleja el valor inicial). Patrón del resto del repo.
+7. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
+   corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
 
 ---
 
@@ -53,14 +68,14 @@
 | FOR-67 | Filtros por mes/plan y exportar pagos a Excel | ✅ Done |
 | FOR-68 | Vista entrenadores con clases y deportistas | ✅ Done |
 
-## 📋 LINEAR — CYCLE 17 (9-23 Oct 2026) — activo
+## 📋 LINEAR — CYCLE 18 (activo; los tickets rodaron de Cycle 17)
 
 | Ticket | Descripción | Estado |
 |--------|-------------|--------|
 | FOR-69 | Banner de campos faltantes en detalle deportista | ✅ Done (en develop, falta release a main) |
 | FOR-65 | Intentos configurables en evaluación técnica y física | ✅ Done (en develop, falta release a main) |
+| FOR-71 | Módulo deportistas en clase de prueba | ✅ Done (en develop, falta release a main) |
 | FOR-88 | Bug: botón "Ver evolución" en Evaluaciones no hace nada | Todo — encontrado en QA de FOR-65, ver nota abajo |
-| FOR-71 | Módulo deportistas en clase de prueba | Todo — siguiente |
 | FOR-77 | Disponibilidad de entrenadores (días/horarios) | Todo |
 | FOR-78 | Bloqueos de agenda del entrenador | Todo |
 | FOR-79 | Historial de reprogramaciones (máx 2 por sesión) | Todo |
@@ -83,6 +98,18 @@ Bug encontrado y corregido durante el desarrollo: `<select>` con `[value]` en el
 no refleja bien el valor inicial cuando las `<option>` se generan con `@for` — hay que
 usar `[selected]` en cada `<option>` (patrón ya usado en el resto del repo, ej.
 athlete-form.html). Guardar esto como gotcha para futuros selects dinámicos.
+
+**FOR-71 — detalle:** módulo `/prueba` (solo admin) sobre la tabla `trial_sessions`
+que ya existía; migración `006` le agrega `trainer_id`, `status` (programada/cancelada),
+`amount_paid` default 0 y `guardian_email` opcional. Precio fijo $35.000 en
+`TRIAL_PRICE` (backend). Acciones: crear, reprogramar/editar, cancelar, marcar pagada,
+WhatsApp (link `wa.me` con mensaje estructurado, **sin envío automático**: Business API
+es Fase 2) y copiar mensaje, y **convertir en deportista** (crea athlete en estado
+`trial` + acudiente principal; endpoint `POST /trial-sessions/:id/convert`).
+**Regla de estado:** `PaymentsService.activateAthleteIfPaid` pasa `trial → active`
+cuando un pago queda `pagado` (create/update/abonar); nunca baja de active a trial.
+Decisión pendiente de confirmar con el cliente: activar solo con pago **completo** (hoy)
+o con el primer abono. Pendiente de probar con flujo real de cliente.
 
 **FOR-88 — pendiente de investigar:** el botón "Ver evolución" en `/evaluaciones`
 (filtrado por deportista) no parece hacer nada visible al hacer clic. El código
@@ -115,11 +142,13 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-Siguiente ticket: **FOR-71 — Módulo deportistas en clase de prueba** (confirmar
-detalle en Linear antes de arrancar, por si vuelve a rodar el cycle).
+Elegir el siguiente de Cycle 18: **FOR-77** (disponibilidad de entrenadores, días/horarios)
+abre la cadena de agenda (FOR-78 bloqueos, FOR-79 reprogramaciones, FOR-64 rediseño
+Agenda); **FOR-88** (bug "Ver evolución") es corto y se puede intercalar. Confirmar el
+detalle en Linear antes de arrancar.
 
-FOR-88 (bug de "Ver evolución") queda en el backlog de Cycle 17, sin tomar todavía —
-se puede intercalar entre tickets grandes si hay un hueco corto.
+Pendiente de release: `develop → main` agrupa FOR-69, FOR-65 y FOR-71 (migraciones
+004-006 ya están en la BD compartida).
 
 ---
 
