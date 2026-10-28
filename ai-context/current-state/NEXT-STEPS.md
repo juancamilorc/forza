@@ -68,13 +68,23 @@ tiempo). Si hay más holgura, se adelanta del siguiente cycle.
 | Cycle | Fechas | Tickets |
 |-------|--------|---------|
 | **18** (activo) | 23 Oct → 6 Nov | **FOR-77** disponibilidad de entrenadores · **FOR-88** bug "Ver evolución" |
-| 19 | 6 → 20 Nov | FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones · FOR-84 conversión trial (resto) |
-| 20 | 20 Nov → 4 Dic | FOR-64 rediseño Agenda · FOR-80 extensión de planes · FOR-81 banner plan por vencer |
+| 19 | 6 → 20 Nov | **FOR-64 unificar Sesiones+Agenda (primero)** · FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones |
+| 20 | 20 Nov → 4 Dic | FOR-80 extensión de planes · FOR-81 banner plan por vencer · FOR-84 conversión trial (resto) |
 | 21 | 4 → 18 Dic | FOR-82 reasignar sesiones al bloquear agenda · FOR-87 validación inline |
 | Sin cycle | | FOR-46 (rediseño UI), FOR-54 y FOR-70 (WhatsApp Business API, Fase 2), FOR-55, FOR-58, FOR-83 |
 
 Orden: FOR-77 primero porque FOR-78/82/64 dependen de la disponibilidad.
 Done: FOR-65, FOR-66, FOR-67, FOR-68, FOR-69, FOR-71.
+
+**FOR-64 — alcance ampliado (28 Oct, acordado):** unificar las pantallas Sesiones y Agenda en
+una sola (Agenda = calendario + lista, con confirmar/cancelar con motivo/reprogramar/editar,
+un solo "+ Nuevo", `/sesiones` redirige a `/agenda`, quitar "Sesiones" del menú; mostrar clases
+de prueba y bloqueos en el calendario). Hoy ambas pantallas muestran las mismas sesiones con la
+mitad de las funciones cada una, y reprogramar una sesión no se puede desde ninguna (el backend
+`POST /sessions/:id/reschedule` existe). **Decisión pendiente del usuario:** las "reuniones"
+(`appointments`, módulo `schedule`, 0 registros) — eliminarlas (como pedía el ticket original) o
+conservarlas como tipo de evento. Hacerlo ANTES de FOR-78/79. FOR-77 valida disponibilidad
+también en appointments; si se eliminan, esa validación se va con ellas.
 
 **FOR-84 — decisión confirmada (28 Oct):** para convertir una clase de prueba la clase
 **debe estar pagada**. Se implementa en FOR-84 (validación en `POST /trial-sessions/:id/convert`
@@ -141,9 +151,9 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-Arrancar **FOR-77 — Disponibilidad de entrenadores (días/horarios)**. Leer el ticket
-completo en Linear antes (query GraphQL) y explorar el código de agenda/sesiones
-existente. Luego FOR-88 (bug corto) para cerrar Cycle 18.
+**FOR-77 está en In Review** (rama `feature/FOR-77-disponibilidad-entrenadores`, pusheada): el
+usuario la prueba en local, crea el PR a `develop` y mergea; luego cierre estándar. Después
+**FOR-88** (bug "Ver evolución") para cerrar Cycle 18, y en Cycle 19 arrancar por **FOR-64**.
 
 ---
 
