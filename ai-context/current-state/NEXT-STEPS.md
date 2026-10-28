@@ -47,7 +47,11 @@
    de clases de prueba tiene botón "WhatsApp" y botón "Copiar mensaje".
 6. **`<select>` con `@for`:** usar `[selected]` en cada `<option>`, no `[value]` en el
    `<select>` (no refleja el valor inicial). Patrón del resto del repo.
-7. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
+7. **RLS en tablas nuevas:** activar RLS y NO crear políticas (el backend usa service_role). Nunca
+   `USING (true)`: abre la tabla a quien tenga la clave anon pública. Verificar con la clave anon.
+8. **Repo PÚBLICO** (github.com/juancamilorc/forza): no escribir credenciales, URLs internas ni datos de
+   clientes en archivos versionados. El host de Supabase sigue expuesto en `scripts/backup-supabase.sh`.
+9. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
    corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
 
 ---
@@ -67,14 +71,23 @@ tiempo). Si hay más holgura, se adelanta del siguiente cycle.
 
 | Cycle | Fechas | Tickets |
 |-------|--------|---------|
-| **18** (activo) | 23 Oct → 6 Nov | **FOR-77** disponibilidad de entrenadores · **FOR-88** bug "Ver evolución" |
-| 19 | 6 → 20 Nov | **FOR-64 unificar Sesiones+Agenda (primero)** · FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones |
+| **18** (activo) | 23 Oct → 6 Nov | ✅ FOR-77 disponibilidad (Done) · **FOR-90 seguridad fase 1** (rama lista, PR pendiente) · FOR-88 bug "Ver evolución" |
+| 19 | 6 → 20 Nov | **FOR-64 unificar Sesiones+Agenda (primero)** · FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones · FOR-92 seguridad fase 2 |
 | 20 | 20 Nov → 4 Dic | FOR-80 extensión de planes · FOR-81 banner plan por vencer · FOR-84 conversión trial (resto) |
 | 21 | 4 → 18 Dic | FOR-82 reasignar sesiones al bloquear agenda · FOR-87 validación inline |
-| Sin cycle | | FOR-46 (rediseño UI), FOR-54 y FOR-70 (WhatsApp Business API, Fase 2), FOR-55, FOR-58, FOR-83 |
+| Sin cycle | | FOR-46 (rediseño UI), FOR-54 y FOR-70 (WhatsApp Business API, Fase 2), FOR-55, FOR-58, FOR-83, FOR-89 (zona de cobertura estructurada), FOR-91 (arreglar pruebas web y lint) |
 
 Orden: FOR-77 primero porque FOR-78/82/64 dependen de la disponibilidad.
-Done: FOR-65, FOR-66, FOR-67, FOR-68, FOR-69, FOR-71.
+Done: FOR-65, FOR-66, FOR-67, FOR-68, FOR-69, FOR-71, FOR-77.
+
+**FOR-90 — seguridad fase 1 (28 Oct):** la clave pública `anon` de Supabase LEÍA las 16 tablas
+(políticas `USING (true)` innecesarias: el backend usa service_role, que ignora RLS). Migración
+`007_cerrar_acceso_anon.sql` (YA CORRIDA): RLS activo, 0 políticas, sin privilegios para anon.
+Verificado: lectura 401 y escritura 42501 en todas; backend local y producción OK. Regla de RLS del
+CLAUDE.md corregida (tablas nuevas: RLS activado y NINGUNA política). Contraseña del admin quitada de
+los docs (sigue en el historial público de git). **Pendiente del usuario:** cambiar la contraseña del
+admin en Supabase Auth y decidir si el repo (público) pasa a privado. Rama
+`feature/FOR-90-seguridad-fase-1`, PR pendiente. Resto del checklist → FOR-92.
 
 **FOR-64 — alcance ampliado (28 Oct, acordado):** unificar las pantallas Sesiones y Agenda en
 una sola (Agenda = calendario + lista, con confirmar/cancelar con motivo/reprogramar/editar,
@@ -151,9 +164,10 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-**FOR-77 está en In Review** (rama `feature/FOR-77-disponibilidad-entrenadores`, pusheada): el
-usuario la prueba en local, crea el PR a `develop` y mergea; luego cierre estándar. Después
-**FOR-88** (bug "Ver evolución") para cerrar Cycle 18, y en Cycle 19 arrancar por **FOR-64**.
+1. **El usuario crea el PR de FOR-90** (`feature/FOR-90-seguridad-fase-1` → `develop`) y mergea; cierre estándar.
+2. **FOR-88** (bug "Ver evolución") para cerrar Cycle 18, con calma.
+3. Cycle 19: **FOR-64** primero (unificar Sesiones+Agenda, eliminar reuniones/appointments), luego FOR-78,
+   FOR-79 y FOR-92 (seguridad fase 2: rate limiting, helmet/CORS, entornos separados).
 
 ---
 
