@@ -197,6 +197,20 @@ export class TrialSessionsList implements OnInit {
     });
   }
 
+  copyMessage(t: TrialSession) {
+    this.service.whatsappLink(t.id).subscribe({
+      next: async (res) => {
+        try {
+          await navigator.clipboard.writeText(res.message);
+          this.toast.success('Mensaje copiado. Pégalo en el chat de WhatsApp.');
+        } catch {
+          this.toast.show('No se pudo copiar. Usa el botón WhatsApp.', 'error');
+        }
+      },
+      error: (err) => this.toast.show(this.errorMessage(err, 'No se pudo generar el mensaje'), 'error'),
+    });
+  }
+
   // ── Convertir a deportista ──────────────────────────────────
   openConvert(t: TrialSession) {
     const [first, ...rest] = t.child_name.trim().split(/\s+/);

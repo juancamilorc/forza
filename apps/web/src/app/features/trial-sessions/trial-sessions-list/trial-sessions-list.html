@@ -68,6 +68,9 @@
               <button class="act" (click)="openWhatsapp(t)" title="Abrir WhatsApp con el mensaje de confirmación">
                 <span class="material-symbols-outlined">chat</span>WhatsApp
               </button>
+              <button class="act" (click)="copyMessage(t)" title="Copia el mensaje con emojis para pegarlo en el chat">
+                <span class="material-symbols-outlined">content_copy</span>Copiar mensaje
+              </button>
             }
             @if (t.payment_status === 'pendiente' && t.status !== 'cancelada') {
               <button class="act" (click)="markPaid(t)">
