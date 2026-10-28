@@ -36,6 +36,16 @@
   .material-symbols-outlined { font-size: 18px; }
 }
 
+.availability-warning {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 14px; background: rgba(251,191,36,0.12);
+  border: 1px solid rgba(251,191,36,0.45); border-radius: 8px;
+  color: #b45309; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600;
+  .material-symbols-outlined { font-size: 18px; }
+}
+
+.availability-warning.full-width { grid-column: 1 / -1; }
+
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
 .form-group {

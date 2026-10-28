@@ -7,6 +7,7 @@ import {
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateUserDto } from '@forza/shared';
 import { UpdateUserDto } from '@forza/shared';
+import { UpdateTrainerDto } from '@forza/shared';
 
 @Injectable()
 export class AdminService {
@@ -115,9 +116,34 @@ export class AdminService {
   async getTrainers() {
     const { data, error } = await this.supabase.db
       .from('trainers')
-      .select('id, user_id, users!inner(full_name, email, is_active)')
+      .select('id, user_id, coverage_area, available_days, available_hours_start, available_hours_end, timezone, users!inner(full_name, email, is_active)')
       .eq('users.is_active', true)
       .order('created_at', { ascending: true });
+
+    if (error) throw new BadRequestException(error.message);
+    return data;
+  }
+
+  async updateTrainer(id: string, dto: UpdateTrainerDto) {
+    const { data: current, error: findError } = await this.supabase.db
+      .from('trainers')
+      .select('available_hours_start, available_hours_end')
+      .eq('id', id)
+      .single();
+    if (findError || !current) throw new NotFoundException(`Entrenador ${id} no encontrado`);
+
+    const start = dto.available_hours_start ?? current.available_hours_start;
+    const end   = dto.available_hours_end   ?? current.available_hours_end;
+    if (start && end && String(start).slice(0, 5) >= String(end).slice(0, 5)) {
+      throw new BadRequestException('La hora de inicio debe ser anterior a la hora de fin');
+    }
+
+    const { data, error } = await this.supabase.db
+      .from('trainers')
+      .update({ ...dto })
+      .eq('id', id)
+      .select('id, user_id, coverage_area, available_days, available_hours_start, available_hours_end, timezone')
+      .single();
 
     if (error) throw new BadRequestException(error.message);
     return data;

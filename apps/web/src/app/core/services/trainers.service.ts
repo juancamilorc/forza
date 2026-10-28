@@ -22,6 +22,14 @@ export interface TrainerAthleteSummary {
   debt_amount:         number;
 }
 
+export interface TrainerAvailabilityInput {
+  coverage_area?:         string | null;
+  available_days?:        string[];
+  available_hours_start?: string | null;
+  available_hours_end?:   string | null;
+  timezone?:              string;
+}
+
 export interface TrainerOverview {
   trainer_id:           string;
   trainer_name:         string;
@@ -38,6 +46,11 @@ export class TrainersService {
 
   getAll() {
     return this.http.get<any[]>(`${environment.apiUrl}/admin/trainers`);
+  }
+
+  // FOR-77 — configurar disponibilidad (solo admin)
+  update(id: string, data: TrainerAvailabilityInput) {
+    return this.http.patch<any>(`${environment.apiUrl}/admin/trainers/${id}`, data);
   }
 
   // FOR-68 — admin ve todos (o uno con trainerId), trainer ve solo el suyo

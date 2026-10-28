@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { SupabaseService } from '../supabase/supabase.service';
+import { TrainerAvailabilityService } from '../trainer-availability/trainer-availability.service';
 import { CreateSessionDto } from '@forza/shared';
 
 describe('SessionsService', () => {
@@ -46,6 +47,7 @@ describe('SessionsService', () => {
       providers: [
         SessionsService,
         { provide: SupabaseService, useValue: mockSupabaseService },
+        { provide: TrainerAvailabilityService, useValue: { assertAvailable: jest.fn() } },
       ],
     }).compile();
 
