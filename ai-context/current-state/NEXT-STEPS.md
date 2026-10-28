@@ -81,10 +81,10 @@ una sola (Agenda = calendario + lista, con confirmar/cancelar con motivo/reprogr
 un solo "+ Nuevo", `/sesiones` redirige a `/agenda`, quitar "Sesiones" del menú; mostrar clases
 de prueba y bloqueos en el calendario). Hoy ambas pantallas muestran las mismas sesiones con la
 mitad de las funciones cada una, y reprogramar una sesión no se puede desde ninguna (el backend
-`POST /sessions/:id/reschedule` existe). **Decisión pendiente del usuario:** las "reuniones"
-(`appointments`, módulo `schedule`, 0 registros) — eliminarlas (como pedía el ticket original) o
-conservarlas como tipo de evento. Hacerlo ANTES de FOR-78/79. FOR-77 valida disponibilidad
-también en appointments; si se eliminan, esa validación se va con ellas.
+`POST /sessions/:id/reschedule` existe). **Decisión (28 Oct): las "reuniones"
+(`appointments`, módulo `schedule`, 0 registros) SE ELIMINAN** — no se han hablado con el cliente;
+si las piden, ticket aparte. Hacerlo ANTES de FOR-78/79. Con ellas se va la validación de
+disponibilidad de FOR-77 en appointments (queda la de sesiones).
 
 **FOR-84 — decisión confirmada (28 Oct):** para convertir una clase de prueba la clase
 **debe estar pagada**. Se implementa en FOR-84 (validación en `POST /trial-sessions/:id/convert`
