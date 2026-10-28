@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
@@ -8,6 +9,8 @@ import { CreatePaymentDto, UpdatePaymentDto } from '@forza/shared';
 
 @Injectable()
 export class PaymentsService {
+  private readonly logger = new Logger(PaymentsService.name);
+
   constructor(private supabase: SupabaseService) {}
 
   // ── GET ALL ──────────────────────────────────────────────────
@@ -83,6 +86,18 @@ export class PaymentsService {
     return data;
   }
 
+  // Un deportista en estado 'trial' (registrado, aún sin pagar su plan) pasa a
+  // 'active' cuando uno de sus pagos queda completo. Nunca baja de active a trial.
+  private async activateAthleteIfPaid(payment: { athlete_id: string; status: string }) {
+    if (payment.status !== 'pagado') return;
+    const { error } = await this.supabase.db
+      .from('athletes')
+      .update({ status: 'active' })
+      .eq('id', payment.athlete_id)
+      .eq('status', 'trial');
+    if (error) this.logger.warn(`No se pudo activar al deportista ${payment.athlete_id}: ${error.message}`);
+  }
+
   // ── CREATE ───────────────────────────────────────────────────
   private static readonly CUOTA_THRESHOLD = 450_000;
 
@@ -126,6 +141,7 @@ export class PaymentsService {
       .single();
 
     if (error) throw new BadRequestException(error.message);
+    await this.activateAthleteIfPaid(result);
     return result;
   }
 
@@ -152,6 +168,7 @@ export class PaymentsService {
       .single();
 
     if (error) throw new BadRequestException(error.message);
+    await this.activateAthleteIfPaid(data);
     return data;
   }
 
@@ -170,6 +187,7 @@ export class PaymentsService {
       .single();
 
     if (error) throw new BadRequestException(error.message);
+    await this.activateAthleteIfPaid(data);
     return data;
   }
 

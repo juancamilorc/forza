@@ -114,6 +114,7 @@ export class TrialSessionsService {
   }
 
   // Migra la clase de prueba al módulo principal: crea deportista + acudiente.
+  // Queda en 'trial' hasta que pague su plan (PaymentsService lo pasa a 'active').
   async convert(id: string, dto: ConvertTrialSessionDto) {
     const trial = await this.findOne(id);
     if (trial.converted_to_athlete_id) {
@@ -128,7 +129,7 @@ export class TrialSessionsService {
         birth_date: dto.birth_date,
         gender: dto.gender,
         trainer_id: dto.trainer_id ?? trial.trainer_id ?? null,
-        status: 'active',
+        status: 'trial',
       })
       .select()
       .single();
