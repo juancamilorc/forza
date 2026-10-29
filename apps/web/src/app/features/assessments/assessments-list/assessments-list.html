@@ -47,6 +47,11 @@
         <span class="material-symbols-outlined">show_chart</span>
         Ver evolución
       </button>
+    } @else {
+      <p class="evo-hint">
+        <span class="material-symbols-outlined">show_chart</span>
+        La evolución aparece cuando el deportista tiene al menos 2 evaluaciones del mismo tipo.
+      </p>
     }
 
     <!-- Panel comparación -->
@@ -272,7 +277,7 @@
                 </div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
@@ -304,7 +309,7 @@
                 </div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
@@ -336,7 +341,7 @@
                 </div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
