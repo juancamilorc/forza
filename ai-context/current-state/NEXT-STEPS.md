@@ -77,7 +77,7 @@ tiempo). Si hay más holgura, se adelanta del siguiente cycle.
 
 | Cycle | Fechas | Tickets |
 |-------|--------|---------|
-| **18** (activo) | 23 Oct → 6 Nov | ✅ FOR-77 disponibilidad (Done) · **FOR-90 seguridad fase 1** (rama lista, PR pendiente) · FOR-88 bug "Ver evolución" |
+| **18** (activo) | 23 Oct → 6 Nov | ✅ FOR-77 disponibilidad (Done) · ✅ FOR-90 seguridad fase 1 (Done) · ✅ FOR-88 "Ver evolución" (Done, solo en develop) |
 | 19 | 6 → 20 Nov | **FOR-64 unificar Sesiones+Agenda (primero)** · FOR-78 bloqueos de agenda · FOR-79 historial de reprogramaciones · FOR-92 seguridad fase 2 |
 | 20 | 20 Nov → 4 Dic | FOR-80 extensión de planes · FOR-81 banner plan por vencer · FOR-84 conversión trial (resto) |
 | 21 | 4 → 18 Dic | FOR-82 reasignar sesiones al bloquear agenda · FOR-87 validación inline |
@@ -141,42 +141,19 @@ cuando un pago queda `pagado` (create/update/abonar); nunca baja de active a tri
 Decisión pendiente de confirmar con el cliente: activar solo con pago **completo** (hoy)
 o con el primer abono. Pendiente de probar con flujo real de cliente.
 
-**FOR-88 — pendiente de investigar:** el botón "Ver evolución" en `/evaluaciones`
-(filtrado por deportista) no parece hacer nada visible al hacer clic. El código
-(`assessments-list.ts:136`, `hasEvoData()`) requiere ≥2 evaluaciones del mismo tipo
-para ese deportista para mostrar el botón/datos — puede ser que simplemente falte un
-estado vacío explicando por qué no aparece nada, o puede ser un bug real en
-`enterEvoMode()`. No investigado a fondo todavía.
+**FOR-88 (hecho, PR #47, en develop; aún NO en main):** no había bug: el botón se oculta con <2 evaluaciones
+del mismo tipo. Ahora hay mensaje explicativo y las tarjetas de evolución muestran valor actual, cambio
+primera→última (verde/rojo según `higherIsBetter`) y gráficos más grandes.
 
-**FOR-66 — hallazgo:** las fórmulas de Yuhasz (% grasa por sexo) ya estaban
-implementadas desde Cycle 14 (efecto colateral de FOR-85, gender). Se corrigió una
-inconsistencia de redondeo entre el preview (`toFixed`) y el backend (`Math.round`).
-
-**FOR-67 — nota de seguridad (xlsx):** exportación usa `xlsx@0.18.5` de npm (2 CVEs
-conocidos, ambos de **parsear** `.xlsx` no confiables). Nuestro código solo **genera**
-el archivo desde datos internos, nunca parsea — riesgo real bajo hoy. ⚠️ Si se agrega
-una función de **importar** Excel más adelante, resolver esto primero (versión
-parchada del CDN oficial de SheetJS, o cambiar de librería).
-
-**FOR-68 — detalle:** `GET /api/admin/trainers/overview` — admin ve el resumen de
-todos los entrenadores, el trainer logueado ve solo el suyo (y su nav dice "Mi
-resumen", no "Entrenadores"). Por deportista: clases dadas/restantes, vencimiento del
-plan (badge "vence pronto" a ≤7 días) y saldo pendiente (badge "Debe $monto"). Fila
-clickeable → detalle del deportista.
-
-**Sincronizar Linear siempre:** `update FOR-XX "In Progress"` al arrancar, `"In Review"`
-al terminar la rama, `"Done"` cuando el PR entre a develop. (No usar `start`: fuerza
-prefijo `feature/` y hace `git pull`.)
 
 ---
 
 ## ⏭️ PRÓXIMO PASO
 
-1. **FOR-88** (bug "Ver evolución") para cerrar Cycle 18, con calma. Investigar a fondo: el botón solo aparece si
-   hay ≥2 evaluaciones del mismo tipo (`hasEvoData()`); puede faltar un estado vacío o ser un bug real.
+1. Cycle 18 casi cerrado (solo queda llevar FOR-88 a `main` en el próximo release).
 2. Cycle 19: **FOR-64** primero (unificar Sesiones+Agenda, eliminar reuniones/appointments), luego FOR-78,
    FOR-79 y FOR-92 (seguridad fase 2).
-3. `main` ya incluye FOR-77 y FOR-90/93 (llegaron por PR directo + hotfix); `develop == main`.
+3. `main` incluye FOR-77 y FOR-90/93; `develop` tiene además FOR-88 (pendiente de release a main).
 
 ---
 
