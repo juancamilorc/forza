@@ -56,7 +56,7 @@
    rompió producción (FOR-93). Arreglo: `SupabaseService.createAuthClient()` (cliente desechable). Las
    pruebas con tokens fabricados NO detectan esto; después de cambiar permisos/RLS hacer logins reales.
 10. **Base de los PR:** GitHub abre los PR contra `main` (rama por defecto). Features → `develop`;
-   solo release (`develop → main`) y hotfix van a `main`. Pendiente: cambiar la rama por defecto a `develop`.
+   solo release (`develop → main`) y hotfix van a `main`. La rama por defecto ya es `develop` (29 Oct).
 11. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
    corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
 
@@ -86,14 +86,16 @@ tiempo). Si hay más holgura, se adelanta del siguiente cycle.
 Orden: FOR-77 primero porque FOR-78/82/64 dependen de la disponibilidad.
 Done: FOR-65, FOR-66, FOR-67, FOR-68, FOR-69, FOR-71, FOR-77.
 
-**FOR-90 — seguridad fase 1 (28 Oct):** la clave pública `anon` de Supabase LEÍA las 16 tablas
-(políticas `USING (true)` innecesarias: el backend usa service_role, que ignora RLS). Migración
-`007_cerrar_acceso_anon.sql` (YA CORRIDA): RLS activo, 0 políticas, sin privilegios para anon.
-Verificado: lectura 401 y escritura 42501 en todas; backend local y producción OK. Regla de RLS del
-CLAUDE.md corregida (tablas nuevas: RLS activado y NINGUNA política). Contraseña del admin quitada de
-los docs (sigue en el historial público de git). **Pendiente del usuario:** cambiar la contraseña del
-admin en Supabase Auth y decidir si el repo (público) pasa a privado. Rama
-`feature/FOR-90-seguridad-fase-1`, PR pendiente. Resto del checklist → FOR-92.
+**FOR-90 — seguridad fase 1 (28-29 Oct, Done):** la clave pública `anon` de Supabase LEÍA las 16 tablas
+(políticas `USING (true)` innecesarias). Migración `007_cerrar_acceso_anon.sql` (corrida): RLS activo, 0
+políticas, sin privilegios para anon; verificado 401 lectura / 42501 escritura. Regla de RLS del CLAUDE.md
+corregida. La contraseña filtrada en el historial público (3 cuentas: admin, trainer, nutri1) fue ROTADA el
+29 Oct y verificado que 0/12 cuentas la aceptan. Rama por defecto del repo cambiada a `develop`.
+**Pendiente abierto:** el repo sigue PÚBLICO (con URLs de producción y host de Supabase en el historial); el
+usuario quiere privado o parcial; ojo: en GitHub Free la protección de ramas solo existe en repos públicos
+(Student Pack = Pro gratis). Idea para el portafolio: repo privado + repo público pequeño de showcase.
+Automatización opcional (GitHub Action que exige que los PR a `main` vengan de `develop` o `hotfix/*`):
+el usuario decidió dejarla para después. Resto del checklist de seguridad → FOR-92.
 
 **FOR-64 — alcance ampliado (28 Oct, acordado):** unificar las pantallas Sesiones y Agenda en
 una sola (Agenda = calendario + lista, con confirmar/cancelar con motivo/reprogramar/editar,
@@ -170,10 +172,11 @@ prefijo `feature/` y hace `git pull`.)
 
 ## ⏭️ PRÓXIMO PASO
 
-1. **El usuario crea el PR de FOR-90** (`feature/FOR-90-seguridad-fase-1` → `develop`) y mergea; cierre estándar.
-2. **FOR-88** (bug "Ver evolución") para cerrar Cycle 18, con calma.
-3. Cycle 19: **FOR-64** primero (unificar Sesiones+Agenda, eliminar reuniones/appointments), luego FOR-78,
-   FOR-79 y FOR-92 (seguridad fase 2: rate limiting, helmet/CORS, entornos separados).
+1. **FOR-88** (bug "Ver evolución") para cerrar Cycle 18, con calma. Investigar a fondo: el botón solo aparece si
+   hay ≥2 evaluaciones del mismo tipo (`hasEvoData()`); puede faltar un estado vacío o ser un bug real.
+2. Cycle 19: **FOR-64** primero (unificar Sesiones+Agenda, eliminar reuniones/appointments), luego FOR-78,
+   FOR-79 y FOR-92 (seguridad fase 2).
+3. `main` ya incluye FOR-77 y FOR-90/93 (llegaron por PR directo + hotfix); `develop == main`.
 
 ---
 
