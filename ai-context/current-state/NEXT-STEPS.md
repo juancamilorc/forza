@@ -51,7 +51,13 @@
    `USING (true)`: abre la tabla a quien tenga la clave anon pública. Verificar con la clave anon.
 8. **Repo PÚBLICO** (github.com/juancamilorc/forza): no escribir credenciales, URLs internas ni datos de
    clientes en archivos versionados. El host de Supabase sigue expuesto en `scripts/backup-supabase.sh`.
-9. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
+9. **Login real en TODA prueba de humo:** `AuthService.signIn` usaba el cliente de datos compartido y
+   `signInWithPassword` le dejaba la sesión del usuario (dejaba de ser service_role). Con la migración 007
+   rompió producción (FOR-93). Arreglo: `SupabaseService.createAuthClient()` (cliente desechable). Las
+   pruebas con tokens fabricados NO detectan esto; después de cambiar permisos/RLS hacer logins reales.
+10. **Base de los PR:** GitHub abre los PR contra `main` (rama por defecto). Features → `develop`;
+   solo release (`develop → main`) y hotfix van a `main`. Pendiente: cambiar la rama por defecto a `develop`.
+11. **Tests con Playwright contra Supabase:** la latencia hace que un `waitForTimeout`
    corto dé falsos negativos tras PATCH+GET. Esperar por condición (`locator.waitFor`).
 
 ---
