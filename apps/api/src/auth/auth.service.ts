@@ -10,7 +10,8 @@ export class AuthService {
   ) {}
 
   async signIn(email: string, password: string) {
-    const { data, error } = await this.supabase.db.auth.signInWithPassword({
+    const authClient = this.supabase.createAuthClient();
+    const { data, error } = await authClient.auth.signInWithPassword({
       email,
       password,
     });
