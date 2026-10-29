@@ -522,18 +522,28 @@ $border:    #e5e5e5;
   gap: 6px;
 }
 
-.chart-title {
+.chart-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  font-size: 12px;
+}
+
+.chart-name {
+  font-size: 14px;
   font-weight: 700;
   color: $text-dark;
 }
 
-.chart-trend {
-  font-size: 14px;
-  font-weight: 700;
+.chart-last {
+  font-size: 22px;
+  font-weight: 900;
+  color: $text-dark;
+}
+
+.chart-delta {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-mid;
   &.trend-up   { color: #15803d; }
   &.trend-down { color: #b91c1c; }
 }
@@ -564,14 +574,14 @@ $border:    #e5e5e5;
 }
 
 .chart-val-text {
-  font-size: 9px;
+  font-size: 13px;
   font-family: 'Cairo', sans-serif;
   font-weight: 700;
   fill: $text-dark;
 }
 
 .chart-date-text {
-  font-size: 8px;
+  font-size: 12px;
   font-family: 'Cairo', sans-serif;
   fill: $text-mid;
 }
@@ -609,6 +619,17 @@ $border:    #e5e5e5;
   gap: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.evo-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: $text-mid;
+
+  .material-symbols-outlined { font-size: 18px; color: $gold; }
 }
 
 .btn-evo-back {
@@ -663,7 +684,7 @@ $border:    #e5e5e5;
 
 .evo-charts-full {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 16px;
 }
 

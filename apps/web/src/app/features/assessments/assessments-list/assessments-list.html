@@ -47,6 +47,11 @@
         <span class="material-symbols-outlined">show_chart</span>
         Ver evolución
       </button>
+    } @else {
+      <p class="evo-hint">
+        <span class="material-symbols-outlined">show_chart</span>
+        La evolución aparece cuando el deportista tiene al menos 2 evaluaciones del mismo tipo.
+      </p>
     }
 
     <!-- Panel comparación -->
@@ -263,16 +268,14 @@
           <div class="evo-charts-full">
             @for (s of evoNutri(); track s.label) {
               <div class="chart-card-full">
-                <div class="chart-title">
-                  <span>{{ s.label }}</span>
-                  <span class="chart-trend {{ trendClass(s) }}">
-                    @if (trendClass(s) === 'trend-up')  { ↑ }
-                    @if (trendClass(s) === 'trend-down') { ↓ }
-                  </span>
+                <div class="chart-head">
+                  <span class="chart-name">{{ s.label }}</span>
+                  <span class="chart-last">{{ lastValue(s) }}</span>
                 </div>
+                <div class="chart-delta {{ trendClass(s) }}">{{ deltaText(s) }}</div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
@@ -295,16 +298,14 @@
           <div class="evo-charts-full">
             @for (s of evoTech(); track s.label) {
               <div class="chart-card-full">
-                <div class="chart-title">
-                  <span>{{ s.label }}</span>
-                  <span class="chart-trend {{ trendClass(s) }}">
-                    @if (trendClass(s) === 'trend-up')  { ↑ }
-                    @if (trendClass(s) === 'trend-down') { ↓ }
-                  </span>
+                <div class="chart-head">
+                  <span class="chart-name">{{ s.label }}</span>
+                  <span class="chart-last">{{ lastValue(s) }}</span>
                 </div>
+                <div class="chart-delta {{ trendClass(s) }}">{{ deltaText(s) }}</div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
@@ -327,16 +328,14 @@
           <div class="evo-charts-full">
             @for (s of evoPhys(); track s.label) {
               <div class="chart-card-full">
-                <div class="chart-title">
-                  <span>{{ s.label }}</span>
-                  <span class="chart-trend {{ trendClass(s) }}">
-                    @if (trendClass(s) === 'trend-up')  { ↑ }
-                    @if (trendClass(s) === 'trend-down') { ↓ }
-                  </span>
+                <div class="chart-head">
+                  <span class="chart-name">{{ s.label }}</span>
+                  <span class="chart-last">{{ lastValue(s) }}</span>
                 </div>
+                <div class="chart-delta {{ trendClass(s) }}">{{ deltaText(s) }}</div>
                 <svg [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" class="chart-svg">
                   <path [attr.d]="svgPath(s)" class="chart-line" fill="none" />
-                  @for (p of svgPoints(s); track p.shortDate) {
+                  @for (p of svgPoints(s); track $index) {
                     <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.isLast ? 5 : 3.5"
                             [class]="p.isLast ? 'chart-dot dot-last' : 'chart-dot'" />
                     <text [attr.x]="p.x" [attr.y]="p.y - 9" class="chart-val-text" text-anchor="middle">{{ p.value }}{{ s.unit }}</text>
