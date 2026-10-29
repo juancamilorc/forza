@@ -138,8 +138,8 @@ export class AssessmentsList implements OnInit {
   );
 
   // ── SVG helpers ───────────────────────────────────────────────
-  readonly chartW = 260;
-  readonly chartH = 90;
+  readonly chartW = 420;
+  readonly chartH = 150;
   readonly chartPadX = 24;
   readonly chartPadY = 18;
 
@@ -176,6 +176,23 @@ export class AssessmentsList implements OnInit {
       shortDate: p.shortDate,
       isLast: i === pts.length - 1,
     }));
+  }
+
+  lastValue(series: EvoSeries): string {
+    const last = series.points[series.points.length - 1];
+    return `${last.value}${series.unit ? ' ' + series.unit : ''}`;
+  }
+
+  deltaText(series: EvoSeries): string {
+    const pts = series.points;
+    const first = pts[0];
+    const last = pts[pts.length - 1];
+    const diff = Math.round((last.value - first.value) * 100) / 100;
+    const range = `${first.shortDate} → ${last.shortDate}`;
+    if (diff === 0) return `Sin cambios (${range})`;
+    const sign = diff > 0 ? '+' : '−';
+    const unit = series.unit ? ' ' + series.unit : '';
+    return `${sign}${Math.abs(diff)}${unit} (${range})`;
   }
 
   trendClass(series: EvoSeries): string {

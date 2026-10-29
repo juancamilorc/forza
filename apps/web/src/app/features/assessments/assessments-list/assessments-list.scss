@@ -307,7 +307,7 @@ $border:    #e5e5e5;
 }
 
 .eval-period {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $text-mid;
   background: #f0f0f0;
@@ -447,7 +447,7 @@ $border:    #e5e5e5;
 }
 
 .compare-metric-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: $text-mid;
   text-align: center;
@@ -462,10 +462,10 @@ $border:    #e5e5e5;
 
   &.delta-up      { color: #15803d; }
   &.delta-down    { color: #b91c1c; }
-  &.delta-neutral { color: $text-mid; font-size: 11px; font-weight: 400; }
+  &.delta-neutral { color: $text-mid; font-size: 13px; font-weight: 400; }
 }
 
-.compare-delta-val { font-size: 11px; font-weight: 600; }
+.compare-delta-val { font-size: 13px; font-weight: 600; }
 
 // ── HINT COMPARACIÓN ─────────────────────────────────────────────────────
 .compare-hint {
@@ -522,18 +522,28 @@ $border:    #e5e5e5;
   gap: 6px;
 }
 
-.chart-title {
+.chart-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  font-size: 12px;
+}
+
+.chart-name {
+  font-size: 14px;
   font-weight: 700;
   color: $text-dark;
 }
 
-.chart-trend {
-  font-size: 14px;
-  font-weight: 700;
+.chart-last {
+  font-size: 22px;
+  font-weight: 900;
+  color: $text-dark;
+}
+
+.chart-delta {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-mid;
   &.trend-up   { color: #15803d; }
   &.trend-down { color: #b91c1c; }
 }
@@ -564,14 +574,14 @@ $border:    #e5e5e5;
 }
 
 .chart-val-text {
-  font-size: 9px;
+  font-size: 13px;
   font-family: 'Cairo', sans-serif;
   font-weight: 700;
   fill: $text-dark;
 }
 
 .chart-date-text {
-  font-size: 8px;
+  font-size: 12px;
   font-family: 'Cairo', sans-serif;
   fill: $text-mid;
 }
@@ -674,7 +684,7 @@ $border:    #e5e5e5;
 
 .evo-charts-full {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 16px;
 }
 
