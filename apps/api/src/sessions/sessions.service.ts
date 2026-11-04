@@ -8,6 +8,7 @@ import { TrainerAvailabilityService } from '../trainer-availability/trainer-avai
 import { CreateSessionDto } from '@forza/shared';
 import { UpdateSessionDto } from '@forza/shared';
 import { ConfirmSessionDto } from '@forza/shared';
+import { RescheduleSessionDto } from '@forza/shared';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -166,6 +167,10 @@ export class SessionsService {
   async update(id: string, dto: UpdateSessionDto) {
     const existing = await this.findOne(id);
 
+    if (existing.status !== 'pending') {
+      throw new BadRequestException('Solo se pueden editar sesiones en estado pendiente');
+    }
+
     if (dto.trainer_id !== undefined || dto.session_date || dto.session_time) {
       await this.availability.assertAvailable(
         dto.trainer_id ?? existing.trainer_id,
@@ -188,6 +193,10 @@ export class SessionsService {
   // ── TRAINER CONFIRM ──────────────────────────────────────────
   async confirmByTrainer(id: string) {
     const session = await this.findOne(id);
+
+    if (session.status !== 'pending') {
+      throw new BadRequestException('Solo se pueden confirmar sesiones en estado pendiente');
+    }
 
     if (session.plan_id) {
       await this.validatePlanHasPayment(session.plan_id);
@@ -248,7 +257,11 @@ export class SessionsService {
 
   // ── CANCEL ───────────────────────────────────────────────────
 async cancel(id: string, reason: string) {
-  await this.findOne(id);
+  const session = await this.findOne(id);
+
+  if (session.status !== 'pending') {
+    throw new BadRequestException('Solo se pueden cancelar sesiones en estado pendiente');
+  }
 
   const { data, error } = await this.supabase.db
     .from('sessions')
@@ -265,46 +278,62 @@ async cancel(id: string, reason: string) {
 }
 
 // ── RESCHEDULE ───────────────────────────────────────────────
-async reschedule(id: string, dto: CreateSessionDto) {
+// Recibe solo fecha, hora y opcionalmente entrenador/lugar/motivo.
+// Copia el resto de la sesión original. Valida TODO antes de cancelar.
+async reschedule(id: string, dto: RescheduleSessionDto) {
   const original = await this.findOne(id);
 
-  // Disponibilidad del entrenador: se valida ANTES de cancelar la original
-  await this.availability.assertAvailable(dto.trainer_id, dto.session_date, dto.session_time);
+  if (original.status !== 'pending') {
+    throw new BadRequestException('Solo se pueden reprogramar sesiones en estado pendiente');
+  }
 
-  // Verificar límite de reprogramaciones
   if (original.reschedule_count >= 2) {
     throw new BadRequestException(
       'Esta sesión ya fue reprogramada el máximo de 2 veces permitidas'
     );
   }
 
-  // Cancelar la sesión original (libera su cupo antes de validar el nuevo)
-  await this.supabase.db
-    .from('sessions')
-    .update({ status: 'cancelled', cancellation_reason: dto.cancellation_reason ?? 'usuario' })
-    .eq('id', id);
+  const trainerId = dto.trainer_id ?? original.trainer_id;
+  const location  = dto.location ?? original.location;
 
-  if (dto.plan_id) {
-    await this.validatePlanCapacity(dto.plan_id);
-    await this.validatePlanHasPayment(dto.plan_id);
+  // Validar disponibilidad del entrenador para la nueva fecha/hora
+  await this.availability.assertAvailable(trainerId, dto.session_date, dto.session_time);
+
+  // Validar cupo y pago del plan ANTES de cancelar la original
+  // (la original aún está pending, así que el count incluye su cupo;
+  //  al cancelarla se libera uno y la nueva lo ocupa → neto 0)
+  if (original.plan_id) {
+    await this.validatePlanHasPayment(original.plan_id);
+    // No validamos capacity porque la nueva reemplaza la original (neto 0)
   }
 
-  // Crear nueva sesión con referencia a la original
+  // ── TODO validado: ahora sí cancelar la original ──────────
+  const { error: cancelError } = await this.supabase.db
+    .from('sessions')
+    .update({
+      status: 'cancelled',
+      cancellation_reason: dto.cancellation_reason ?? 'reprogramacion',
+    })
+    .eq('id', id);
+
+  if (cancelError) throw new BadRequestException(cancelError.message);
+
+  // ── Crear nueva sesión con referencia a la original ────────
   const confirmation_token = uuidv4();
   const token_expires_at = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
 
   const { data, error } = await this.supabase.db
     .from('sessions')
     .insert({
-      plan_id:               dto.plan_id,
-      trainer_id:            dto.trainer_id,
-      athlete_id:            dto.athlete_id,
+      plan_id:               original.plan_id,
+      trainer_id:            trainerId,
+      athlete_id:            original.athlete_id,
       session_date:          dto.session_date,
       session_time:          dto.session_time,
-      location:              dto.location,
-      session_name:          dto.session_name ?? null,
+      location,
+      session_name:          original.session_name ?? null,
       status:                'pending',
-      trainer_notes:         dto.trainer_notes ?? null,
+      trainer_notes:         original.trainer_notes ?? null,
       confirmed_by_trainer:  false,
       confirmed_by_guardian: false,
       confirmation_token,

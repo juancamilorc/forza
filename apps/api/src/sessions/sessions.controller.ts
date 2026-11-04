@@ -11,7 +11,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
-import { CreateSessionDto } from '@forza/shared';
+import { CreateSessionDto, RescheduleSessionDto } from '@forza/shared';
 import { UpdateSessionDto } from '@forza/shared';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -92,7 +92,7 @@ export class SessionsController {
   @Post(':id/reschedule')
   reschedule(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: CreateSessionDto,
+    @Body() dto: RescheduleSessionDto,
   ) {
     return this.sessions.reschedule(id, dto);
   }
