@@ -32,9 +32,28 @@
   pointer-events: none;
 }
 
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  .material-symbols-outlined { font-size: 18px; }
+  &:hover { background: #f0f0f0; color: #1a1a1a; }
+}
+
 .search-input {
   width: 100%;
-  padding: 9px 12px 9px 40px;
+  padding: 9px 34px 9px 40px;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   font-family: 'Cairo', sans-serif;
@@ -410,6 +429,22 @@
   font-weight: 600;
   padding: 1px 4px;
 }
+
+.cal-no-results {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(156,163,175,0.08);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  color: #6b7280;
+  .material-symbols-outlined { font-size: 20px; color: #9ca3af; }
+  p { margin: 0; }
+}
+
 
 // ── PANEL DÍA ────────────────────────────────────────────────────────────
 .day-panel {

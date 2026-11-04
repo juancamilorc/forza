@@ -72,12 +72,12 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'sesiones',
-        redirectTo: 'agenda',
+        redirectTo: '/agenda',
         pathMatch: 'full',
       },
       {
         path: 'sesiones/nueva',
-        redirectTo: 'agenda/nueva',
+        redirectTo: '/agenda/nueva',
         pathMatch: 'full',
       },
       {

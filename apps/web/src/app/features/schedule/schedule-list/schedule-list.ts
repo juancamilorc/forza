@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal, computed, effect, PLATFORM_ID } from
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
-import { ScheduleService, TrainerOption } from '../../../core/services/schedule.service';
+import { TrainersService, Trainer } from '../../../core/services/trainers.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -30,14 +30,14 @@ interface CalEvent {
 })
 export class ScheduleList implements OnInit {
   private sessionsService = inject(SessionsService);
-  private scheduleService = inject(ScheduleService);
+  private trainersService = inject(TrainersService);
   private auth            = inject(AuthService);
   private router          = inject(Router);
   private toast           = inject(ToastService);
 
   events        = signal<CalEvent[]>([]);
   filtered      = signal<CalEvent[]>([]);
-  trainers      = signal<TrainerOption[]>([]);
+  trainers      = signal<Trainer[]>([]);
   loading       = signal(true);
   confirmingId  = signal<string | null>(null);
   statusFilter  = signal('');
@@ -120,6 +120,14 @@ export class ScheduleList implements OnInit {
     });
   });
 
+  calHasEvents = computed(() =>
+    this.calDays().some(cell => cell.inMonth && cell.events.length > 0)
+  );
+
+  hasActiveFilter = computed(() =>
+    !!this.search() || !!this.statusFilter() || !!this.trainerFilter()
+  );
+
   dayEvents = computed(() => {
     const day = this.selectedDay();
     if (!day) return [];
@@ -159,7 +167,7 @@ export class ScheduleList implements OnInit {
   // ── Carga ─────────────────────────────────────────────────
   ngOnInit() {
     if (this.isAdmin) {
-      this.scheduleService.getTrainers().subscribe({
+      this.trainersService.getAll().subscribe({
         next: (t) => this.trainers.set(t),
       });
     }
@@ -207,6 +215,13 @@ export class ScheduleList implements OnInit {
   onSearch(event: Event) {
     const raw = (event.target as HTMLInputElement).value;
     this.search.set(this.normalize(raw));
+    this.applyFilters();
+  }
+
+  clearFilters() {
+    this.search.set('');
+    this.statusFilter.set('');
+    this.trainerFilter.set('');
     this.applyFilters();
   }
 
