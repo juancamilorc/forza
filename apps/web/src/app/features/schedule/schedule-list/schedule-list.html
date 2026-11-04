@@ -4,15 +4,12 @@
   <div class="page-header">
     <div>
       <h1 class="page-title">Agenda</h1>
-      <p class="page-subtitle">
-        {{ sessionCount }} sesion{{ sessionCount !== 1 ? 'es' : '' }}
-        @if (meetingCount > 0) { · {{ meetingCount }} reunión{{ meetingCount !== 1 ? 'es' : '' }} }
-      </p>
+      <p class="page-subtitle">{{ sessionCount }} sesion{{ sessionCount !== 1 ? 'es' : '' }}</p>
     </div>
     @if (canCreate) {
       <button class="btn-primary" (click)="goToNew()">
         <span class="material-symbols-outlined">add</span>
-        Nueva reunión
+        Nueva sesión
       </button>
     }
   </div>
@@ -29,25 +26,23 @@
     </button>
   </div>
 
-  <!-- Filtros -->
+  <!-- Búsqueda + Filtros -->
   <div class="filters-bar">
-    <div class="status-filters">
-      <button class="filter-chip" [class.active]="statusFilter() === ''"          (click)="onStatusFilter('')">Todos</button>
-      <button class="filter-chip" [class.active]="statusFilter() === 'upcoming'"  (click)="onStatusFilter('upcoming')">Próximos</button>
-      <button class="filter-chip" [class.active]="statusFilter() === 'completed'" (click)="onStatusFilter('completed')">Completados</button>
-      <button class="filter-chip" [class.active]="statusFilter() === 'cancelled'" (click)="onStatusFilter('cancelled')">Cancelados</button>
+    <div class="search-wrap">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar deportista..."
+        (input)="onSearch($event)"
+      />
     </div>
 
-    <div class="type-filters">
-      <button class="filter-chip type-chip" [class.active]="typeFilter() === ''"        (click)="onTypeFilter('')">
-        <span class="type-dot dot-all"></span>Todos
-      </button>
-      <button class="filter-chip type-chip" [class.active]="typeFilter() === 'session'" (click)="onTypeFilter('session')">
-        <span class="type-dot dot-session"></span>Sesiones
-      </button>
-      <button class="filter-chip type-chip" [class.active]="typeFilter() === 'meeting'" (click)="onTypeFilter('meeting')">
-        <span class="type-dot dot-meeting"></span>Reuniones
-      </button>
+    <div class="status-filters">
+      <button class="filter-chip" [class.active]="statusFilter() === ''"          (click)="onStatusFilter('')">Todos</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'upcoming'"  (click)="onStatusFilter('upcoming')">Pendientes</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'completed'" (click)="onStatusFilter('completed')">Completados</button>
+      <button class="filter-chip" [class.active]="statusFilter() === 'cancelled'" (click)="onStatusFilter('cancelled')">Cancelados</button>
     </div>
 
     @if (isAdmin && trainers().length > 0) {
@@ -109,10 +104,9 @@
             </div>
             <div class="cal-events">
               @for (e of cell.events.slice(0, 3); track e.id) {
-                <div class="cal-event-chip {{ getStatusClass(e) }}" [class.is-meeting]="e.eventType === 'meeting'">
+                <div class="cal-event-chip {{ getStatusClass(e) }}">
                   {{ formatTime(e.time) }}
                   @if (e.athleteName) { · {{ e.athleteName.split(' ')[0] }} }
-                  @else if (e.eventType === 'meeting') { · Reunión }
                 </div>
               }
               @if (cell.events.length > 3) {
@@ -136,14 +130,10 @@
             <div class="day-panel-item">
               <div class="day-panel-left">
                 <span class="day-panel-time">{{ formatTime(e.time) }}</span>
-                <span class="event-type-badge" [class.badge-session]="e.eventType === 'session'" [class.badge-meeting]="e.eventType === 'meeting'">
-                  {{ e.eventType === 'session' ? 'Sesión' : 'Reunión' }}
-                </span>
               </div>
               <div class="day-panel-info">
                 <span class="day-panel-athlete">
                   @if (e.athleteName) { {{ e.athleteName }} }
-                  @else if (e.eventType === 'meeting') { Reunión de equipo }
                   @else { Sin deportista }
                 </span>
                 @if (e.trainerName && isAdmin) {
@@ -155,6 +145,7 @@
                   </span>
                 }
                 <span class="status-badge {{ getStatusClass(e) }}">{{ getStatusLabel(e) }}</span>
+                <span class="confirm-badge confirm-{{ e.confirmation_status }}">{{ getConfirmationLabel(e.confirmation_status) }}</span>
                 @if (e.isExtra) {
                   <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
                 }
@@ -172,14 +163,14 @@
                     </span>
                   </button>
                 }
-                @if (canReschedule(e)) {
-                  <button class="icon-btn warn" title="Reprogramar reunión" (click)="openReschedule(e)">
-                    <span class="material-symbols-outlined">event_repeat</span>
+                @if (canCancel(e)) {
+                  <button class="icon-btn danger" title="Cancelar sesión" (click)="openCancel(e)">
+                    <span class="material-symbols-outlined">cancel</span>
                   </button>
                 }
-                @if (e.eventType === 'meeting' && !isNutritionist) {
-                  <button class="icon-btn" title="Editar reunión" (click)="goToEdit(e.id)">
-                    <span class="material-symbols-outlined">edit</span>
+                @if (canReschedule(e)) {
+                  <button class="icon-btn warn" title="Reprogramar sesión" (click)="openReschedule(e)">
+                    <span class="material-symbols-outlined">event_repeat</span>
                   </button>
                 }
               </div>
@@ -191,10 +182,10 @@
       @if (selectedDay() && dayEvents().length === 0) {
         <div class="day-panel day-panel-empty">
           <span class="material-symbols-outlined">event_available</span>
-          <p>Sin eventos para {{ formatDate(selectedDay()!) }}</p>
+          <p>Sin sesiones para {{ formatDate(selectedDay()!) }}</p>
           @if (canCreate) {
             <button class="btn-primary-sm" (click)="goToNew()">
-              <span class="material-symbols-outlined">add</span>Nueva reunión
+              <span class="material-symbols-outlined">add</span>Nueva sesión
             </button>
           }
         </div>
@@ -209,27 +200,21 @@
       <table class="schedule-table">
         <thead>
           <tr>
-            <th>Tipo</th>
-            <th>Deportista / Evento</th>
+            <th>Deportista</th>
             <th>Fecha</th>
             <th>Hora</th>
             <th>Lugar</th>
             @if (isAdmin) { <th>Entrenador</th> }
             <th>Estado</th>
+            <th>Confirmación</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           @for (e of filtered(); track e.id) {
             <tr>
-              <td>
-                <span class="event-type-badge" [class.badge-session]="e.eventType === 'session'" [class.badge-meeting]="e.eventType === 'meeting'">
-                  {{ e.eventType === 'session' ? 'Sesión' : 'Reunión' }}
-                </span>
-              </td>
               <td class="athlete-cell">
                 @if (e.athleteName) { {{ e.athleteName }} }
-                @else if (e.eventType === 'meeting') { <span class="text-mid">Reunión de equipo</span> }
                 @else { <span class="text-mid">Sin asignar</span> }
               </td>
               <td class="date-cell">{{ formatDate(e.date) }}</td>
@@ -244,6 +229,9 @@
                   <span class="extra-badge" title="No se vincula a ningún plan, se factura aparte">Extra</span>
                 }
               </td>
+              <td>
+                <span class="confirm-badge confirm-{{ e.confirmation_status }}">{{ getConfirmationLabel(e.confirmation_status) }}</span>
+              </td>
               <td class="actions-cell">
                 @if (canConfirm(e)) {
                   <button
@@ -255,14 +243,14 @@
                     <span class="material-symbols-outlined">check_circle</span>
                   </button>
                 }
-                @if (canReschedule(e)) {
-                  <button class="icon-btn warn" title="Reprogramar reunión" (click)="openReschedule(e)">
-                    <span class="material-symbols-outlined">event_repeat</span>
+                @if (canCancel(e)) {
+                  <button class="icon-btn danger" title="Cancelar sesión" (click)="openCancel(e)">
+                    <span class="material-symbols-outlined">cancel</span>
                   </button>
                 }
-                @if (e.eventType === 'meeting' && !isNutritionist) {
-                  <button class="icon-btn" title="Editar reunión" (click)="goToEdit(e.id)">
-                    <span class="material-symbols-outlined">edit</span>
+                @if (canReschedule(e)) {
+                  <button class="icon-btn warn" title="Reprogramar sesión" (click)="openReschedule(e)">
+                    <span class="material-symbols-outlined">event_repeat</span>
                   </button>
                 }
               </td>
@@ -274,7 +262,7 @@
               <td [attr.colspan]="isAdmin ? 8 : 7" class="empty-cell">
                 <div class="empty-state">
                   <span class="material-symbols-outlined">calendar_today</span>
-                  <p>No hay eventos registrados</p>
+                  <p>No hay sesiones registradas</p>
                 </div>
               </td>
             </tr>
@@ -286,23 +274,78 @@
 
 </div>
 
-<!-- Modal reprogramar reunión -->
-@if (rescheduleTarget()) {
+<!-- Modal: Cancelar sesión -->
+@if (cancelTarget(); as target) {
+  <div class="modal-overlay" (click)="closeCancel()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Cancelar sesión</h2>
+        <button class="modal-close" (click)="closeCancel()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        @if (target.athleteName) {
+          <p class="modal-text">
+            Sesión de <strong>{{ target.athleteName }}</strong> — {{ formatDate(target.date) }}
+          </p>
+        }
+        <div class="modal-form">
+          <div class="form-group">
+            <label class="form-label">Motivo <span class="required">*</span></label>
+            <select
+              class="form-input"
+              [value]="cancelReason()"
+              (change)="cancelReason.set($any($event.target).value)"
+            >
+              <option value="">Seleccionar...</option>
+              @for (r of cancelReasons; track r.value) {
+                <option [value]="r.value">{{ r.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeCancel()">Volver</button>
+        <button
+          class="btn-danger"
+          [disabled]="!cancelReason() || cancelSaving()"
+          (click)="confirmCancel()"
+        >
+          @if (cancelSaving()) {
+            <span class="material-symbols-outlined spinning">progress_activity</span>Cancelando...
+          } @else {
+            <span class="material-symbols-outlined">cancel</span>Cancelar sesión
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal: Reprogramar sesión -->
+@if (rescheduleTarget(); as target) {
   <div class="modal-overlay" (click)="closeReschedule()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2 class="modal-title">Reprogramar reunión</h2>
+        <h2 class="modal-title">Reprogramar sesión</h2>
         <button class="modal-close" (click)="closeReschedule()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div class="modal-body">
-        @if ((rescheduleTarget()!.reschedule_count ?? 0) > 0) {
+        @if (target.athleteName) {
+          <p class="modal-text">
+            Sesión de <strong>{{ target.athleteName }}</strong>
+          </p>
+        }
+        @if (target.reschedule_count > 0) {
           <p class="reschedule-info">
-            Esta reunión ya fue reprogramada {{ rescheduleTarget()!.reschedule_count }}
-            {{ rescheduleTarget()!.reschedule_count === 1 ? 'vez' : 'veces' }}.
-            Queda {{ 2 - (rescheduleTarget()!.reschedule_count ?? 0) }}
-            {{ 2 - (rescheduleTarget()!.reschedule_count ?? 0) === 1 ? 'reprogramación disponible' : 'reprogramaciones disponibles' }}.
+            Esta sesión ya fue reprogramada {{ target.reschedule_count }}
+            {{ target.reschedule_count === 1 ? 'vez' : 'veces' }}.
+            Queda {{ 2 - target.reschedule_count }}
+            {{ 2 - target.reschedule_count === 1 ? 'reprogramación disponible' : 'reprogramaciones disponibles' }}.
           </p>
         }
         <div class="modal-form">

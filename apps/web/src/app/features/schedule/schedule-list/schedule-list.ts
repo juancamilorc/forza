@@ -1,27 +1,25 @@
 import { Component, inject, OnInit, signal, computed, effect, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { SessionsService, Session } from '../../../core/services/sessions.service';
-import { ScheduleService, Appointment, TrainerOption } from '../../../core/services/schedule.service';
+import { ScheduleService, TrainerOption } from '../../../core/services/schedule.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 interface CalEvent {
-  id:                   string;
-  eventType:            'session' | 'meeting';
-  date:                 string;
-  time:                 string;
-  trainer_id:           string | null;
-  athleteName:          string | null;
-  trainerName:          string | null;
-  status:               string;
-  location:             string | null;
-  confirmed_by_trainer?: boolean;
-  confirmation_status?:  string;
-  reschedule_count?:     number;
-  isExtra?:              boolean; // sesión sin plan_id: no descuenta cupo, se factura aparte
+  id:                    string;
+  date:                  string;
+  time:                  string;
+  trainer_id:            string | null;
+  athleteName:           string | null;
+  trainerName:           string | null;
+  status:                string;
+  location:              string | null;
+  confirmed_by_trainer:  boolean;
+  confirmation_status:   string;
+  reschedule_count:      number;
+  isExtra:               boolean;
+  plan_id:               string | null;
 }
 
 @Component({
@@ -44,7 +42,7 @@ export class ScheduleList implements OnInit {
   confirmingId  = signal<string | null>(null);
   statusFilter  = signal('');
   trainerFilter = signal('');
-  typeFilter    = signal('');
+  search        = signal('');
 
   private platformId = inject(PLATFORM_ID);
 
@@ -56,6 +54,22 @@ export class ScheduleList implements OnInit {
 
   viewMode    = signal<'list' | 'calendar'>('calendar');
   selectedDay = signal<string | null>(null);
+
+  // Cancelar sesión
+  cancelTarget  = signal<CalEvent | null>(null);
+  cancelReason  = signal('');
+  cancelSaving  = signal(false);
+  cancelReasons = [
+    { value: 'cambio_climatico', label: 'Cambio climático' },
+    { value: 'entrenador',       label: 'Entrenador no disponible' },
+    { value: 'usuario',          label: 'Deportista / acudiente' },
+  ];
+
+  // Reprogramar sesión
+  rescheduleTarget = signal<CalEvent | null>(null);
+  rescheduleDate   = signal('');
+  rescheduleTime   = signal('');
+  rescheduling     = signal(false);
 
   constructor() {
     effect(() => {
@@ -142,12 +156,6 @@ export class ScheduleList implements OnInit {
     this.selectedDay.set(this.selectedDay() === date ? null : date);
   }
 
-  // ── Modales ───────────────────────────────────────────────
-  rescheduleTarget = signal<CalEvent | null>(null);
-  rescheduleDate   = signal('');
-  rescheduleTime   = signal('');
-  rescheduling     = signal(false);
-
   // ── Carga ─────────────────────────────────────────────────
   ngOnInit() {
     if (this.isAdmin) {
@@ -160,17 +168,12 @@ export class ScheduleList implements OnInit {
 
   load() {
     this.loading.set(true);
-    forkJoin([
-      this.sessionsService.getAll().pipe(catchError(() => of([] as Session[]))),
-      this.scheduleService.getAll().pipe(catchError(() => of([] as Appointment[]))),
-    ]).subscribe({
-      next: ([sessions, meetings]) => {
-        const evts = [
-          ...this.normalizeSessions(sessions),
-          ...this.normalizeMeetings(meetings),
-        ].sort((a, b) =>
-          a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time)
-        );
+    this.sessionsService.getAll().subscribe({
+      next: (sessions) => {
+        const evts = this.normalizeSessions(sessions)
+          .sort((a, b) =>
+            a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time)
+          );
         this.events.set(evts);
         this.applyFilters();
         this.loading.set(false);
@@ -182,7 +185,6 @@ export class ScheduleList implements OnInit {
   private normalizeSessions(sessions: Session[]): CalEvent[] {
     return sessions.map(s => ({
       id:                   s.id,
-      eventType:            'session' as const,
       date:                 s.session_date,
       time:                 s.session_time,
       trainer_id:           s.trainer_id ?? null,
@@ -192,40 +194,36 @@ export class ScheduleList implements OnInit {
       location:             s.location,
       confirmed_by_trainer: s.confirmed_by_trainer,
       confirmation_status:  s.confirmation_status,
+      reschedule_count:     (s as any).reschedule_count ?? 0,
       isExtra:              !s.plan_id,
-    }));
-  }
-
-  private normalizeMeetings(appts: Appointment[]): CalEvent[] {
-    return appts.map(a => ({
-      id:              a.id,
-      eventType:       'meeting' as const,
-      date:            a.scheduled_date,
-      time:            a.scheduled_time,
-      trainer_id:      a.trainer_id ?? null,
-      athleteName:     null,
-      trainerName:     a.trainers?.users?.full_name ?? null,
-      status:          a.status,
-      location:        a.location,
-      reschedule_count: a.reschedule_count,
+      plan_id:              s.plan_id,
     }));
   }
 
   // ── Filtros ───────────────────────────────────────────────
   onStatusFilter(s: string)  { this.statusFilter.set(s);  this.applyFilters(); }
   onTrainerFilter(t: string) { this.trainerFilter.set(t); this.applyFilters(); }
-  onTypeFilter(t: string)    { this.typeFilter.set(t);    this.applyFilters(); }
+
+  onSearch(event: Event) {
+    const raw = (event.target as HTMLInputElement).value;
+    this.search.set(this.normalize(raw));
+    this.applyFilters();
+  }
+
+  private normalize(str: string): string {
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
 
   applyFilters() {
     let result = this.events();
     const status  = this.statusFilter();
     const trainer = this.trainerFilter();
-    const type    = this.typeFilter();
+    const term    = this.search();
 
-    if (type)    result = result.filter(e => e.eventType === type);
     if (trainer) result = result.filter(e => e.trainer_id === trainer);
+    if (term)    result = result.filter(e => e.athleteName && this.normalize(e.athleteName).includes(term));
 
-    if (status === 'upcoming')   result = result.filter(e => e.status === 'pending' || e.status === 'scheduled');
+    if (status === 'upcoming')   result = result.filter(e => e.status === 'pending');
     else if (status === 'completed') result = result.filter(e => e.status === 'completed');
     else if (status === 'cancelled') result = result.filter(e => e.status === 'cancelled');
 
@@ -234,8 +232,7 @@ export class ScheduleList implements OnInit {
 
   // ── Confirmar sesión ──────────────────────────────────────
   canConfirm(e: CalEvent): boolean {
-    return e.eventType === 'session' &&
-           e.status === 'pending' &&
+    return e.status === 'pending' &&
            !e.confirmed_by_trainer &&
            ['super_admin', 'admin', 'trainer'].includes(this.role);
   }
@@ -248,19 +245,54 @@ export class ScheduleList implements OnInit {
         this.confirmingId.set(null);
         this.load();
       },
-      error: () => {
-        this.toast.error('Error al confirmar la sesión');
+      error: (err) => {
+        this.toast.error(err?.error?.message ?? 'Error al confirmar la sesión');
         this.confirmingId.set(null);
       },
     });
   }
 
-  // ── Reprogramar reunión ───────────────────────────────────
+  // ── Cancelar sesión ───────────────────────────────────────
+  canCancel(e: CalEvent): boolean {
+    return e.status === 'pending' &&
+           ['super_admin', 'admin', 'trainer'].includes(this.role);
+  }
+
+  openCancel(e: CalEvent) {
+    this.cancelTarget.set(e);
+    this.cancelReason.set('');
+  }
+
+  closeCancel() {
+    this.cancelTarget.set(null);
+    this.cancelReason.set('');
+  }
+
+  confirmCancel() {
+    const target = this.cancelTarget();
+    const reason = this.cancelReason();
+    if (!target || !reason) return;
+
+    this.cancelSaving.set(true);
+    this.sessionsService.cancel(target.id, reason).subscribe({
+      next: () => {
+        this.toast.success('Sesión cancelada');
+        this.cancelSaving.set(false);
+        this.closeCancel();
+        this.load();
+      },
+      error: (err) => {
+        this.toast.error(err?.error?.message ?? 'Error al cancelar la sesión');
+        this.cancelSaving.set(false);
+      },
+    });
+  }
+
+  // ── Reprogramar sesión ────────────────────────────────────
   canReschedule(e: CalEvent): boolean {
-    return e.eventType === 'meeting' &&
-           e.status === 'scheduled' &&
+    return e.status === 'pending' &&
            (e.reschedule_count ?? 0) < 2 &&
-           !this.isNutritionist;
+           ['super_admin', 'admin', 'trainer'].includes(this.role);
   }
 
   openReschedule(e: CalEvent) {
@@ -275,9 +307,12 @@ export class ScheduleList implements OnInit {
     const target = this.rescheduleTarget();
     if (!target) return;
     this.rescheduling.set(true);
-    this.scheduleService.reschedule(target.id, this.rescheduleDate(), this.rescheduleTime()).subscribe({
+    this.sessionsService.reschedule(target.id, {
+      session_date: this.rescheduleDate(),
+      session_time: this.rescheduleTime(),
+    }).subscribe({
       next: () => {
-        this.toast.success('Reunión reprogramada');
+        this.toast.success('Sesión reprogramada');
         this.rescheduling.set(false);
         this.closeReschedule();
         this.load();
@@ -290,30 +325,32 @@ export class ScheduleList implements OnInit {
   }
 
   // ── Navegación ────────────────────────────────────────────
-  goToNew()            { this.router.navigate(['/agenda/nueva']); }
-  goToEdit(id: string) { this.router.navigate(['/agenda', id, 'editar']); }
+  goToNew() { this.router.navigate(['/agenda/nueva']); }
 
   // ── Helpers ───────────────────────────────────────────────
   getStatusLabel(e: CalEvent): string {
-    if (e.eventType === 'session') {
-      const labels: Record<string, string> = {
-        pending:   'Pendiente',
-        completed: 'Completada',
-        cancelled: 'Cancelada',
-      };
-      return labels[e.status] ?? e.status;
-    }
     const labels: Record<string, string> = {
-      scheduled: 'Programada',
+      pending:   'Pendiente',
       completed: 'Completada',
       cancelled: 'Cancelada',
-      no_show:   'No asistió',
     };
     return labels[e.status] ?? e.status;
   }
 
   getStatusClass(e: CalEvent): string {
-    return e.status === 'pending' ? 'status-pending' : `status-${e.status}`;
+    return `status-${e.status}`;
+  }
+
+  getConfirmationLabel(status: string): string {
+    const labels: Record<string, string> = {
+      pending:            'Sin confirmar',
+      partial:            'Parcial',
+      trainer_confirmed:  'Entrenador ✓',
+      guardian_confirmed: 'Acudiente ✓',
+      fully_confirmed:    'Confirmada',
+      verified:           'Confirmada',
+    };
+    return labels[status] ?? status;
   }
 
   formatDate(date: string): string {
@@ -330,6 +367,5 @@ export class ScheduleList implements OnInit {
     return `${h12}:${m} ${ampm}`;
   }
 
-  get sessionCount()  { return this.filtered().filter(e => e.eventType === 'session').length; }
-  get meetingCount()  { return this.filtered().filter(e => e.eventType === 'meeting').length; }
+  get sessionCount() { return this.filtered().length; }
 }
