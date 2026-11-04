@@ -4,7 +4,6 @@ import { AuthModule } from '../auth/auth.module';
 import { AthletesModule } from '../athletes/athletes.module';
 import { PlansModule } from '../plans/plans.module';
 import { SessionsModule } from '../sessions/sessions.module';
-import { ScheduleModule } from '../schedule/schedule.module';
 import { AdminModule } from '../admin/admin.module';
 import { AssessmentsModule } from '../assessments/assessments.module';
 import { PaymentsModule } from '../payments/payments.module';
@@ -19,7 +18,6 @@ import { TrialSessionsModule } from '../trial-sessions/trial-sessions.module';
     AthletesModule,
     PlansModule,
     SessionsModule,
-    ScheduleModule,
     AdminModule,
     AssessmentsModule,
     PaymentsModule,

@@ -72,15 +72,13 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'sesiones',
-        loadComponent: () =>
-          import('./features/sessions/sessions-list/sessions-list')
-            .then(m => m.SessionsList),
+        redirectTo: '/agenda',
+        pathMatch: 'full',
       },
       {
         path: 'sesiones/nueva',
-        loadComponent: () =>
-          import('./features/sessions/session-form/session-form')
-            .then(m => m.SessionForm),
+        redirectTo: '/agenda/nueva',
+        pathMatch: 'full',
       },
       {
         path: 'agenda',
@@ -91,14 +89,8 @@ export const appRoutes: Route[] = [
       {
         path: 'agenda/nueva',
         loadComponent: () =>
-          import('./features/schedule/appointment-form/appointment-form')
-            .then(m => m.AppointmentForm),
-      },
-      {
-        path: 'agenda/:id/editar',
-        loadComponent: () =>
-          import('./features/schedule/appointment-form/appointment-form')
-            .then(m => m.AppointmentForm),
+          import('./features/sessions/session-form/session-form')
+            .then(m => m.SessionForm),
       },
       {
         path: 'entrenadores',

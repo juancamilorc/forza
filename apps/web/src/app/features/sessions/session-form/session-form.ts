@@ -151,7 +151,7 @@ export class SessionForm implements OnInit {
     this.service.create(data).subscribe({
       next: () => {
         this.toast.success('Sesión registrada correctamente');
-        setTimeout(() => this.router.navigate(['/sesiones']), 500);
+        setTimeout(() => this.router.navigate(['/agenda']), 500);
       },
       error: (err) => {
         const msg = err?.error?.message ?? err?.message ?? 'Error al guardar. Intenta de nuevo.';

@@ -52,4 +52,8 @@ export class SessionsService {
   cancel(id: string, reason: string) {
     return this.http.patch<Session>(`${this.url}/${id}/cancel`, { reason });
   }
+
+  reschedule(id: string, data: { session_date: string; session_time: string; trainer_id?: string; location?: string; cancellation_reason?: string }) {
+    return this.http.post<Session>(`${this.url}/${id}/reschedule`, data);
+  }
 }
