@@ -44,6 +44,34 @@
           ],
           "outputHashing": "all"
         },
+        "demo": {
+          "fileReplacements": [
+            {
+              "replace": "apps/web/src/environments/environment.ts",
+              "with": "apps/web/src/environments/environment.demo.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1mb",
+              "maximumError": "2mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "8kb",
+              "maximumError": "16kb"
+            }
+          ],
+          "outputHashing": "all",
+          "assets": [
+            {
+              "glob": "**/*",
+              "input": "apps/web/public",
+              "ignore": ["athlete-bg.png"]
+            }
+          ]
+        },
         "development": {
           "optimization": false,
           "extractLicenses": false,

@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx nx build web --configuration=production",
+  "buildCommand": "npx nx build web --configuration=${WEB_CONFIGURATION:-production}",
   "outputDirectory": "dist/apps/web/browser",
   "framework": null,
   "rewrites": [
