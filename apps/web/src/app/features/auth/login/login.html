@@ -2,7 +2,11 @@
 
   <!-- Fondo atleta -->
   <div class="login-bg">
-    <img src="athlete-bg.png" alt="" aria-hidden="true" />
+    @if (!demo) {
+      <img src="athlete-bg.png" alt="" aria-hidden="true" />
+    } @else {
+      <div class="login-bg-gradient"></div>
+    }
     <div class="login-overlay"></div>
   </div>
 
@@ -20,6 +24,22 @@
       <p class="logo-subtitle">CENTRO DE ENTRENAMIENTO DEPORTIVO</p>
     </div>
 
+    @if (demo) {
+      <!-- Entrada por rol (entorno de demostración) -->
+      <div class="demo-login">
+        <p class="demo-login-title">Elige un perfil para explorar la plataforma</p>
+        @for (r of demoRoles; track r.role) {
+          <button type="button" class="demo-role-btn" [disabled]="loading" (click)="enterAs(r.role)">
+            <span class="material-symbols-outlined">{{ r.icon }}</span>
+            <span>{{ r.label }}</span>
+            <span class="material-symbols-outlined arrow">arrow_forward</span>
+          </button>
+        }
+        @if (loading) { <p class="demo-login-hint">Entrando… si el servidor estaba dormido puede tardar hasta un minuto.</p> }
+        @if (error) { <p class="error-message" role="alert">{{ error }}</p> }
+        <p class="demo-login-hint">Los datos son ficticios y se pueden restablecer en cualquier momento.</p>
+      </div>
+    } @else {
     <!-- Formulario -->
     <form class="login-form" (ngSubmit)="onSubmit()">
 
@@ -74,9 +94,9 @@
           <span class="checkmark"></span>
           <span class="remember-label">Recordarme</span>
         </label>
-        <a href="https://wa.me/573013771836?text=Hola,%20olvidé%20mi%20contraseña%20de%20FORZA"
-           target="_blank"
-           class="forgot-link">¿Olvidaste tu contraseña?</a>
+        @if (supportLink('Hola, olvidé mi contraseña de FORZA'); as forgotUrl) {
+          <a [href]="forgotUrl" target="_blank" rel="noopener" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        }
       </div>
 
       <!-- Error -->
@@ -101,11 +121,12 @@
     </form>
 
     <!-- Footer -->
-    <div class="login-footer">
-      <p>¿No tienes una cuenta? <a href="https://wa.me/573013771836?text=Hola,%20necesito%20acceso%20a%20la%20plataforma%20FORZA"
-                                   target="_blank"
-                                   class="support-link" >Contactar Soporte</a></p>
-    </div>
+    @if (supportLink('Hola, necesito acceso a la plataforma FORZA'); as accessUrl) {
+      <div class="login-footer">
+        <p>¿No tienes una cuenta? <a [href]="accessUrl" target="_blank" rel="noopener" class="support-link">Contactar Soporte</a></p>
+      </div>
+    }
+    }
 
   </main>
 

@@ -25,14 +25,25 @@ export class AuthService {
       `${environment.apiUrl}/auth/login`,
       { email, password }
     ).pipe(
-      tap(response => {
-        const storage = rememberMe ? localStorage : sessionStorage;
-        if (this.isBrowser) {
-          storage.setItem(TOKEN_KEY, response.access_token);
-          storage.setItem(USER_KEY, JSON.stringify(response.user));
-        }
-      })
+      tap(response => this.storeSession(response, rememberMe))
     );
+  }
+
+  // Solo existe en el entorno de demostración (el backend no expone la ruta en otros).
+  demoLogin(role: 'admin' | 'trainer' | 'nutritionist') {
+    return this.http.post<{ access_token: string; user: any }>(
+      `${environment.apiUrl}/auth/demo-login`,
+      { role }
+    ).pipe(
+      tap(response => this.storeSession(response, false))
+    );
+  }
+
+  private storeSession(response: { access_token: string; user: any }, rememberMe: boolean) {
+    if (!this.isBrowser) return;
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_KEY, response.access_token);
+    storage.setItem(USER_KEY, JSON.stringify(response.user));
   }
 
   logout() {

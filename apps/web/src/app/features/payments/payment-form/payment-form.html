@@ -56,7 +56,7 @@
           />
         </div>
 
-        <!-- Cuotas (solo visible si monto ≥ $450.000 y es creación) -->
+        <!-- Cuotas (solo visible si el monto supera el umbral configurado y es creación) -->
         @if (showCuotas() && !isEdit()) {
           <div class="form-group full-width">
             <label class="cuotas-toggle-label">

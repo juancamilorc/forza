@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { AthletesService } from '../../../core/services/athletes.service';
 import { TrainersService, Trainer } from '../../../core/services/trainers.service';
-import { PlansService, Plan } from '../../../core/services/plans.service';
+import { PlansService, Plan, PLAN_TYPES } from '../../../core/services/plans.service';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -50,17 +50,7 @@ export class AthleteForm implements OnInit {
     { value: 'delantero',     label: 'Delantero' },
   ];
 
-  planTypes = [
-    { value: 'momentum', label: 'Momentum' },
-    { value: 'momentum_pro', label: 'Momentum Pro' },
-    { value: 'master', label: 'Master' },
-    { value: 'master_pro', label: 'Master Pro' },
-    { value: 'frz', label: 'FRZ' },
-    { value: 'frz_pro', label: 'FRZ Pro' },
-    { value: 'elite', label: 'Elite' },
-    { value: 'elite_pro', label: 'Elite Pro' },
-    { value: 'addicted_to_football', label: 'Addicted to Football' },
-  ];
+  planTypes = PLAN_TYPES;
 
   // Pago inicial (solo al crear, junto con el plan) — FOR-61
   paymentEnabled = signal(false);

@@ -2,6 +2,7 @@ import { Component, inject, ViewEncapsulation, ChangeDetectorRef } from '@angula
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -21,12 +22,39 @@ export class Login {
     }
   }
 
+  demo         = environment.demo;
+  demoRoles = [
+    { role: 'admin' as const,        label: 'Administrador', icon: 'admin_panel_settings' },
+    { role: 'trainer' as const,      label: 'Entrenador',    icon: 'sports' },
+    { role: 'nutritionist' as const, label: 'Nutricionista', icon: 'nutrition' },
+  ];
+
   email        = '';
   password     = '';
   loading      = false;
   error        = '';
   hidePassword = true;
   rememberMe   = false;
+
+  // Enlace a WhatsApp de soporte; vacío si el ambiente no define número (demo).
+  supportLink(text: string): string | null {
+    const phone = environment.supportWhatsapp;
+    return phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : null;
+  }
+
+  enterAs(role: 'admin' | 'trainer' | 'nutritionist') {
+    this.loading = true;
+    this.error   = '';
+
+    this.auth.demoLogin(role).subscribe({
+      next: () => this.router.navigate(['/inicio']),
+      error: () => {
+        this.error   = 'No se pudo entrar. El servidor puede estar despertando, intenta de nuevo en unos segundos.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
 
   onSubmit() {
     if (!this.email || !this.password) return;

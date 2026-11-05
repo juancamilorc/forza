@@ -24,17 +24,8 @@ export interface CreatePlanPayload {
   start_date:     string;
 }
 
-const PLAN_LABELS: Record<string, string> = {
-  momentum:             'Momentum',
-  momentum_pro:         'Momentum Pro',
-  master:               'Master',
-  master_pro:           'Master Pro',
-  frz:                  'FRZ',
-  frz_pro:              'FRZ Pro',
-  elite:                'Elite',
-  elite_pro:            'Elite Pro',
-  addicted_to_football: 'Addicted to Football',
-};
+// Los nombres de los planes dependen del ambiente (ver environments/).
+const PLAN_LABELS: Record<string, string> = environment.planLabels;
 
 export const PLAN_TYPES = Object.entries(PLAN_LABELS).map(([value, label]) => ({ value, label }));
 

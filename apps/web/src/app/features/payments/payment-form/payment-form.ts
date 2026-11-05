@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { PaymentsService } from '../../../core/services/payments.service';
 import { AthletesService, Athlete } from '../../../core/services/athletes.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-payment-form',
@@ -28,7 +29,7 @@ export class PaymentForm implements OnInit {
 
   readonly showCuotas = computed(() => {
     const v = parseFloat(this.form().amount);
-    return !isNaN(v) && v >= 450_000;
+    return !isNaN(v) && v >= environment.installmentThreshold;
   });
 
   readonly cuotaAmount = computed(() => {
