@@ -11,6 +11,7 @@ import { VideosModule } from '../videos/videos.module';
 import { GuardiansModule } from '../guardians/guardians.module';
 import { TrialSessionsModule } from '../trial-sessions/trial-sessions.module';
 import { HealthModule } from '../health/health.module';
+import { DemoModule } from '../demo/demo.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HealthModule } from '../health/health.module';
     GuardiansModule,
     TrialSessionsModule,
     HealthModule,
+    DemoModule.register(),
   ],
 })
 export class AppModule {}

@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SupabaseService } from '../supabase/supabase.service';
+import { DEMO_ROLES, DEMO_USER_EMAILS, DemoRole, isDemoActive } from '../demo/demo.config';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +36,32 @@ export class AuthService {
       access_token,
       user: profile,
     };
+  }
+
+  // Entrada sin contraseña para el entorno de demostración. Verifica otra vez que el
+  // modo demo esté activo y nunca emite super_admin.
+  async signInDemo(role: DemoRole) {
+    if (!isDemoActive() || !DEMO_ROLES.includes(role)) {
+      throw new ForbiddenException('No disponible');
+    }
+
+    const { data: profile } = await this.supabase.db
+      .from('users')
+      .select('id, full_name, email, role, is_active')
+      .eq('email', DEMO_USER_EMAILS[role])
+      .single();
+
+    if (!profile || !profile.is_active || profile.role !== role) {
+      throw new UnauthorizedException('Usuario de demostración no disponible');
+    }
+
+    const access_token = this.jwt.sign({
+      sub: profile.id,
+      email: profile.email,
+      role: profile.role,
+    });
+
+    return { access_token, user: profile };
   }
 
   async signOut(token: string) {

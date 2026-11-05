@@ -10,7 +10,7 @@ import {
   ConvertTrialSessionDto,
 } from '@forza/shared';
 
-export const TRIAL_PRICE = 35000;
+export const TRIAL_PRICE = Number(process.env['TRIAL_PRICE']) || 35000;
 
 const SELECT_WITH_TRAINER = '*, trainer:trainers(id, users(full_name))';
 
