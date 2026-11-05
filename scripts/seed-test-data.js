@@ -11,7 +11,9 @@
  *   node scripts/seed-test-data.js           → dry-run (muestra qué haría)
  *   node scripts/seed-test-data.js --wipe    → ejecuta borrado + inserción
  *
- * Requiere en .env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Requiere en .env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY y
+ * SEED_TEST_ALLOWED_URL (candado: debe ser igual a SUPABASE_URL; sin esa
+ * variable el script se niega a correr, ni siquiera en dry-run).
  * Fixtures documentados en ai-context/TEST-DATA.md
  * =====================================================
  */
@@ -33,6 +35,21 @@ const URL = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL || !KEY) {
   console.error('❌ Falta SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en .env');
+  process.exit(1);
+}
+
+// ── Candado ──────────────────────────────────────────────────
+// Este script BORRA todo el dominio. Solo corre contra la base que el usuario
+// declara de forma explícita en SEED_TEST_ALLOWED_URL; por defecto no toca nada.
+const normalizeUrl = (u) => String(u ?? '').trim().replace(/\/+$/, '').toLowerCase();
+const ALLOWED = normalizeUrl(process.env.SEED_TEST_ALLOWED_URL);
+if (!ALLOWED) {
+  console.error('❌ Falta SEED_TEST_ALLOWED_URL en .env.');
+  console.error('   Este script borra datos. Para usarlo, define esa variable con la URL de la base de PRUEBAS permitida.');
+  process.exit(1);
+}
+if (normalizeUrl(URL) !== ALLOWED) {
+  console.error('❌ SUPABASE_URL no coincide con SEED_TEST_ALLOWED_URL. No se hizo nada.');
   process.exit(1);
 }
 const db = createClient(URL, KEY);

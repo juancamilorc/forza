@@ -3,6 +3,11 @@
 > BD compartida entre main / develop / local. **No hay datos reales**, todo es de prueba.
 > Reset con: `node scripts/seed-test-data.js --wipe`
 > Dry-run (ver qué haría, sin tocar nada): `node scripts/seed-test-data.js`
+>
+> **Candado:** el script se niega a correr (incluso en dry-run) salvo que en `.env`
+> exista `SEED_TEST_ALLOWED_URL` con la misma URL que `SUPABASE_URL`. Así, por defecto
+> no puede tocar la base compartida: hay que declararla de forma explícita. No pongas
+> esa variable en ningún ambiente que no sea una base de pruebas.
 
 ## Qué borra y qué conserva
 
