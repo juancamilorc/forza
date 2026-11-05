@@ -99,7 +99,8 @@ export class PaymentsService {
   }
 
   // ── CREATE ───────────────────────────────────────────────────
-  private static readonly CUOTA_THRESHOLD = 450_000;
+  // Debe coincidir con installmentThreshold del frontend (environments/)
+  private static readonly CUOTA_THRESHOLD = Number(process.env['INSTALLMENT_THRESHOLD']) || 450_000;
 
   async create(dto: CreatePaymentDto) {
     const { cuotas, ...paymentData } = dto;
@@ -107,7 +108,7 @@ export class PaymentsService {
     if (cuotas === 2) {
       if (paymentData.amount < PaymentsService.CUOTA_THRESHOLD) {
         throw new BadRequestException(
-          `Solo se pueden crear cuotas para montos de $450.000 o más`,
+          `Solo se pueden crear cuotas para montos de $${PaymentsService.CUOTA_THRESHOLD.toLocaleString('es-CO')} o más`,
         );
       }
       const cuotaAmount = paymentData.amount / 2;
