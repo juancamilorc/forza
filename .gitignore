@@ -49,3 +49,6 @@ Thumbs.db
 # .gitignore
 ai-context/
 backups/
+
+# Entorno de la demo (credenciales del proyecto Supabase de la demo)
+.env.demo
