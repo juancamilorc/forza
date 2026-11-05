@@ -13,7 +13,9 @@
 --   1. Este archivo (000_baseline.sql), completo y en una sola ejecución.
 --   2. 007_cerrar_acceso_anon.sql (RLS sin políticas y sin privilegios para
 --      anon/authenticated; el dump no trae privilegios, así que es obligatoria).
---   3. Migraciones posteriores (008 en adelante), también en la base real.
+--   3. 008_permisos_service_role.sql (permisos solo para service_role; obligatoria
+--      si el proyecto tiene "Automatically expose new tables" desactivado).
+--   4. Migraciones posteriores (009 en adelante), también en la base real.
 --
 -- AJUSTES RESPECTO AL DUMP
 --   - Sin \restrict / \unrestrict (comandos de psql que fallan en el editor
